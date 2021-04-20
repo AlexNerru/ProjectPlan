@@ -77,7 +77,7 @@ class RegisterView(APIView):
             serializer.save()
             return_data = serializer.validated_data
             del return_data["password"]
-            Publisher.event_user_registered(return_data, version='v1')
+            Publisher.event_user_registered(return_data, version='1.0')
             return Response(data=return_data, status=status.HTTP_201_CREATED)
         return Response(data=serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)

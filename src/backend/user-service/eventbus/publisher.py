@@ -15,7 +15,7 @@ class Publisher:
                     'max_retries': 30}
 
     @classmethod
-    def event_user_registered(cls, data, version=1.0):
+    def event_user_registered(cls, data, version):
         message = data.copy()
         message['version'] = version
         producer.publish(message, exchange=cls.exchange, routing_key='user_created',

@@ -4,6 +4,7 @@ services:
   user-service:
     build: ../backend/user-service
     command: sh -c "python manage.py runserver 0.0.0.0:80"
+    container_name: user-service
     ports:
       - 8001:80
     env_file:
@@ -16,6 +17,7 @@ services:
   project-service:
     build: ../backend/project-service
     command: sh -c "python manage.py runserver 0.0.0.0:80"
+    container_name: project-service
     ports:
       - 8002:80
     env_file:
