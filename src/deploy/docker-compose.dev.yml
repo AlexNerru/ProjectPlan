@@ -1,0 +1,73 @@
+version: '3.3'
+
+services:
+  user-service:
+    build: ../backend/user-service
+    command: sh -c "python manage.py runserver 0.0.0.0:80"
+    ports:
+      - 8001:80
+    env_file:
+      - user-service.dev.env
+    depends_on:
+      - user-db
+      - redis
+      - rabbitmq
+
+  project-service:
+    build: ../backend/project-service
+    command: sh -c "python manage.py runserver 0.0.0.0:80"
+    ports:
+      - 8002:80
+    env_file:
+      - project-service.dev.env
+    depends_on:
+      - project-db
+      - redis
+      - rabbitmq
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - rabbit.dev.env
+
+  user-db:
+    image: postgres:12.0-alpine
+    volumes:
+      - user_data:/var/lib/postgresql/data/
+    env_file:
+      - user-db.dev.env
+    ports:
+      - 5432:5432
+
+  project-db:
+    image: postgres:12.0-alpine
+    volumes:
+      - project_data:/var/lib/postgresql/data/
+    env_file:
+      - project-db.dev.env
+    ports:
+      - 5433:5432
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    env_file:
+      - pgadmin.dev.env
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - "5050:5050"
+
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+
+volumes:
+  user_data:
+  project_data:
+  redis_data:
+  pgadmin:
