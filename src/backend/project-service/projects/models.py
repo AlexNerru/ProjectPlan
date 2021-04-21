@@ -9,6 +9,10 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     user_service_id = models.IntegerField()
 
+    @classmethod
+    def default_profile(cls):
+        return Profile.objects.get(username='admin').pk
+
 
 class Company(models.Model):
     """
@@ -29,6 +33,9 @@ class Product(CompanySubject):
     Model representing business-product
     """
     name = models.CharField(max_length=100)
+    owner = models.ForeignKey(Profile, on_delete=models.SET_DEFAULT,
+                              related_name='product_owner', default=Profile.default_profile)
+    participants = models.ManyToManyField(User, related_name='product_participants')
 
 
 class ProjectPortfolio(CompanySubject):
@@ -53,14 +60,10 @@ class Project(CompanySubject):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=1000)
     program = models.ForeignKey(ProjectProgram, on_delete=models.CASCADE, null=True)
-
-    # TODO: Подумать убрать Null
     business_product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-
-    # TODO: Переделать на админа по умолчанию и убрать нуль
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='owner', null=True)
-
-    participants = models.ManyToManyField(User, related_name='participants', null=True)
+    owner = models.ForeignKey(User, on_delete=models.SET_DEFAULT,
+                              related_name='project_owner', default=Profile.default_profile)
+    participants = models.ManyToManyField(User, related_name='project_participants')
 
 
 
