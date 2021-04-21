@@ -10,6 +10,14 @@ from drf_yasg.utils import swagger_auto_schema
 from eventbus import Publisher
 
 
+class TokenGetUserView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(request.user.username, status=status.HTTP_200_OK)
+
+
 class UsersView(APIView):
     """
     APIView for getting all users
@@ -74,9 +82,8 @@ class RegisterView(APIView):
         """
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return_data = serializer.validated_data
-            del return_data["password"]
+            user = serializer.save()
+            return_data = UserSerializer(user).data
             Publisher.event_user_registered(return_data, version='1.0')
             return Response(data=return_data, status=status.HTTP_201_CREATED)
         return Response(data=serializer.errors,

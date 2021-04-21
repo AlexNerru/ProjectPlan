@@ -16,7 +16,7 @@ class UserSerializer(serializers.Serializer):
     )
     first_name = serializers.CharField()
     last_name = serializers.CharField()
-    id = serializers.CharField(required=False)
+    id = serializers.CharField(read_only=True)
 
     def to_representation(self, instance):
         """Convert `username` to lowercase."""

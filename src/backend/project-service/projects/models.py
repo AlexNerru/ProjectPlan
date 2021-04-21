@@ -2,6 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class Profile(models.Model):
+    """
+    Моdel representing user from user service
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_service_id = models.IntegerField()
+
+
 class Company(models.Model):
     """
     Model representing company
@@ -44,7 +52,7 @@ class Project(CompanySubject):
     """
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=1000)
-    program = models.ForeignKey(ProjectProgram, on_delete=models.CASCADE)
+    program = models.ForeignKey(ProjectProgram, on_delete=models.CASCADE, null=True)
 
     # TODO: Подумать убрать Null
     business_product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
@@ -52,7 +60,7 @@ class Project(CompanySubject):
     # TODO: Переделать на админа по умолчанию и убрать нуль
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='owner', null=True)
 
-    participants = models.ManyToManyField(User, related_name='participants')
+    participants = models.ManyToManyField(User, related_name='participants', null=True)
 
 
 

@@ -15,15 +15,9 @@ class ProjectList(generics.ListCreateAPIView):
     View to create or get list of projects
     """
     authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
-
-class Test(APIView):
-
-    def get(self, request):
-        create_queues()
-        return 200
 
