@@ -18,5 +18,5 @@ class Publisher:
     def event_user_registered(cls, data, version):
         message = data.copy()
         message['version'] = version
-        producer.publish(message, exchange=cls.exchange, routing_key='user_created',
+        producer.publish(message, exchange=cls.exchange,
                          retry_policy=cls.retry_policy)

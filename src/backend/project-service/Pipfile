@@ -15,7 +15,6 @@ celery = "==5.0.2"
 kombu = "==5.0.2"
 Django = "==3.1.4"
 requests = "==2.25.1"
-djangorestframework-simplejwt = "==4.6.0"
 
 [dev-packages]
 

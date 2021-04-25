@@ -27,6 +27,19 @@ services:
       - redis
       - rabbitmq
 
+  project-performance-service:
+    build: ../backend/project-performance-service
+    command: sh -c "python manage.py runserver 0.0.0.0:80"
+    container_name: project-performance-service
+    ports:
+      - 8003:80
+    env_file:
+      - project-performance-service.dev.env
+    depends_on:
+      - performance-indicators-db
+      - redis
+      - rabbitmq
+
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3-management-alpine
@@ -54,6 +67,15 @@ services:
     ports:
       - 5433:5432
 
+  performance-indicators-db:
+    image: postgres:12.0-alpine
+    volumes:
+      - performance_data:/var/lib/postgresql/data/
+    env_file:
+      - performance-indicators-db.dev.env
+    ports:
+      - 5434:5432
+
   pgadmin:
     image: dpage/pgadmin4:latest
     env_file:
@@ -71,5 +93,6 @@ services:
 volumes:
   user_data:
   project_data:
+  performance_data:
   redis_data:
   pgadmin:

@@ -2,7 +2,7 @@ from rest_framework import authentication
 from django.contrib.auth.models import User
 from rest_framework.exceptions import AuthenticationFailed
 
-from projects.models import Profile
+from performance_indicators.models import Profile
 
 import requests
 import logging

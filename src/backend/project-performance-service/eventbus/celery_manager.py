@@ -8,13 +8,13 @@ from celery import Celery
 from kombu import Connection, Queue, Exchange
 
 from django.contrib.auth.models import User
-from projects.models import Profile
+from performance_indicators.models import Profile
 
-from project_service.settings import CELERY_BROKER_URL
+from project_performance_service.settings import CELERY_BROKER_URL
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project_service.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project_performance_service.settings')
 
-app = Celery('project_service')
+app = Celery('project_performance_service')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ def user_created_event_handler(body, message):
 def create_queues():
     with Connection(CELERY_BROKER_URL, heartbeat=1, connect_timeout=3600) as conn:
         with conn.channel() as channel:
-            logger.info("Project: creating queues")
+            logger.info("Project performance: creating queues")
 
             producer = conn.Producer(serializer='json')
 
@@ -45,7 +45,7 @@ def create_queues():
 
             users_exchange.declare()
 
-            users_queue = Queue('project_performance_users_queue',
+            users_queue = Queue('performance_users_queue',
                                 exchange=users_exchange, channel=channel)
 
             users_queue.declare(channel=channel)

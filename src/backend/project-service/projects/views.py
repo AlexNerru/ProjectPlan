@@ -3,11 +3,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 from projects.models import *
-from projects.serializers import ProjectSerializer, ProductSerializer, CompanySerializer
+from projects.serializers import ProjectSerializer, ProductSerializer,\
+    CompanySerializer, ProjectProgramSerializer, ProjectPortfolioSerializer
 from rest_framework.permissions import IsAuthenticated
 from project_service.microservices_auth import MicroservicesJWTBackend
 from drf_yasg.utils import swagger_auto_schema
-from eventbus.celery_manager import create_queues
 
 
 class ProjectListView(generics.ListCreateAPIView):
@@ -74,3 +74,47 @@ class CompanyView(generics.RetrieveUpdateDestroyAPIView):
 
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+
+
+class ProjectProgramView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    View to RUD project programs
+    """
+    authentication_classes = [MicroservicesJWTBackend]
+    permission_classes = [IsAuthenticated]
+
+    queryset = ProjectProgram.objects.all()
+    serializer_class = ProjectProgramSerializer
+
+
+class ProjectProgramListView(generics.ListCreateAPIView):
+    """
+    View to create or get list of project programs
+    """
+    authentication_classes = [MicroservicesJWTBackend]
+    permission_classes = [IsAuthenticated]
+
+    queryset = ProjectProgram.objects.all()
+    serializer_class = ProjectProgramSerializer
+
+
+class ProjectPortfolioView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    View to RUD project programs
+    """
+    authentication_classes = [MicroservicesJWTBackend]
+    permission_classes = [IsAuthenticated]
+
+    queryset = ProjectPortfolio.objects.all()
+    serializer_class = ProjectPortfolioSerializer
+
+
+class ProjectPortfolioListView(generics.ListCreateAPIView):
+    """
+    View to create or get list of project programs
+    """
+    authentication_classes = [MicroservicesJWTBackend]
+    permission_classes = [IsAuthenticated]
+
+    queryset = ProjectPortfolio.objects.all()
+    serializer_class = ProjectPortfolioSerializer

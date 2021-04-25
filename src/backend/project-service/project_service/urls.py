@@ -4,7 +4,8 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from projects.views import ProjectListView, ProjectView, ProductListView, \
-    ProductView, CompanyView, CompanyListView
+    ProductView, CompanyView, CompanyListView, ProjectProgramListView, \
+    ProjectProgramView, ProjectPortfolioView, ProjectPortfolioListView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -24,6 +25,10 @@ urlpatterns = [
     path('products/<int:pk>/', ProductView.as_view()),
     path('companies/', CompanyListView.as_view()),
     path('companies/<int:pk>/', CompanyView.as_view()),
+    path('programs/', ProjectProgramListView.as_view()),
+    path('programs/<int:pk>/', ProjectProgramView.as_view()),
+    path('portfolios/', ProjectPortfolioListView.as_view()),
+    path('portfolios/<int:pk>/', ProjectPortfolioView.as_view()),
 
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

@@ -24,3 +24,17 @@ class CompanySerializer(serializers.ModelSerializer):
         model = Company
         fields = ['id', 'name']
         read_only_fields = ['id']
+
+
+class ProjectProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectProgram
+        fields = ['id', 'name', 'portfolio', 'company']
+        read_only_fields = ['id']
+
+
+class ProjectPortfolioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectPortfolio
+        fields = ['id', 'name', 'company']
+        read_only_fields = ['id']

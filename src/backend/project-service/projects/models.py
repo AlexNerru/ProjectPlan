@@ -9,9 +9,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     user_service_id = models.IntegerField()
 
-    @classmethod
-    def default_profile(cls):
-        return Profile.objects.get(username='admin').pk
+    # TODO: create default user after command
 
 
 class Company(models.Model):
@@ -33,8 +31,8 @@ class Product(CompanySubject):
     Model representing business-product
     """
     name = models.CharField(max_length=100)
-    owner = models.ForeignKey(Profile, on_delete=models.SET_DEFAULT,
-                              related_name='product_owner', default=Profile.default_profile)
+    owner = models.ForeignKey(Profile, on_delete=models.DO_NOTHING,
+                              related_name='product_owner')
     participants = models.ManyToManyField(User, related_name='product_participants')
 
 
@@ -61,8 +59,8 @@ class Project(CompanySubject):
     description = models.TextField(max_length=1000)
     program = models.ForeignKey(ProjectProgram, on_delete=models.CASCADE, null=True)
     business_product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    owner = models.ForeignKey(User, on_delete=models.SET_DEFAULT,
-                              related_name='project_owner', default=Profile.default_profile)
+    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING,
+                              related_name='project_owner')
     participants = models.ManyToManyField(User, related_name='project_participants')
 
 

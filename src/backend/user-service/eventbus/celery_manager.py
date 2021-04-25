@@ -19,6 +19,6 @@ with Connection(CELERY_BROKER_URL) as conn:
     with conn.channel() as channel:
         producer = conn.Producer(serializer='json')
 
-        users_exchange = Exchange(name='users_exchange', type='direct', durable=True, channel=channel)
+        users_exchange = Exchange(name='users_exchange', type='fanout', durable=True, channel=channel)
 
         users_exchange.declare()
