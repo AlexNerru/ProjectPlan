@@ -57,7 +57,8 @@ REST_FRAMEWORK = {
         'task_service.microservices_auth.MicroservicesJWTBackend',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    )
+    ),
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
 }
 
 ROOT_URLCONF = 'task_service.urls'
