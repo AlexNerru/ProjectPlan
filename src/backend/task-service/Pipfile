@@ -15,6 +15,7 @@ psycopg2-binary = "==2.8.6"
 drf-yasg = "==1.20.0"
 celery = "==5.0.2"
 kombu = "==5.0.2"
+django-redis = "==4.12.1"
 
 [requires]
 python_version = "3.8"

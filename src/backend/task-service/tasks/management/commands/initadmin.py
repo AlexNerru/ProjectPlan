@@ -2,7 +2,7 @@ import os
 import logging
 
 from django.core.management.base import BaseCommand
-from resources.models import Profile
+from tasks.models import Profile
 
 from django.contrib.auth.management.commands.createsuperuser import get_user_model
 from django.contrib.auth.models import User

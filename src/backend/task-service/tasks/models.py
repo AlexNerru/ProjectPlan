@@ -37,7 +37,7 @@ class Task(models.Model):
     """
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
-    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    creator = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.ForeignKey(TaskStatus, on_delete=models.DO_NOTHING)
     resources = models.ManyToManyField(Resource)
