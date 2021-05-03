@@ -11,10 +11,22 @@ from eventbus import Publisher
 
 
 class TokenGetUserView(APIView):
+    """
+    API View to get user by his JWT token
+
+    get:
+    Get user by his JWT token
+    """
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request: HttpRequest) -> Response:
+        """
+        Method to get user by his JWT token.
+        Because all users are authenticated there is always user in request
+        :param request:
+        :return: 200
+        """
         return Response(request.user.username, status=status.HTTP_200_OK)
 
 
@@ -84,7 +96,7 @@ class RegisterView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             return_data = UserSerializer(user).data
-            Publisher.event_user_registered(return_data, version='1.0')
+            Publisher().event_user_registered(return_data, version='1.0')
             return Response(data=return_data, status=status.HTTP_201_CREATED)
         return Response(data=serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
