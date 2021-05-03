@@ -4,7 +4,7 @@ import os
 from celery import Celery
 from kombu import Exchange, Connection
 
-from resource_service.settings import CELERY_BROKER_URL
+from task_service.settings import CELERY_BROKER_URL
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
-from resources.models import Profile
+from tasks.models import Profile
 
-from resource_service.settings import CELERY_BROKER_URL
+from task_service.settings import CELERY_BROKER_URL
 
 import logging
 import os
