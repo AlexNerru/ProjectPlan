@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from tasks.permissions import RUD_TASK_NAME, RUD_TASK_DESCRIPTION
+
 
 class Profile(models.Model):
     """
@@ -41,5 +43,10 @@ class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.ForeignKey(TaskStatus, on_delete=models.DO_NOTHING)
     resources = models.ManyToManyField(Resource)
+
+    class Meta:
+        permissions = (
+            (RUD_TASK_NAME, RUD_TASK_DESCRIPTION),
+        )
 
 

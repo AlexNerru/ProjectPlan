@@ -41,7 +41,13 @@ class Publisher:
                                                   type='fanout',
                                                   durable=True,
                                                   channel=self.channel)
+                self.resources_exchange = Exchange(name='resources_exchange',
+                                                   type='fanout',
+                                                   durable=True,
+                                                   channel=self.channel)
                 self.users_exchange.declare()
                 logger.info("Users exchange declared")
                 self.projects_exchange.declare()
                 logger.info("Projects exchange declared")
+                self.resources_exchange.declare()
+                logger.info("Resources exchange declared")

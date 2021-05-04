@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from tasks.models import Profile
+from tasks.models import Profile, Project, Resource
 
 from task_service.settings import CELERY_BROKER_URL
 
@@ -16,6 +16,22 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'task_service.settings')
 app = Celery('task_service')
 
 
+def event_handler(func):
+    def inner(*args, **kwargs):
+        logger.info("Message accepted: {0!r}".format(args[0]))
+        if args[0]['version'] == '1.0':
+            try:
+                obj = func(*args, **kwargs)
+                args[1].ack()
+                logger.info("Object {0!r} was created".format(str(obj)))
+            except Exception as e:
+                logger.exception(e)
+                args[1].requeue()
+        else:
+            logger.debug("Message has invalid version{0!r}".format(args[0]))
+    return inner
+
+
 class Consumer:
 
     def __new__(cls):
@@ -23,6 +39,7 @@ class Consumer:
             cls.instance = super(Consumer, cls).__new__(cls)
         return cls.instance
 
+    #TODO refactor this
     def __init__(self):
         with Connection(CELERY_BROKER_URL, heartbeat=1, connect_timeout=3600) as self.conn:
             with self.conn.channel() as self.channel:
@@ -30,19 +47,40 @@ class Consumer:
                                           type='fanout',
                                           durable=True,
                                           channel=self.channel)
-
-                self.users_queue = Queue('projects_users_queue',
-                                         exchange=users_exchange, channel=self.channel)
-
+                self.users_queue = Queue('tasks_users_queue',
+                                         exchange=users_exchange,
+                                         channel=self.channel)
                 self.users_queue.declare(channel=self.channel)
-
                 logger.info("Users queue created")
+                self.users_consumer = self.conn.Consumer(self.users_queue, self.channel)
+                self.users_consumer.register_callback(Consumer.user_created_event_handler)
+                self.users_consumer.consume()
 
-                self.consumer = self.conn.Consumer(self.users_queue, self.channel)
+                projects_exchange = Exchange(name='projects_exchange',
+                                             type='fanout',
+                                             durable=True,
+                                             channel=self.channel)
+                self.projects_queue = Queue('tasks_projects_queue',
+                                            exchange=projects_exchange,
+                                            channel=self.channel)
+                self.projects_queue.declare(channel=self.channel)
+                logger.info("Projects queue created")
+                self.projects_consumer = self.conn.Consumer(self.projects_queue, self.channel)
+                self.projects_consumer.register_callback(Consumer.project_created_event_handler)
+                self.projects_consumer.consume()
 
-                self.consumer.register_callback(Consumer.user_created_event_handler)
-
-                self.consumer.consume()
+                resources_exchange = Exchange(name='resources_exchange',
+                                              type='fanout',
+                                              durable=True,
+                                              channel=self.channel)
+                self.resources_queue = Queue('tasks_resources_queue',
+                                             exchange=resources_exchange,
+                                             channel=self.channel)
+                self.resources_queue.declare(channel=self.channel)
+                logger.info("Resources queue created")
+                self.resources_consumer = self.conn.Consumer(self.resources_queue, self.channel)
+                self.resources_consumer.register_callback(Consumer.resource_created_event_handler)
+                self.resources_consumer.consume()
 
                 self.__run()
 
@@ -50,8 +88,14 @@ class Consumer:
         revived_connection = self.conn.clone()
         revived_connection.ensure_connection(max_retries=3)
         new_channel = revived_connection.channel()
-        self.consumer.revive(new_channel)
-        self.consumer.consume()
+        self.users_consumer.revive(new_channel)
+        self.users_consumer.consume()
+
+        self.projects_consumer.revive(new_channel)
+        self.projects_consumer.consume()
+
+        self.resources_consumer.revive(new_channel)
+        self.resources_consumer.consume()
         return revived_connection
 
     def __consume(self):
@@ -72,19 +116,20 @@ class Consumer:
                 logger.debug("Connection Revived")
 
     @staticmethod
+    @event_handler
     def user_created_event_handler(body, message):
-        logger.info("Message accepted: {0!r}".format(body))
-        if message['version'] == '1.0':
-            try:
-                user = User(username=body['username'])
-                user.set_unusable_password()
-                user.save()
-                profile = Profile(user=user, user_service_id=body['id'])
-                profile.save()
-                message.ack()
-                logger.info("User created")
-            except Exception as e:
-                logger.exception(e)
-                message.requeue()
-        else:
-            logger.debug("Message has invalid version{0!r}".format(body))
+        user = User(username=body['username'])
+        user.set_unusable_password()
+        user.save()
+        Profile.objects.create(user=user, user_service_id=body['id'])
+        return user
+
+    @staticmethod
+    @event_handler
+    def project_created_event_handler(body, message):
+        return Project.objects.create(project_service_id=message['id'])
+
+    @staticmethod
+    @event_handler
+    def resource_created_event_handler(body, message):
+        return Resource.objects.create(resource_service_id=message['id'])

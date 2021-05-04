@@ -3,10 +3,10 @@ from django.contrib.auth.models import User
 from rest_framework.exceptions import AuthenticationFailed
 
 from projects.models import Profile
+from project_service.settings import TOKEN_VERIFY_URL, USER_BY_TOKEN_URL
 
 import requests
 import logging
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -20,17 +20,14 @@ class MicroservicesJWTBackend(authentication.BaseAuthentication):
         if 'Authorization' in request.headers:
             token = request.headers['Authorization'].split(' ')[1]
             logger.debug(token)
-            token_verify_url = os.environ.get('TOKEN_VERIFY_URL', 'http://user-service:80/token/verify/')
             response = requests.post(
-                token_verify_url,
+                TOKEN_VERIFY_URL,
                 data={'token': token},
             )
             logger.debug(response.status_code)
             if response.status_code == 200:
-                user_by_token_url = os.environ.get('USER_BY_TOKEN_URL',
-                                                   'http://user-service:80/token/user/')
                 response = requests.get(
-                    user_by_token_url,
+                    USER_BY_TOKEN_URL,
                     headers={'Authorization': 'Bearer '+token},
                 )
                 logger.debug(response.text[1:-1])
@@ -40,7 +37,6 @@ class MicroservicesJWTBackend(authentication.BaseAuthentication):
             else:
                 raise AuthenticationFailed
         return None
-
 
     def get_user(self, user_id):
         try:

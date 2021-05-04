@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'django_redis',
+    'guardian',
 
     'tasks',
 ]
@@ -67,7 +68,6 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'task_service.microservices_auth.MicroservicesJWTBackend',
@@ -78,6 +78,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
 }
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 ROOT_URLCONF = 'task_service.urls'
 
@@ -148,7 +153,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Moscow'
 
-'''LOGGING = {
+LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
@@ -165,7 +170,7 @@ CELERY_TIMEZONE = 'Europe/Moscow'
             'formatter': 'console'
         },
         'file': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.FileHandler',
             'formatter': 'file',
             'filename': 'debug.log'
@@ -173,8 +178,8 @@ CELERY_TIMEZONE = 'Europe/Moscow'
     },
     'loggers': {
         '': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'handlers': ['console', 'file']
         }
     }
-}'''
+}
