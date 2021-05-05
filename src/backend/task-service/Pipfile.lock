@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f95ec292a71817a157d9581db92c6a2664052cdb9e3872102ced790d19908e0f"
+            "sha256": "fd45c5057622db2514c9d063290bdb53b4495e3020bb9be67814ee3098a79f4e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -136,6 +136,14 @@
             ],
             "index": "pypi",
             "version": "==3.12.2"
+        },
+        "djangorestframework-guardian": {
+            "hashes": [
+                "sha256:1883756452d9bfcc2a51fb4e039a6837a8f6697c756447aa83af085749b59330",
+                "sha256:3bd3dd6ea58e1bceca5048faf6f8b1a93bb5dcff30ba5eb91b9a0e190a48a0c7"
+            ],
+            "index": "pypi",
+            "version": "==0.3.0"
         },
         "drf-yasg": {
             "hashes": [
@@ -314,6 +322,13 @@
             ],
             "markers": "python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==2.4.7"
+        },
+        "python-logstash": {
+            "hashes": [
+                "sha256:10943e5df83f592b4d61b63ad1afff855ccc8c9467f78718f0a59809ba1fe68c"
+            ],
+            "index": "pypi",
+            "version": "==0.4.6"
         },
         "pytz": {
             "hashes": [

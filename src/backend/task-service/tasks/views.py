@@ -15,6 +15,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_guardian.filters import DjangoObjectPermissionsFilter
 from task_service.microservices_auth import MicroservicesJWTBackend
 
 from tasks.models import *
@@ -32,6 +33,8 @@ class TaskListView(APIView):
     """
     authentication_classes = [MicroservicesJWTBackend]
     permission_classes = [IsAuthenticated, TaskPermission]
+    filter_backends = [DjangoObjectPermissionsFilter]
+    queryset = Task.objects.all()
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -109,8 +112,9 @@ class TaskView(APIView):
     """
     authentication_classes = [MicroservicesJWTBackend]
     permission_classes = [IsAuthenticated, TaskPermission]
+    filter_backends = [DjangoObjectPermissionsFilter]
+    queryset = Task.objects.all()
 
-    # TODO: test this
     def get(self, request, version, pk):
         """
         API method used to get user by id
@@ -122,9 +126,9 @@ class TaskView(APIView):
         :returns: 200 if ok, 400 if wrong api version, 404 if not found
         """
         if version == "v1":
-            task = get_object_or_404(Task, pk)
+            task = get_object_or_404(Task, pk=pk)
             return_data = TaskReadCreateSerializer(task).data
-            return Response(data=return_data, status=status.HTTP_201_CREATED)
+            return Response(data=return_data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 

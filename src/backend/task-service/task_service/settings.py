@@ -153,6 +153,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Moscow'
 
+#TODO: check for logger name
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -166,6 +167,7 @@ LOGGING = {
     },
     'handlers': {
         'console': {
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'console'
         },
@@ -174,11 +176,21 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'formatter': 'file',
             'filename': 'debug.log'
-        }
+        },
+        'logstash': {
+            'level': 'INFO',
+            'class': 'logstash.TCPLogstashHandler',
+            'host': 'logstash',
+            'port': 5000,
+            'version': 1,
+            'message_type': 'django',  # 'type' поле для logstash сообщения.
+            'fqdn': False,
+            'tags': ['django'], # список тег.
+        },
     },
     'loggers': {
         '': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'handlers': ['console', 'file']
         }
     }

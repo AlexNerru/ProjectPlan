@@ -39,7 +39,7 @@ class Consumer:
             cls.instance = super(Consumer, cls).__new__(cls)
         return cls.instance
 
-    #TODO refactor this
+    #TODO refactor this to fabric class
     def __init__(self):
         with Connection(CELERY_BROKER_URL, heartbeat=1, connect_timeout=3600) as self.conn:
             with self.conn.channel() as self.channel:
