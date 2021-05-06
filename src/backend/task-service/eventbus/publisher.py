@@ -6,7 +6,7 @@ from kombu import Exchange, Connection
 
 from task_service.settings import CELERY_BROKER_URL
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('default')
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'task_service.settings')
 

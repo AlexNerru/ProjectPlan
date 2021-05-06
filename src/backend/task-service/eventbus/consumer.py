@@ -1,16 +1,19 @@
-from django.contrib.auth.models import User
-from tasks.models import Profile, Project, Resource
-
-from task_service.settings import CELERY_BROKER_URL
-
 import logging
 import os
 import socket
 
+from django.contrib.auth.models import User, Permission
+
+from guardian.shortcuts import assign_perm
+
 from celery import Celery
 from kombu import Connection, Queue, Exchange
 
-logger = logging.getLogger(__name__)
+from tasks.models import Profile, Project, Resource
+
+from task_service.settings import CELERY_BROKER_URL
+
+logger = logging.getLogger('default')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'task_service.settings')
 
 app = Celery('task_service')
@@ -26,7 +29,7 @@ def event_handler(func):
                 logger.info("Object {0!r} was created".format(str(obj)))
             except Exception as e:
                 logger.exception(e)
-                args[1].requeue()
+                args[1].ack()
         else:
             logger.debug("Message has invalid version{0!r}".format(args[0]))
     return inner
@@ -121,6 +124,12 @@ class Consumer:
         user = User(username=body['username'])
         user.set_unusable_password()
         user.save()
+
+        assign_perm("tasks.add_task", user)
+        assign_perm("tasks.view_task", user)
+        assign_perm("tasks.change_task", user)
+        assign_perm("tasks.delete_task", user)
+
         Profile.objects.create(user=user, user_service_id=body['id'])
         return user
 

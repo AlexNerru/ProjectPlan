@@ -6,7 +6,6 @@ from performance_indicators.models import PerformanceIndicator
 from performance_indicators.serializers import PerformanceIndicatorSerializer, PerformanceIndicatorComponentSerializer
 from rest_framework.permissions import IsAuthenticated
 from project_performance_service.microservices_auth import MicroservicesJWTBackend
-from drf_yasg.utils import swagger_auto_schema
 
 # Create your views here.
 

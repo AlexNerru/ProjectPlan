@@ -1,6 +1,6 @@
 docker-compose -f docker-compose.dev.yml build
 docker-compose -f docker-compose.dev.yml up -d
-sleep 80
+sleep 120
 echo "waited"
 docker exec -d user-service sh -c "python manage.py setupbroker"
 docker exec -d project-service sh -c "python manage.py setupbroker"

@@ -139,14 +139,14 @@ services:
     volumes:
       - redis_data:/data
 
-  elk:
-    image: sebp/elk
-    ports:
-      - "5601:5601"
-      - "9200:9200"
-      - "5044:5044"
-    environment:
-      - ES_CONNECT_RETRY=360
+  #elk:
+  #  image: sebp/elk
+  #  ports:
+  #    - "5601:5601"
+  #    - "9200:9200"
+  #    - "5044:5044"
+  #  environment:
+  #    - ES_CONNECT_RETRY=360
 
 volumes:
   user_data:

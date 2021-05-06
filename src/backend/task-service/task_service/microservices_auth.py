@@ -8,7 +8,7 @@ import requests
 import logging
 import os
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('default')
 
 
 class MicroservicesJWTBackend(authentication.BaseAuthentication):
@@ -19,23 +19,21 @@ class MicroservicesJWTBackend(authentication.BaseAuthentication):
     def authenticate(self, request):
         if 'Authorization' in request.headers:
             token = request.headers['Authorization'].split(' ')[1]
-            logger.debug(token)
-            token_verify_url = os.environ.get('TOKEN_VERIFY_URL', 'http://user-service:80/token/verify/')
+            logger.debug("Authorizing token {0!r}".format(token))
+            token_verify_url = os.environ.get('TOKEN_VERIFY_URL')
             response = requests.post(
                 token_verify_url,
                 data={'token': token},
             )
-            logger.debug(response.status_code)
             if response.status_code == 200:
-                user_by_token_url = os.environ.get('USER_BY_TOKEN_URL',
-                                                   'http://user-service:80/token/user/')
+                user_by_token_url = os.environ.get('USER_BY_TOKEN_URL')
                 response = requests.get(
                     user_by_token_url,
                     headers={'Authorization': 'Bearer '+token},
                 )
-                logger.debug(response.text[1:-1])
+                logger.debug("Authorizing response {0!r}".format(response.text[1:-1]))
                 user = User.objects.get(username=response.text[1:-1])
-                logger.debug("User authenticated")
+                logger.debug("User authenticated {0!r}".format(str(user)))
                 return (user, None)
             else:
                 raise AuthenticationFailed

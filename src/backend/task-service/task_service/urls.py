@@ -1,26 +1,21 @@
 from django.contrib import admin
-from django.urls import path, re_path
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-from tasks.views import TaskListView, TaskView
+from django.urls import path, re_path, include
 
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Tasks API",
-        default_version='v1',
-        description="API for working with tasks",
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
+from rest_framework import permissions
+from rest_framework import routers
+
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+
+from tasks.views import TaskViewSet
+
+router = routers.SimpleRouter()
+router.register(r'tasks', TaskViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    re_path('^(?P<version>(v1))/tasks/?', TaskListView.as_view()),
-    re_path('^(?P<version>(v1))/tasks/<int:pk>/?', TaskView.as_view()),
+    path('api/v1/', include(router.urls)),
 
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/v1/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/v1/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]

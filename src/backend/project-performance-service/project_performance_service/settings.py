@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'drf_yasg',
 
     'performance_indicators',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -57,7 +57,15 @@ REST_FRAMEWORK = {
         'project_performance_service.microservices_auth.MicroservicesJWTBackend',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    )
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Your Project API',
+    'DESCRIPTION': 'Your project description',
+    'VERSION': '1.0.0',
+
 }
 
 
