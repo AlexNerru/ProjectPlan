@@ -156,6 +156,9 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Moscow'
 
+TOKEN_VERIFY_URL = os.environ.get('TOKEN_VERIFY_URL')
+USER_BY_TOKEN_URL = os.environ.get('USER_BY_TOKEN_URL')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

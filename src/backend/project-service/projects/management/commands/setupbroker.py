@@ -3,7 +3,7 @@ from eventbus.consumer import Consumer
 from eventbus.publisher import Publisher
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('default')
 
 
 class Command(BaseCommand):

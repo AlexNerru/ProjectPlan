@@ -36,10 +36,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
+
     'drf_yasg',
-    # 'corsheaders',
+
+    'rest_framework',
+    'django_filters',
+    'django_redis',
+    'guardian',
+
     'projects',
+
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -52,14 +59,38 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get("REDIS_CACHE_URL"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+CACHE_TTL = 60*60
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
 
 REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'project_service.microservices_auth.MicroservicesJWTBackend',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    )
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 ROOT_URLCONF = 'project_service.urls'
 
@@ -113,14 +144,12 @@ STATICFILES_DIRS = (os.path.join('staticfiles'),)
 STATIC_URL = '/staticfiles/'
 STATIC_ROOT = '/staticfiles/'
 
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-        }
-    }
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Tasks API',
+    'DESCRIPTION': 'Api for working with tasks',
+    'VERSION': 'v1',
+    'SCHEMA_PATH_PREFIX': r'/api/v[1-9]',
+
 }
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
