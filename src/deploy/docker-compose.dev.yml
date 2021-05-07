@@ -13,7 +13,7 @@ services:
       - user-db
       - redis
       - rabbitmq
-      - elk
+      #- elk
 
   project-service:
     build: ../backend/project-service
@@ -27,7 +27,7 @@ services:
       - project-db
       - redis
       - rabbitmq
-      - elk
+      #- elk
 
   resource-service:
     build: ../backend/resource-service
@@ -41,7 +41,7 @@ services:
       - resource-db
       - redis
       - rabbitmq
-      - elk
+      #- elk
 
   project-performance-service:
     build: ../backend/project-performance-service
@@ -55,7 +55,7 @@ services:
       - performance-indicators-db
       - redis
       - rabbitmq
-      - elk
+      #- elk
 
   task-service:
     build: ../backend/task-service
@@ -69,7 +69,7 @@ services:
       - task-db
       - redis
       - rabbitmq
-      - elk
+      #- elk
 
   rabbitmq:
     container_name: rabbitmq
@@ -139,14 +139,14 @@ services:
     volumes:
       - redis_data:/data
 
-  elk:
-    image: sebp/elk
-    ports:
-      - "5601:5601"
-      - "9200:9200"
-      - "5044:5044"
-    environment:
-      - ES_CONNECT_RETRY=360
+  #elk:
+  #  image: sebp/elk
+  #  ports:
+  #    - "5601:5601"
+  #    - "9200:9200"
+  #    - "5044:5044"
+  #  environment:
+  #    - ES_CONNECT_RETRY=360
 
 volumes:
   user_data:

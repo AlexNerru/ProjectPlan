@@ -10,6 +10,13 @@ class Profile(models.Model):
     user_service_id = models.IntegerField()
 
 
+class Project(models.Model):
+    """
+    Моdel representing project from pro service
+    """
+    project_service_id = models.IntegerField()
+
+
 class Grade(models.Model):
     """
     Model representing human-resource grade in company

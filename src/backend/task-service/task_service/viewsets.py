@@ -1,40 +1,37 @@
-import logging
+'''import logging
 
-from rest_framework_guardian.filters import ObjectPermissionsFilter
 from rest_framework import viewsets
-
-from django_filters.rest_framework import DjangoFilterBackend
-
-from task_service.permissions import DjangoObjectGetPermission
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
-from task_service.settings import CACHE_TTL
 
-from tasks.models import Task
-from tasks.serializers import TaskSerializer
-from tasks.filters import TaskFilter
+from task_service.settings import CACHE_TTL
 
 logger = logging.getLogger('default')
 
 
-class TaskViewSet(viewsets.ModelViewSet):
+def logging_action(func):
+    def inner(*args, **kwargs):
+        logger.debug("Processing {0!r} {1!r} request: {2!r} ".format(args[1].method,
+                                                                     args[1].path,
+                                                                     args[1].body))
+        func(*args, **kwargs)
+        logger.debug("Processed {0!r} {1!r} request: {2!r} ".format(args[1].method,
+                                                                    args[1].path,
+                                                                    args[1].body))
+    return inner
 
-    queryset = Task.objects.all()
-    serializer_class = TaskSerializer
-    permission_classes = [DjangoObjectGetPermission]
-    filter_backends = (ObjectPermissionsFilter, DjangoFilterBackend)
-    filterset_class = TaskFilter
+class LoggingViewSet(viewsets.ModelViewSet):
 
     def list(self, request, **kwargs):
-        #logger.debug("Processing {0!r} {1!r} request: {2!r} ".format(request.method,
-        #                                                             request.path,
-        #                                                             request.body))
+        logger.debug("Processing {0!r} {1!r} request: {2!r} ".format(request.method,
+                                                                     request.path,
+                                                                     request.body))
         response = super().list(request, **kwargs)
-        #logger.debug("Processed {0!r} {1!r} request: {2!r} ".format(request.method,
-        #                                                            request.path,
-        #                                                            request.body))
+        logger.debug("Processed {0!r} {1!r} request: {2!r} ".format(request.method,
+                                                                    request.path,
+                                                                    request.body))
         return response
 
     def create(self, request, **kwargs):
@@ -61,4 +58,4 @@ class TaskViewSet(viewsets.ModelViewSet):
     @method_decorator(vary_on_headers('Authorization'))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
-
+'''
