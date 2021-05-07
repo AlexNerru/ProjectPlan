@@ -10,7 +10,7 @@ import socket
 from celery import Celery
 from kombu import Connection, Queue, Exchange
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('default')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project_service.settings')
 
 app = Celery('project_service')
@@ -74,7 +74,7 @@ class Consumer:
     @staticmethod
     def user_created_event_handler(body, message):
         logger.info("Message accepted: {0!r}".format(body))
-        if message['version'] == '1.0':
+        if body['version'] == '1.0':
             try:
                 user = User(username=body['username'])
                 user.set_unusable_password()

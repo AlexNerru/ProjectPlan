@@ -10,7 +10,7 @@ import socket
 from celery import Celery
 from kombu import Connection, Queue, Exchange
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('default')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'task_service.settings')
 
 app = Celery('task_service')

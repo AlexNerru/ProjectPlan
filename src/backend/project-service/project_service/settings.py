@@ -133,7 +133,7 @@ CELERY_TIMEZONE = 'Europe/Moscow'
 TOKEN_VERIFY_URL = os.environ.get('TOKEN_VERIFY_URL')
 USER_BY_TOKEN_URL = os.environ.get('USER_BY_TOKEN_URL')
 
-'''LOGGING = {
+LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
@@ -146,6 +146,7 @@ USER_BY_TOKEN_URL = os.environ.get('USER_BY_TOKEN_URL')
     },
     'handlers': {
         'console': {
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'console'
         },
@@ -154,12 +155,12 @@ USER_BY_TOKEN_URL = os.environ.get('USER_BY_TOKEN_URL')
             'class': 'logging.FileHandler',
             'formatter': 'file',
             'filename': 'debug.log'
-        }
+        },
     },
     'loggers': {
-        '': {
+        'default': {
             'level': 'DEBUG',
             'handlers': ['console', 'file']
         }
     }
-}'''
+}
