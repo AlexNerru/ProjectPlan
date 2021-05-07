@@ -13,7 +13,7 @@ services:
       - user-db
       - redis
       - rabbitmq
-      #- elk
+      - elk
 
   project-service:
     build: ../backend/project-service
@@ -27,7 +27,7 @@ services:
       - project-db
       - redis
       - rabbitmq
-      #- elk
+      - elk
 
   resource-service:
     build: ../backend/resource-service
@@ -41,7 +41,7 @@ services:
       - resource-db
       - redis
       - rabbitmq
-      #- elk
+      - elk
 
   project-performance-service:
     build: ../backend/project-performance-service
@@ -55,21 +55,7 @@ services:
       - performance-indicators-db
       - redis
       - rabbitmq
-      #- elk
-
-  task-service:
-    build: ../backend/task-service
-    command: sh -c "python manage.py runserver 0.0.0.0:80"
-    container_name: task-service
-    ports:
-      - 8005:80
-    env_file:
-      - task-service/task-service.dev.env
-    depends_on:
-      - task-db
-      - redis
-      - rabbitmq
-      #- elk
+      - elk
 
   rabbitmq:
     container_name: rabbitmq
@@ -138,15 +124,17 @@ services:
     image: redis:latest
     volumes:
       - redis_data:/data
+    ports:
+      - "6379:6379"
 
-  #elk:
-  #  image: sebp/elk
-  #  ports:
-  #    - "5601:5601"
-  #    - "9200:9200"
-  #    - "5044:5044"
-  #  environment:
-  #    - ES_CONNECT_RETRY=360
+  elk:
+    image: sebp/elk
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"
+    environment:
+      - ES_CONNECT_RETRY=360
 
 volumes:
   user_data:

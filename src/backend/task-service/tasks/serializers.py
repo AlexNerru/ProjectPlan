@@ -1,17 +1,32 @@
-from django.contrib.auth.models import User
-from tasks.models import *
+import logging
+
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+
+from tasks.models import *
+
+from task_service.serializers import LoggingSerializer
+
+logger = logging.getLogger('default')
 
 
-class TaskSerializer(serializers.ModelSerializer):
-    creator = serializers.PrimaryKeyRelatedField(queryset=User)
-    project = serializers.PrimaryKeyRelatedField(queryset=Project)
-    status = serializers.PrimaryKeyRelatedField(queryset=TaskStatus)
-    resources = serializers.PrimaryKeyRelatedField(many=True, queryset=Resource)
+class TaskSerializer(LoggingSerializer):
+    creator = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
+    status = serializers.PrimaryKeyRelatedField(queryset=TaskStatus.objects.all())
+    resources = serializers.PrimaryKeyRelatedField(many=True, queryset=Resource.objects.all())
 
     class Meta:
         model = Task
-        fields = ['id', 'name', 'description', 'creator', 'project', 'status', 'resources']
-        read_only_fields = ['id']
-        depth = 1
+        fields = '__all__'
+
+    def get_permissions_map(self, created):
+        current_user = self.context['request'].user
+
+        return {
+            'view_task': [current_user],
+            'add_task': [current_user],
+            'change_task': [current_user],
+            'delete_task': [current_user]
+        }
+
+    #TODO write create and update methods loggers

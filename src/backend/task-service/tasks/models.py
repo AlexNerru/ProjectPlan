@@ -43,3 +43,4 @@ class Task(models.Model):
     resources = models.ManyToManyField(Resource)
 
 
+
