@@ -37,22 +37,49 @@ class ProductSerializer(LoggingSerializer):
         }
 
 
-class CompanySerializer(serializers.ModelSerializer):
+class CompanySerializer(LoggingSerializer):
     class Meta:
         model = Company
-        fields = ['id', 'name']
-        read_only_fields = ['id']
+        fields = '__all__'
+
+    def get_permissions_map(self, created):
+        current_user = self.context['request'].user
+
+        return {
+            'view_company': [current_user],
+            'add_company': [current_user],
+            'change_company': [current_user],
+            'delete_company': [current_user]
+        }
 
 
-class ProjectProgramSerializer(serializers.ModelSerializer):
+class ProjectProgramSerializer(LoggingSerializer):
     class Meta:
         model = ProjectProgram
-        fields = ['id', 'name', 'portfolio', 'company']
-        read_only_fields = ['id']
+        fields = '__all__'
+
+    def get_permissions_map(self, created):
+        current_user = self.context['request'].user
+
+        return {
+            'view_projectprogram': [current_user],
+            'add_projectprogram': [current_user],
+            'change_projectprogram': [current_user],
+            'delete_projectprogram': [current_user]
+        }
 
 
-class ProjectPortfolioSerializer(serializers.ModelSerializer):
+class ProjectPortfolioSerializer(LoggingSerializer):
     class Meta:
         model = ProjectPortfolio
-        fields = ['id', 'name', 'company']
-        read_only_fields = ['id']
+        fields = '__all__'
+
+    def get_permissions_map(self, created):
+        current_user = self.context['request'].user
+
+        return {
+            'view_projectportfolio': [current_user],
+            'add_projectportfolio': [current_user],
+            'change_projectportfolio': [current_user],
+            'delete_projectportfolio': [current_user]
+        }

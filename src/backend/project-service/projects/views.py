@@ -1,14 +1,9 @@
-
-from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticated
-
 from rest_framework_guardian.filters import ObjectPermissionsFilter
 
 from django_filters.rest_framework import DjangoFilterBackend
 
 from project_service.permissions import DjangoObjectGetPermission
 from project_service.viewsets import LoggingViewSet
-from project_service.microservices_auth import MicroservicesJWTBackend
 
 from projects.models import *
 from projects.serializers import ProjectSerializer, ProductSerializer,\
@@ -33,67 +28,25 @@ class ProductViewSet(LoggingViewSet):
     filter_backends = (ObjectPermissionsFilter,)
 
 
-class CompanyListView(generics.CreateAPIView):
-    """
-    View to create companies
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
+class CompanyViewSet(LoggingViewSet):
 
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    permission_classes = [DjangoObjectGetPermission]
+    filter_backends = (ObjectPermissionsFilter,)
 
 
-class CompanyView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    View to RUD companies
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
-
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
-
-
-class ProjectProgramView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    View to RUD project programs
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
+class ProjectProgramViewSet(LoggingViewSet):
 
     queryset = ProjectProgram.objects.all()
     serializer_class = ProjectProgramSerializer
+    permission_classes = [DjangoObjectGetPermission]
+    filter_backends = (ObjectPermissionsFilter,)
 
 
-class ProjectProgramListView(generics.ListCreateAPIView):
-    """
-    View to create or get list of project programs
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
-
-    queryset = ProjectProgram.objects.all()
-    serializer_class = ProjectProgramSerializer
-
-
-class ProjectPortfolioView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    View to RUD project programs
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
+class ProjectPortfolioViewSet(LoggingViewSet):
 
     queryset = ProjectPortfolio.objects.all()
     serializer_class = ProjectPortfolioSerializer
-
-
-class ProjectPortfolioListView(generics.ListCreateAPIView):
-    """
-    View to create or get list of project programs
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
-
-    queryset = ProjectPortfolio.objects.all()
-    serializer_class = ProjectPortfolioSerializer
+    permission_classes = [DjangoObjectGetPermission]
+    filter_backends = (ObjectPermissionsFilter,)
