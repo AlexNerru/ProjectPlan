@@ -13,7 +13,7 @@ from tasks.models import Profile, Project, Resource
 
 from task_service.settings import CELERY_BROKER_URL
 
-logger = logging.getLogger('default')
+logger = logging.getLogger(__name__)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'task_service.settings')
 
 app = Celery('task_service')

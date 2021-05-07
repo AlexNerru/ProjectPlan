@@ -1,4 +1,4 @@
-import logging
+'''import logging
 
 from rest_framework import viewsets
 
@@ -58,3 +58,4 @@ class LoggingViewSet(viewsets.ModelViewSet):
     @method_decorator(vary_on_headers('Authorization'))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+'''

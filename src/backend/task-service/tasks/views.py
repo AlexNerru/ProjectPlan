@@ -6,7 +6,6 @@ from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 
 from task_service.permissions import DjangoObjectGetPermission
-from task_service.viewsets import LoggingViewSet
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
