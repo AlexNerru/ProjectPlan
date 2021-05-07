@@ -1,4 +1,4 @@
-'''import logging
+import logging
 
 from rest_framework import viewsets
 
@@ -21,6 +21,7 @@ def logging_action(func):
                                                                     args[1].path,
                                                                     args[1].body))
     return inner
+
 
 class LoggingViewSet(viewsets.ModelViewSet):
 
@@ -58,4 +59,3 @@ class LoggingViewSet(viewsets.ModelViewSet):
     @method_decorator(vary_on_headers('Authorization'))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
-'''
