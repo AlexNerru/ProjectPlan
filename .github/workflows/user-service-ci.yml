@@ -2,7 +2,7 @@ name: user-service CI
 
 on:
   push:
-    branches: [ main, user-service ]
+    branches: [ main, develop ]
     paths:
       - 'src/backend/user-service/**'
       - '.github/workflows/user-service-ci.yml'
@@ -13,7 +13,7 @@ on:
       - '.github/workflows/user-service-ci.yml'
 
 env:
-  IMAGE_NAME: user-service
+  IMAGE_NAME: projectplan_user-service
 
 defaults:
   run:
