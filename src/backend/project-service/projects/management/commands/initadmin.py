@@ -26,4 +26,4 @@ class Command(BaseCommand):
             profile = Profile(user=user, user_service_id=1)
             profile.save()
 
-            logger.info("Superuser created")
+            logger.info("Superuser created {0!r}".format(str(user)))

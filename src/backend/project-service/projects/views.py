@@ -1,57 +1,36 @@
-from django.http import HttpRequest
-from rest_framework.views import APIView
-from rest_framework.response import Response
+
 from rest_framework import status, generics
+from rest_framework.permissions import IsAuthenticated
+
+from rest_framework_guardian.filters import ObjectPermissionsFilter
+
+from django_filters.rest_framework import DjangoFilterBackend
+
+from project_service.permissions import DjangoObjectGetPermission
+from project_service.viewsets import LoggingViewSet
+from project_service.microservices_auth import MicroservicesJWTBackend
+
 from projects.models import *
 from projects.serializers import ProjectSerializer, ProductSerializer,\
     CompanySerializer, ProjectProgramSerializer, ProjectPortfolioSerializer
-from rest_framework.permissions import IsAuthenticated
-from project_service.microservices_auth import MicroservicesJWTBackend
-from drf_yasg.utils import swagger_auto_schema
+from projects.filters import ProjectFilter
 
 
-class ProjectListView(generics.ListCreateAPIView):
-    """
-    View to create or get list of projects
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
+class ProjectViewSet(LoggingViewSet):
 
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = [DjangoObjectGetPermission]
+    filter_backends = (ObjectPermissionsFilter, DjangoFilterBackend)
+    filterset_class = ProjectFilter
 
 
-class ProjectView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    View to RUD projects
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
-
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-
-
-class ProductListView(generics.ListCreateAPIView):
-    """
-        View to create or get list of products
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
+class ProductViewSet(LoggingViewSet):
 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-
-
-class ProductView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    View to RUD products
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
-
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
+    permission_classes = [DjangoObjectGetPermission]
+    filter_backends = (ObjectPermissionsFilter,)
 
 
 class CompanyListView(generics.CreateAPIView):
