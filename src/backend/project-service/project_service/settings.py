@@ -37,8 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'drf_yasg',
-
     'rest_framework',
     'django_filters',
     'django_redis',
@@ -145,8 +143,8 @@ STATIC_URL = '/staticfiles/'
 STATIC_ROOT = '/staticfiles/'
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Tasks API',
-    'DESCRIPTION': 'Api for working with tasks',
+    'TITLE': 'Projects API',
+    'DESCRIPTION': 'Api for working with projects',
     'VERSION': 'v1',
     'SCHEMA_PATH_PREFIX': r'/api/v[1-9]',
 
@@ -165,6 +163,11 @@ USER_BY_TOKEN_URL = os.environ.get('USER_BY_TOKEN_URL')
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+    },
     'formatters': {
         'console': {
             'format': '%(asctime)s %(name)-12s %(module)s %(levelname)-8s %(message)s'
@@ -175,12 +178,10 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'console'
         },
         'file': {
-            'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'formatter': 'file',
             'filename': 'debug.log'

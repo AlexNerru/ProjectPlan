@@ -41,6 +41,7 @@ class Publisher:
                                                   type='fanout',
                                                   durable=True,
                                                   channel=self.channel)
+
                 self.users_exchange.declare()
                 logger.info("Users exchange declared")
                 self.projects_exchange.declare()
@@ -52,4 +53,4 @@ class Publisher:
         self.producer.publish(message, exchange=self.projects_exchange,
                               retry_policy=self.retry_policy)
         logger.info("Message sent: {0!r} to exchange {0!r}".format(message,
-                                                                   self.users_exchange))
+                                                                   self.projects_exchange))

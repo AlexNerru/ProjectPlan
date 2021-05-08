@@ -16,10 +16,11 @@ def logging_action(func):
         logger.debug("Processing {0!r} {1!r} request: {2!r} ".format(args[1].method,
                                                                      args[1].path,
                                                                      args[1].body))
-        func(*args, **kwargs)
+        response = func(*args, **kwargs)
         logger.debug("Processed {0!r} {1!r} request: {2!r} ".format(args[1].method,
                                                                     args[1].path,
                                                                     args[1].body))
+        return response
     return inner
 
 

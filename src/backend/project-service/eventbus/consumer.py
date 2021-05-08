@@ -44,10 +44,10 @@ def user_created_event_handler(body, message):
     user.set_unusable_password()
     user.save()
 
-    assign_perm("tasks.add_task", user)
-    assign_perm("tasks.view_task", user)
-    assign_perm("tasks.change_task", user)
-    assign_perm("tasks.delete_task", user)
+    assign_perm("projects.add_project", user)
+    assign_perm("projects.view_project", user)
+    assign_perm("projects.change_project", user)
+    assign_perm("projects.delete_project", user)
 
     Profile.objects.create(user=user, user_service_id=body['id'])
     return user

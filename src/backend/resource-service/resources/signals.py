@@ -5,20 +5,20 @@ from django.dispatch import receiver
 
 from eventbus.publisher import Publisher
 
-from projects.models import Project
-from projects.serializers import ProjectSerializer
+from resources.models import Resource
+from resources.serializers import ResourceSerializer
 
 logger = logging.getLogger('default')
 
 
-@receiver(post_save, sender=Project)
+@receiver(post_save, sender=Resource)
 def send_message_project_saved(sender, instance, created, **kwargs):
     if created:
-        data = ProjectSerializer(instance).data
-        Publisher().event_project_registered(data, '1.0')
+        data = ResourceSerializer(instance).data
+        Publisher().event_resource_registered(data, '1.0')
         logger.info("Signal performed: post_save with object {0!r}".format(str(data)))
 
 
-@receiver(post_delete, sender=Project)
+@receiver(post_delete, sender=Resource)
 def send_message_project_deleted(sender, instance, **kwargs):
     pass
