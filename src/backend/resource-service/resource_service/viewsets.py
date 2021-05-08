@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 
-from task_service.settings import CACHE_TTL
+from resource_service.settings import CACHE_TTL
 
 logger = logging.getLogger('default')
 
@@ -26,32 +26,32 @@ def logging_action(func):
 
 class LoggingViewSet(viewsets.ModelViewSet):
 
+    @logging_action
     def list(self, request, **kwargs):
-        logger.debug("Processing {0!r} {1!r} request: {2!r} ".format(request.method,
-                                                                     request.path,
-                                                                     request.body))
         response = super().list(request, **kwargs)
-        logger.debug("Processed {0!r} {1!r} request: {2!r} ".format(request.method,
-                                                                    request.path,
-                                                                    request.body))
         return response
 
+    @logging_action
     def create(self, request, **kwargs):
         response = super().create(request, **kwargs)
         return response
 
+    @logging_action
     def retrieve(self, request, pk=None, **kwargs):
         response = super().retrieve(request, pk, **kwargs)
         return response
 
+    @logging_action
     def update(self, request, pk=None, **kwargs):
         response = super().update(request, pk, **kwargs)
         return response
 
+    @logging_action
     def partial_update(self, request, pk=None, **kwargs):
         response = super().partial_update(request, pk, **kwargs)
         return response
 
+    @logging_action
     def destroy(self, request, pk=None, **kwargs):
         response = super().destroy(request, pk, **kwargs)
         return response

@@ -50,11 +50,11 @@ def user_created_event_handler(body, message):
 
 @event_handler
 def project_created_event_handler(body, message):
-    return Project.objects.create(project_service_id=message['id'])
+    return Project.objects.create(project_service_id=body['id'])
 
 @event_handler
 def resource_created_event_handler(body, message):
-    return Resource.objects.create(resource_service_id=message['id'])
+    return Resource.objects.create(resource_service_id=body['id'])
 
 
 class EventsConsumer:
