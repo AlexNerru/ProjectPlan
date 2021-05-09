@@ -1,29 +1,12 @@
 import axios from "axios";
 
-export function signIn(credentials) {
+export function getProjects(token) {
   return new Promise((resolve, reject) => {
     axios
-      .post("http://127.0.0.1:8001/token/", credentials)
-      .then((response) => {
-        if (response.status === 200) {
-          resolve(response.data);
-        }
-        reject(response.data);
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
-}
-
-export function getUserByToken(token) {
-  return new Promise((resolve, reject) => {
-    axios
-      .post("http://127.0.0.1:8001/token/user/", {
+      .get("http://127.0.0.1:8001/api/v1/projects",  {
         headers: {
-          Authorization: "Bearer " + token, //the token is a variable which holds the token
-        },
-      })
+          Authorization: 'Bearer ' + token //the token is a variable which holds the token
+        }})
       .then((response) => {
         console.log(response);
         if (response.status === 200) {

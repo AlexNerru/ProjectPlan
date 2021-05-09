@@ -1,3 +1,5 @@
+import logging
+
 from django.http import HttpRequest
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from drf_yasg.utils import swagger_auto_schema
 from eventbus import Publisher
+
+logger = logging.getLogger('default')
 
 
 class TokenGetUserView(APIView):
@@ -92,6 +96,9 @@ class RegisterView(APIView):
         :type request: HttpRequest
         :returns: 201 if user created, 400 if it was validation errors
         """
+        logger.debug("Processing {0!r} {1!r} request: {2!r} ".format(request.method,
+                                                                     request.path,
+                                                                     request.body))
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()

@@ -38,6 +38,8 @@ import {
 } from "@material-ui/icons";
 
 import { spacing } from "@material-ui/system";
+import { useSelector } from "react-redux";
+import { getUser } from "../../redux/actions/authActions";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -375,6 +377,8 @@ function EnhancedTable() {
 }
 
 function OrderList() {
+  const token = useSelector((state) => state.authReducer.user.token);
+
   return (
     <React.Fragment>
       <Helmet title="Projects" />

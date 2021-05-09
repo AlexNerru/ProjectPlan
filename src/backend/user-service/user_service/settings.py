@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_yasg',
+
     'corsheaders',
 
     'users',
@@ -114,6 +115,8 @@ STATICFILES_DIRS = (os.path.join('staticfiles'),)
 STATIC_URL = '/staticfiles/'
 STATIC_ROOT = '/staticfiles/'
 
+CORS_ALLOW_ALL_ORIGINS=True
+
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'Bearer': {
@@ -134,6 +137,48 @@ CELERY_TIMEZONE = 'Europe/Moscow'
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(weeks=1),
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(asctime)s %(name)-12s %(module)s %(levelname)-8s %(message)s'
+        },
+        'file': {
+            'format': '%(asctime)s %(name)-12s %(module)s %(process)d %(thread)d %(lineno)d %(levelname)-8s %(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': 'debug.log'
+        },
+        'logstash': {
+            'level': 'DEBUG',
+            'class': 'logstash.TCPLogstashHandler',
+            'host': 'logstash',
+            'port': 5000,
+            'version': 1,
+            'message_type': 'django',
+            'fqdn': False,
+            'tags': ['django'],
+        },
+    },
+    'loggers': {
+        'default': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file', 'logstash']
+        }
+    }
 }
 
 

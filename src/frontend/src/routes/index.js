@@ -30,7 +30,6 @@ import AuthGuard from "../components/AuthGuard";
 // Auth components
 import SignIn from "../pages/auth/SignIn";
 import SignUp from "../pages/auth/SignUp";
-import ResetPassword from "../pages/auth/ResetPassword";
 import Page404 from "../pages/auth/Page404";
 import Page500 from "../pages/auth/Page500";
 
@@ -103,9 +102,6 @@ import APICalls from "../pages/docs/APICalls";
 import ESLintAndPrettier from "../pages/docs/ESLintAndPrettier";
 import Support from "../pages/docs/Support";
 import Changelog from "../pages/docs/Changelog";
-
-// Landing
-import Landing from "../pages/presentation/Landing";
 
 // Protected routes
 import ProtectedPage from "../pages/protected/ProtectedPage";
@@ -237,11 +233,6 @@ const authRoutes = {
       path: "/auth/sign-up",
       name: "Sign Up",
       component: SignUp,
-    },
-    {
-      path: "/auth/reset-password",
-      name: "Reset Password",
-      component: ResetPassword,
     },
     {
       path: "/auth/404",
@@ -446,15 +437,6 @@ const mapsRoutes = {
   component: null,
 };
 
-const landingRoutes = {
-  id: "Landing Page",
-  path: "/",
-  header: "Docs",
-  icon: <Monitor />,
-  component: Landing,
-  children: null,
-};
-
 const documentationRoutes = {
   id: "Documentation",
   path: "/documentation",
@@ -549,9 +531,6 @@ export const dashboardLayoutRoutes = [
 
 // Routes using the Auth layout
 export const authLayoutRoutes = [authRoutes];
-
-// Routes using the Presentation layout
-export const presentationLayoutRoutes = [landingRoutes];
 
 // Routes that are protected
 export const protectedRoutes = [protectedPageRoutes];
