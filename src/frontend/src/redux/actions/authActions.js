@@ -2,7 +2,6 @@ import * as types from "../../constants";
 import {
   signIn as authSignIn,
   signUp as authSignUp,
-  getUserByToken as getUserByToken,
 } from "../../services/authService";
 
 export function signIn(credentials) {
@@ -11,32 +10,19 @@ export function signIn(credentials) {
 
     return authSignIn(credentials)
       .then((response) => {
+        console.log(response);
         dispatch({
           type: types.AUTH_SIGN_IN_SUCCESS,
           token: response.access,
+          id: response.data.id,
+          email: response.data.email,
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
+          username: response.data.username,
         });
       })
       .catch((error) => {
         dispatch({ type: types.AUTH_SIGN_IN_FAILURE });
-        throw error;
-      });
-  };
-}
-
-export function getUser(token) {
-  return async (dispatch) => {
-    dispatch({ type: types.AUTH_GET_USER_REQUEST });
-    return getUserByToken(token)
-      .then((response) => {
-        dispatch({
-          type: types.AUTH_GET_USER_SUCCESS,
-          id: response.id,
-          email: response.email,
-          name: response.name,
-        });
-      })
-      .catch((error) => {
-        dispatch({ type: types.AUTH_GET_USER_FAILURE });
         throw error;
       });
   };

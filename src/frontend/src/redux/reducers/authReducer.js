@@ -5,7 +5,9 @@ const initialState = {
     token: undefined,
     id: undefined,
     email: undefined,
-    name: undefined,
+    first_name: undefined,
+    last_name: undefined,
+    username: undefined,
   },
 };
 
@@ -16,17 +18,11 @@ export default function reducer(state = initialState, actions) {
         ...state,
         user: {
           token: actions.token,
-        },
-      };
-
-    case types.AUTH_GET_USER_SUCCESS:
-      return {
-        ...state,
-        user: {
-          token: state.user.token,
           id: actions.id,
           email: actions.email,
-          name: actions.name,
+          first_name: actions.first_name,
+          last_name: actions.last_name,
+          username: actions.username,
         },
       };
 

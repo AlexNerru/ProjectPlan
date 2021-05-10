@@ -31,7 +31,8 @@ class TokenGetUserView(APIView):
         :param request:
         :return: 200
         """
-        return Response(request.user.username, status=status.HTTP_200_OK)
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UsersView(APIView):
