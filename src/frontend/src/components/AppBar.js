@@ -88,6 +88,10 @@ const AppBarComponent = ({ onDrawerToggle }) => (
               </IconButton>
             </Grid>
           </Hidden>
+          <Grid item xs />
+          <Grid item>
+            <UserDropdown />
+          </Grid>
         </Grid>
       </Toolbar>
     </AppBar>

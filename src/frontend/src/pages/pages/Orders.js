@@ -388,9 +388,25 @@ function OrderList() {
           <Typography variant="h3" gutterBottom display="inline">
             Projects
           </Typography>
+          <Breadcrumbs aria-label="Breadcrumb" mt={2}>
+            <Link component={NavLink} exact to="/dashboard">
+              Company
+            </Link>
+            <Typography>Projects</Typography>
+          </Breadcrumbs>
+        </Grid>
+        <Grid item>
+          <div>
+            <Button variant="contained" color="primary">
+              <AddIcon />
+              New Project
+            </Button>
+          </div>
         </Grid>
       </Grid>
+
       <Divider my={6} />
+
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <EnhancedTable />

@@ -26,7 +26,10 @@ function SignIn() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const token = useSelector((state) => state.authReducer.user.token);
+  const token = useSelector((state) => {
+    if (state.authReducer.user !== undefined)
+      return state.authReducer.user.token;
+  });
 
   return (
     <Wrapper>

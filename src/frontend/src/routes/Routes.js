@@ -55,7 +55,6 @@ const Routes = () => (
   <Router>
     <Switch>
       {childRoutes(DashboardLayout, dashboardLayoutRoutes)}
-      {childRoutes(DashboardLayout, protectedRoutes)}
       {childRoutes(AuthLayout, authLayoutRoutes)}
       <Route
         render={() => (
