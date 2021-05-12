@@ -45,16 +45,11 @@ import {
 import { spacing } from "@material-ui/system";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchProjects,
-  selectAllProjects,
-} from "../../redux/slices/projectsSlice";
-import {
   addProjectsAction,
   deleteProjectsAction,
   getProjectsAction,
 } from "../../redux/actions/projectsActions";
 import * as Yup from "yup";
-import { signIn } from "../../redux/actions/authActions";
 import { Formik } from "formik";
 import { Alert } from "@material-ui/lab";
 import Cookies from "universal-cookie";
