@@ -5,12 +5,27 @@ export function signIn(credentials) {
     axios
       .post("http://127.0.0.1:8001/token/", credentials)
       .then((response) => {
-        console.log(response);
         if (response.status === 200) {
-          console.log(response.data);
-          resolve(response.data);
+          return response.data.access;
         }
         reject(response.data);
+      })
+      .then((access) => {
+        axios
+          .get("http://127.0.0.1:8001/token/user/", {
+            headers: {
+              Authorization: "Bearer " + access, //the token is a variable which holds the token
+            },
+          })
+          .then((response) => {
+            if (response.status === 200) {
+              resolve({ access: access, data: response.data });
+            }
+            reject(response.data);
+          })
+          .catch((error) => {
+            reject(error);
+          });
       })
       .catch((error) => {
         reject(error);

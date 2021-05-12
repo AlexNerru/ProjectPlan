@@ -31,8 +31,8 @@ class MicroservicesJWTBackend(authentication.BaseAuthentication):
                     USER_BY_TOKEN_URL,
                     headers={'Authorization': 'Bearer '+token},
                 )
-                logger.debug("Authorizing response {0!r}".format(response.text[1:-1]))
-                user = User.objects.get(username=response.text[1:-1])
+                logger.debug("Authorizing response {0!r}".format(response.json()))
+                user = User.objects.get(username=response.json()['username'])
                 logger.debug("User authenticated {0!r}".format(str(user)))
                 return (user, None)
             else:

@@ -1,5 +1,5 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components/macro";
 import { Helmet } from "react-helmet-async";
@@ -7,10 +7,7 @@ import * as Yup from "yup";
 import { Formik } from "formik";
 import { signIn } from "../../redux/actions/authActions";
 
-import {
-  // eslint-disable-next-line
-  Button, Paper, TextField as MuiTextField,
-} from "@material-ui/core";
+import { Button, Paper, TextField as MuiTextField } from "@material-ui/core";
 import { spacing } from "@material-ui/system";
 import { Alert as MuiAlert } from "@material-ui/lab";
 
@@ -29,14 +26,18 @@ function SignIn() {
   const dispatch = useDispatch();
   const history = useHistory();
 
+  const token = useSelector((state) => {
+    if (state.auth.user !== undefined) return state.auth.user.token;
+  });
+
   return (
     <Wrapper>
       <Helmet title="Sign In" />
 
       <Formik
         initialValues={{
-          username: "alexnerru",
-          password: "string123",
+          username: "testuser",
+          password: "йцукен123456",
           submit: false,
         }}
         validationSchema={Yup.object().shape({

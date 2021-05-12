@@ -17,6 +17,8 @@ drf-yasg = "==1.20.0"
 djangorestframework-simplejwt = "==4.6.0"
 celery = "==5.0.2"
 kombu = "==5.0.2"
+python-logstash = "==0.4.6"
+django-cors-headers = "==3.6.0"
 
 [requires]
 python_version = "3.8"
