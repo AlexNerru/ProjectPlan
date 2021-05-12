@@ -5,7 +5,7 @@ import styled from "styled-components/macro";
 import { Helmet } from "react-helmet-async";
 import * as Yup from "yup";
 import { Formik } from "formik";
-import { getUser, signIn } from "../../redux/actions/authActions";
+import { signIn } from "../../redux/actions/authActions";
 
 import { Button, Paper, TextField as MuiTextField } from "@material-ui/core";
 import { spacing } from "@material-ui/system";

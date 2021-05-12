@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components/macro";
-import { NavLink } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 
 import { Helmet } from "react-helmet-async";
 
@@ -48,7 +48,15 @@ import {
   fetchProjects,
   selectAllProjects,
 } from "../../redux/slices/projectsSlice";
-import { getProjectsAction } from "../../redux/actions/projectsActions";
+import {
+  addProjectsAction,
+  getProjectsAction,
+} from "../../redux/actions/projectsActions";
+import * as Yup from "yup";
+import { signIn } from "../../redux/actions/authActions";
+import { Formik } from "formik";
+import { Alert } from "@material-ui/lab";
+import Cookies from "universal-cookie";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -189,7 +197,7 @@ function EnhancedTable() {
     if (projectStatus === "idle") {
       dispatch(getProjectsAction(token));
     }
-  }, [projectStatus, dispatch]);
+  }, [projectStatus]);
 
   const rows = projects;
 
@@ -313,11 +321,50 @@ function EnhancedTable() {
 function OrderList() {
   const [open, setOpen] = React.useState(false);
 
+  const timeOut = (time) => new Promise((res) => setTimeout(res, time));
+
+  const dispatch = useDispatch();
+  const history = useHistory();
+
+  const cookies = new Cookies();
+
+  const token = useSelector((state) => {
+    if (state.auth.user.token !== undefined) {
+      cookies.set("token", token, { path: "/" });
+      return state.auth.user.token;
+    } else {
+      return cookies.get("token");
+    }
+  });
+
+  const user = useSelector((state) => state.auth.user.id);
+
+  const handleSubmit = (
+    values,
+    { resetForm, setErrors, setStatus, setSubmitting }
+  ) => {
+    try {
+      setSubmitting(true);
+      dispatch(
+        addProjectsAction(token, user, {
+          name: values.name,
+          description: values.description,
+        })
+      );
+      setStatus({ sent: true });
+      //setSubmitting(false);
+    } catch (error) {
+      setStatus({ sent: false });
+      setErrors({ submit: error.message });
+      setSubmitting(false);
+    }
+  };
+
   return (
     <React.Fragment>
       <Helmet title="Projects" />
 
-      <Grid justify="space-between" container spacing={24}>
+      <Grid justify="space-between" container spacing={10}>
         <Grid item>
           <Typography variant="h3" gutterBottom display="inline">
             Projects
@@ -344,29 +391,82 @@ function OrderList() {
               onClose={() => setOpen(false)}
               aria-labelledby="form-dialog-title"
             >
-              <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
+              <DialogTitle id="form-dialog-title">Create Project</DialogTitle>
               <DialogContent>
                 <DialogContentText>
-                  To subscribe to this website, please enter your email address
-                  here. We will send updates occasionally.
+                  To create new project please fill this form
                 </DialogContentText>
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="name"
-                  label="Email Address"
-                  type="email"
-                  fullWidth
-                />
+                <Formik
+                  initialValues={{
+                    name: "Test Project",
+                    description: "Test test test",
+                    submit: false,
+                  }}
+                  validationSchema={Yup.object().shape({
+                    name: Yup.string()
+                      .max(255)
+                      .required("Project name is required"),
+                    description: Yup.string()
+                      .max(255)
+                      .required("Description is required"),
+                  })}
+                  onSubmit={handleSubmit}
+                >
+                  {({
+                    errors,
+                    handleBlur,
+                    handleChange,
+                    handleSubmit,
+                    isSubmitting,
+                    touched,
+                    values,
+                  }) => (
+                    <form noValidate onSubmit={handleSubmit}>
+                      {errors.submit && (
+                        <Alert mt={2} mb={1} severity="warning">
+                          {errors.submit}
+                        </Alert>
+                      )}
+                      <TextField
+                        name="name"
+                        label="Project name"
+                        value={values.name}
+                        error={Boolean(touched.name && errors.name)}
+                        fullWidth
+                        helperText={touched.name && errors.name}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        my={2}
+                      />
+                      <Divider my={6} />
+                      <TextField
+                        name="description"
+                        label="Description"
+                        value={values.description}
+                        error={Boolean(
+                          touched.description && errors.description
+                        )}
+                        fullWidth
+                        helperText={touched.description && errors.description}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        my={2}
+                      />
+                      <Divider my={6} />
+                      <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        disabled={isSubmitting}
+                        onClick={() => setOpen(false)}
+                      >
+                        Create
+                      </Button>
+                    </form>
+                  )}
+                </Formik>
               </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setOpen(false)} color="primary">
-                  Cancel
-                </Button>
-                <Button onClick={() => setOpen(false)} color="primary">
-                  Subscribe
-                </Button>
-              </DialogActions>
             </Dialog>
           </div>
         </Grid>
