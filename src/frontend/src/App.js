@@ -22,7 +22,7 @@ const jss = create({
 });
 
 function App() {
-  const theme = useSelector((state) => state.themeReducer);
+  const theme = useSelector((state) => state.theme);
 
   return (
     <React.Fragment>

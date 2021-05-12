@@ -3,7 +3,7 @@ import { Redirect } from "react-router-dom";
 
 // For routes that can only be accessed by authenticated users
 function AuthGuard({ children }) {
-  const auth = useSelector((state) => state.authReducer);
+  const auth = useSelector((state) => state.auth);
 
   if (!auth.user) {
     return <Redirect to="/auth/sign-in" />;

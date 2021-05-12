@@ -10,7 +10,6 @@ export function signIn(credentials) {
 
     return authSignIn(credentials)
       .then((response) => {
-        console.log(response);
         dispatch({
           type: types.AUTH_SIGN_IN_SUCCESS,
           token: response.access,

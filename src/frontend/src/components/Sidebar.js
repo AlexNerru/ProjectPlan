@@ -308,8 +308,8 @@ const Sidebar = ({ classes, staticContext, location, ...rest }) => {
 
   const [openRoutes, setOpenRoutes] = useState(() => initOpenRoutes());
 
-  const firstName = useSelector((state) => state.authReducer.user.first_name);
-  const lastName = useSelector((state) => state.authReducer.user.last_name);
+  const firstName = useSelector((state) => state.auth.user.first_name);
+  const lastName = useSelector((state) => state.auth.user.last_name);
 
   const name = firstName + lastName;
 

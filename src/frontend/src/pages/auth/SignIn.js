@@ -27,8 +27,7 @@ function SignIn() {
   const history = useHistory();
 
   const token = useSelector((state) => {
-    if (state.authReducer.user !== undefined)
-      return state.authReducer.user.token;
+    if (state.auth.user !== undefined) return state.auth.user.token;
   });
 
   return (
@@ -50,8 +49,6 @@ function SignIn() {
             await dispatch(
               signIn({ username: values.username, password: values.password })
             );
-            //console.log(token);
-            //await dispatch(getUser(token));
             history.push("/projects");
           } catch (error) {
             const message = "Please check your credentials";

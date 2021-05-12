@@ -52,12 +52,7 @@ import MaterialIcons from "../pages/icons/MaterialIcons";
 const FeatherIcons = async(() => import("../pages/icons/FeatherIcons"));
 
 // Pages components
-import Blank from "../pages/pages/Blank";
-import InvoiceDetails from "../pages/pages/InvoiceDetails";
-import InvoiceList from "../pages/pages/InvoiceList";
 import Orders from "../pages/pages/Orders";
-import Pricing from "../pages/pages/Pricing";
-import Settings from "../pages/pages/Settings";
 import Projects from "../pages/pages/Projects";
 import Chat from "../pages/pages/Chat";
 const Profile = async(() => import("../pages/pages/Profile"));
@@ -74,18 +69,6 @@ const Chartjs = async(() => import("../pages/charts/Chartjs"));
 // Maps components
 const GoogleMaps = async(() => import("../pages/maps/GoogleMaps"));
 const VectorMaps = async(() => import("../pages/maps/VectorMaps"));
-
-// Documentation
-import Welcome from "../pages/docs/Welcome";
-import GettingStarted from "../pages/docs/GettingStarted";
-import EnvironmentVariables from "../pages/docs/EnvironmentVariables";
-import Deployment from "../pages/docs/Deployment";
-import Theming from "../pages/docs/Theming";
-import StateManagement from "../pages/docs/StateManagement";
-import APICalls from "../pages/docs/APICalls";
-import ESLintAndPrettier from "../pages/docs/ESLintAndPrettier";
-import Support from "../pages/docs/Support";
-import Changelog from "../pages/docs/Changelog";
 
 const dashboardsRoutes = {
   id: "Dashboard",

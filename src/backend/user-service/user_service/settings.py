@@ -115,7 +115,7 @@ STATICFILES_DIRS = (os.path.join('staticfiles'),)
 STATIC_URL = '/staticfiles/'
 STATIC_ROOT = '/staticfiles/'
 
-CORS_ALLOW_ALL_ORIGINS=True
+CORS_ALLOW_ALL_ORIGINS = True
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -180,5 +180,3 @@ LOGGING = {
         }
     }
 }
-
-
