@@ -56,15 +56,6 @@ const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
 
 const Paper = styled(MuiPaper)(spacing);
 
-const Chip = styled(MuiChip)`
-  ${spacing};
-
-  background: ${(props) => props.shipped && green[500]};
-  background: ${(props) => props.processing && orange[700]};
-  background: ${(props) => props.cancelled && red[500]};
-  color: ${(props) => props.theme.palette.common.white};
-`;
-
 const Spacer = styled.div`
   flex: 1 1 100%;
 `;
@@ -72,37 +63,6 @@ const Spacer = styled.div`
 const ToolbarTitle = styled.div`
   min-width: 150px;
 `;
-
-function createData(id, product, date, total, status, method) {
-  return { id, product, date, total, status, method };
-}
-
-const rows = [
-  // eslint-disable-next-line
-  createData("000253","My Test Project 1","Some description","AlexNerru"),
-  // eslint-disable-next-line
-  createData("0002515", "My Test Project 2", "Some description", "AlexNerru"),
-  // eslint-disable-next-line
-  createData("000258", "My Test Project 3", "Some description", "AlexNerru"),
-  // eslint-disable-next-line
-  createData("000259", "My Test Project 4", "Some description", "AlexNerru"),
-  // eslint-disable-next-line
-  createData("0002512","My Test Project 1","Some description","AlexNerru"),
-  // eslint-disable-next-line
-  createData("0002516", "My Test Project 2", "Some description", "AlexNerru"),
-  // eslint-disable-next-line
-  createData("00025204", "My Test Project 3", "Some description", "AlexNerru"),
-  // eslint-disable-next-line
-  createData("00025203", "My Test Project 4", "Some description", "AlexNerru"),
-  // eslint-disable-next-line
-  createData("0002513","My Test Project 1","Some description","AlexNerru"),
-  // eslint-disable-next-line
-  createData("0002517", "My Test Project 2", "Some description", "AlexNerru"),
-  // eslint-disable-next-line
-  createData("00025202", "My Test Project 3", "Some description", "AlexNerru"),
-  // eslint-disable-next-line
-  createData("00025201", "My Test Project 4", "Some description", "AlexNerru"),
-];
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -132,7 +92,7 @@ function stableSort(array, comparator) {
 
 const headCells = [
   { id: "id", alignment: "left", label: "Project ID" },
-  { id: "project", alignment: "left", label: "Project" },
+  { id: "name", alignment: "left", label: "Project" },
   { id: "description", alignment: "left", label: "Description" },
   { id: "owner", alignment: "left", label: "Owner" },
   { id: "actions", alignment: "right", label: "Actions" },
@@ -219,7 +179,7 @@ function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const dispatch = useDispatch();
-  const projects = useSelector(selectAllProjects);
+  const projects = useSelector((state) => state.projects.projects);
 
   const projectStatus = useSelector((state) => state.projects.status);
   const error = useSelector((state) => state.projects.error);
@@ -230,6 +190,8 @@ function EnhancedTable() {
       dispatch(getProjectsAction(token));
     }
   }, [projectStatus, dispatch]);
+
+  const rows = projects;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -310,7 +272,7 @@ function EnhancedTable() {
                       key={`${row.id}-${index}`}
                     >
                       <TableCell align="left">#{row.id}</TableCell>
-                      <TableCell align="left">{row.project}</TableCell>
+                      <TableCell align="left">{row.name}</TableCell>
                       <TableCell align="left">{row.description}</TableCell>
                       <TableCell align="left">{row.owner}</TableCell>
                       <TableCell padding="none" align="right">
