@@ -52,7 +52,6 @@ import MaterialIcons from "../pages/icons/MaterialIcons";
 const FeatherIcons = async(() => import("../pages/icons/FeatherIcons"));
 
 // Pages components
-import Orders from "../pages/pages/Orders";
 import Projects from "../pages/pages/Projects";
 import Chat from "../pages/pages/Chat";
 const Profile = async(() => import("../pages/pages/Profile"));
@@ -91,7 +90,7 @@ const projectsRoutes = {
   id: "Projects",
   path: "/projects",
   icon: <Briefcase />,
-  component: Orders,
+  component: Projects,
   children: null,
   guard: AuthGuard,
 };
@@ -100,7 +99,7 @@ const resourcesRoutes = {
   id: "Resources",
   path: "/resources",
   icon: <List />,
-  component: Orders, //TODO: change to resources component
+  component: Projects, //TODO: change to resources component
   children: null,
   guard: AuthGuard,
 };
@@ -109,7 +108,7 @@ const calendarRoutes = {
   id: "Calendar",
   path: "/calendar",
   icon: <Calendar />,
-  component: Orders, //TODO: change to calendar component
+  component: Projects, //TODO: change to calendar component
   children: null,
   guard: AuthGuard,
 };

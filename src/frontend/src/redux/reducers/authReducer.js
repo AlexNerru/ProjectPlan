@@ -9,6 +9,7 @@ const initialState = {
     last_name: undefined,
     username: undefined,
   },
+  status: "idle",
 };
 
 export default function reducer(state = initialState, actions) {

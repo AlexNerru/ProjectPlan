@@ -17,6 +17,13 @@ export default function reducer(state = initialState, actions) {
       state.projects.push(actions.projects);
       return state;
 
+    case types.PROJECTS_DELETE_SUCCESS:
+      const projects = state.projects.filter(function (project) {
+        return project.id !== actions.id;
+      });
+      state.projects = projects;
+      return state;
+
     default:
       return state;
   }

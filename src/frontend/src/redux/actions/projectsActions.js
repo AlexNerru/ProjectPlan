@@ -1,5 +1,5 @@
 import * as types from "../../constants";
-import { getProjects } from "../../services/projectsService";
+import { deleteProject, getProjects } from "../../services/projectsService";
 import { postProjects } from "../../services/projectsService";
 
 export function getProjectsAction(token) {
@@ -33,6 +33,24 @@ export function addProjectsAction(token, user, data) {
       })
       .catch((error) => {
         dispatch({ type: types.PROJECTS_ADD_FAILURE });
+        throw error;
+      });
+  };
+}
+
+export function deleteProjectsAction(token, id) {
+  return async (dispatch) => {
+    dispatch({ type: types.PROJECTS_DELETE_REQUEST });
+
+    return deleteProject(token, id)
+      .then((id) => {
+        dispatch({
+          type: types.PROJECTS_DELETE_SUCCESS,
+          id: id,
+        });
+      })
+      .catch((error) => {
+        dispatch({ type: types.PROJECTS_DELETE_FAILURE });
         throw error;
       });
   };

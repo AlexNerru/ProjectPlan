@@ -44,3 +44,23 @@ export function postProjects(token, user, data) {
       });
   });
 }
+
+export function deleteProject(token, id) {
+  return new Promise((resolve, reject) => {
+    axios
+      .delete("http://127.0.0.1:8002/api/v1/projects/" + id, {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((response) => {
+        if (response.status === 204) {
+          resolve(id);
+        }
+        reject();
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
