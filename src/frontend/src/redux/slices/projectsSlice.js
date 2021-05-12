@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
+//TODO: remove this
 const initialState = {
   projects: [],
   status: "idle",

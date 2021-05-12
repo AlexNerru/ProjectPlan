@@ -14,9 +14,6 @@ import {
 
 import { Menu as MenuIcon } from "@material-ui/icons";
 
-import NotificationsDropdown from "./NotificationsDropdown";
-import MessagesDropdown from "./MessagesDropdown";
-import LanguagesDropdown from "./LanguagesDropdown";
 import UserDropdown from "./UserDropdown";
 
 const AppBar = styled(MuiAppBar)`

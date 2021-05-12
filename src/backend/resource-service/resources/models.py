@@ -30,7 +30,7 @@ class Resource(models.Model):
     """
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    grade = models.ForeignKey(Grade, on_delete=models.DO_NOTHING)
-    rate = models.FloatField()
+    grade = models.IntegerField()
+    rate = models.IntegerField()
 
 

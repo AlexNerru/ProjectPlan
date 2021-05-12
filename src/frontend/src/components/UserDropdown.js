@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 
 import { signOut } from "../redux/actions/authActions";
+import Cookies from "universal-cookie";
 
 const IconButton = styled(MuiIconButton)`
   svg {
@@ -25,6 +26,8 @@ function UserDropdown() {
   const history = useHistory();
   const dispatch = useDispatch();
 
+  const cookies = new Cookies();
+
   const toggleMenu = (event) => {
     setAnchorMenu(event.currentTarget);
   };
@@ -34,6 +37,7 @@ function UserDropdown() {
   };
 
   const handleSignOut = async () => {
+    cookies.set("token", "", { path: "/" });
     history.push("/auth/sign-in");
     await dispatch(signOut());
   };

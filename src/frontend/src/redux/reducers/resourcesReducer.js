@@ -1,29 +1,29 @@
 import * as types from "../../constants";
 
 const initialState = {
-  projects: [],
+  resources: [],
   status: "idle",
 };
 
 export default function reducer(state = initialState, actions) {
   switch (actions.type) {
-    case types.PROJECTS_GET_SUCCESS:
+    case types.RESOURCES_GET_SUCCESS:
       return {
         ...state,
-        projects: actions.projects,
+        resources: actions.resources,
       };
 
-    case types.PROJECTS_ADD_SUCCESS:
+    case types.RESOURCES_ADD_SUCCESS:
       return {
         ...state,
-        projects: [...state.projects, actions.projects],
+        resources: [...state.resources, actions.resources],
       };
 
-    case types.PROJECTS_DELETE_SUCCESS:
+    case types.RESOURCES_DELETE_SUCCESS:
       return {
         ...state,
-        projects: state.projects.filter(function (project) {
-          return project.id !== actions.id;
+        resources: state.resources.filter(function (resource) {
+          return resource.id !== actions.id;
         }),
       };
 
