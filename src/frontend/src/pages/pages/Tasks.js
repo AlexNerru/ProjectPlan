@@ -195,7 +195,10 @@ function Tasks() {
   };
 
   useEffect(() => {
-    dragula(containers);
+    const drake = dragula(containers);
+    drake.on('drop', (el, target) => {
+      console.log(el.id);
+    });
   }, []);
 
   return (

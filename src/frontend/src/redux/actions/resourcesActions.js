@@ -2,6 +2,7 @@ import * as types from "../../constants";
 import {
   deleteResource,
   getResources,
+  getResourcesByProject,
   postResource,
 } from "../../services/resourcesService";
 
@@ -13,6 +14,24 @@ export function getResourcesAction(token) {
       .then((response) => {
         dispatch({
           type: types.RESOURCES_GET_SUCCESS,
+          resources: response.results,
+        });
+      })
+      .catch((error) => {
+        dispatch({ type: types.RESOURCES_GET_FAILURE });
+        throw error;
+      });
+  };
+}
+
+export function getResourcesByProjectAction(token, project) {
+  return async (dispatch) => {
+    dispatch({ type: types.RESOURCES_GET_PROJECT_REQUEST });
+
+    return getResourcesByProject(token, project)
+      .then((response) => {
+        dispatch({
+          type: types.RESOURCES_GET_PROJECT_SUCCESS,
           resources: response.results,
         });
       })

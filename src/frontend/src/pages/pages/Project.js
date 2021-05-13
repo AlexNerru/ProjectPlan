@@ -4,13 +4,16 @@ import { NavLink, useHistory } from "react-router-dom";
 
 import { Helmet } from "react-helmet-async";
 
+import "react-dragula/dist/dragula.css";
+
 import {
+  Avatar,
   Box,
   Breadcrumbs as MuiBreadcrumbs,
   Button,
-  Chip as MuiChip,
+  Card as MuiCard,
+  CardContent as MuiCardContent,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
@@ -33,7 +36,9 @@ import {
   Typography,
 } from "@material-ui/core";
 
-import { green, orange, red } from "@material-ui/core/colors";
+import { blue, green, orange, red } from "@material-ui/core/colors";
+
+import { getParams } from "../../routes/Routes";
 
 import {
   Add as AddIcon,
@@ -51,8 +56,11 @@ import {
 } from "../../redux/actions/projectsActions";
 import * as Yup from "yup";
 import { Formik } from "formik";
-import { Alert } from "@material-ui/lab";
+import { Alert, AvatarGroup } from "@material-ui/lab";
 import Cookies from "universal-cookie";
+import { MessageCircle } from "react-feather";
+import dragula from "react-dragula";
+import { getResourcesByProjectAction } from "../../redux/actions/resourcesActions";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -60,12 +68,76 @@ const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
 
 const Paper = styled(MuiPaper)(spacing);
 
+const Card = styled(MuiCard)(spacing);
+
+const CardContent = styled(MuiCardContent)`
+  &:last-child {
+    padding-bottom: ${(props) => props.theme.spacing(4)}px;
+  }
+`;
+
 const Spacer = styled.div`
   flex: 1 1 100%;
 `;
 
 const ToolbarTitle = styled.div`
   min-width: 150px;
+`;
+
+const TaskWrapper = styled(Card)`
+  border: 1px solid ${(props) => props.theme.palette.grey[300]};
+  margin-bottom: ${(props) => props.theme.spacing(4)}px;
+  cursor: grab;
+
+  &:hover {
+    background: ${(props) => props.theme.palette.background.default};
+  }
+`;
+
+const TaskWrapperContent = styled(CardContent)`
+  position: relative;
+
+  &:last-child {
+    padding-bottom: ${(props) => props.theme.spacing(4)}px;
+  }
+`;
+
+const TaskAvatars = styled.div`
+  margin-left: 8px;
+`;
+
+const MessageCircleIcon = styled(MessageCircle)`
+  color: ${(props) => props.theme.palette.grey[500]};
+  vertical-align: middle;
+`;
+
+const TaskBadge = styled.div`
+  background: ${(props) => props.color};
+  width: 40px;
+  height: 6px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-right: ${(props) => props.theme.spacing(2)}px;
+`;
+
+const TaskNotifications = styled.div`
+  display: flex;
+  position: absolute;
+  bottom: ${(props) => props.theme.spacing(4)}px;
+  right: ${(props) => props.theme.spacing(4)}px;
+`;
+
+const TaskNotificationsAmount = styled.div`
+  color: ${(props) => props.theme.palette.grey[500]};
+  font-weight: 600;
+  margin-right: ${(props) => props.theme.spacing(1)}px;
+  line-height: 1.75;
+`;
+
+const TaskTitle = styled(Typography)`
+  font-weight: 600;
+  font-size: 15px;
+  margin-right: ${(props) => props.theme.spacing(10)}px;
 `;
 
 function descendingComparator(a, b, orderBy) {
@@ -95,11 +167,11 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  { id: "id", alignment: "left", label: "Project ID" },
-  { id: "name", alignment: "left", label: "Project" },
-  { id: "description", alignment: "left", label: "Description" },
-  { id: "owner", alignment: "left", label: "Owner" },
-  { id: "actions", alignment: "right", label: "Actions" },
+  { id: "id", alignment: "left", label: "Resource ID" },
+  { id: "first_name", alignment: "left", label: "First Name" },
+  { id: "last_name", alignment: "left", label: "Last Name" },
+  { id: "grade", alignment: "left", label: "Grade" },
+  { id: "rate", alignment: "left", label: "Rate" },
 ];
 
 function EnhancedTableHead(props) {
@@ -183,12 +255,10 @@ function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const dispatch = useDispatch();
-  const history = useHistory();
+  const resources = useSelector((state) => state.resources.resources);
 
-  const projects = useSelector((state) => state.projects.projects);
-  const projectStatus = useSelector((state) => state.projects.status);
+  const resourceStatus = useSelector((state) => state.resources.status);
   const authStatus = useSelector((state) => state.auth.status);
-  const error = useSelector((state) => state.projects.error);
 
   const cookies = new Cookies();
 
@@ -211,20 +281,14 @@ function EnhancedTable() {
   });
 
   useEffect(() => {
-    if (projectStatus === "idle") {
-      dispatch(getProjectsAction(token));
+    const currentParams = getParams(window.location.href.slice(21));
+
+    if (resourceStatus === "idle") {
+      dispatch(getResourcesByProjectAction(token, currentParams["projectID"]));
     }
-  }, [projectStatus, dispatch]);
+  }, [resourceStatus, dispatch]);
 
-  const rows = projects;
-
-  const handleProjectDelete = (event, id) => {
-    dispatch(deleteProjectsAction(token, id));
-  };
-
-  const handleOpenProject = (event, id) => {
-    history.push("/projects/" + id + "/");
-  };
+  const rows = resources;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -285,29 +349,10 @@ function EnhancedTable() {
                       key={`${row.id}-${index}`}
                     >
                       <TableCell align="left">#{row.id}</TableCell>
-                      <TableCell align="left">{row.name}</TableCell>
-                      <TableCell align="left">{row.description}</TableCell>
-                      <TableCell align="left">{row.owner}</TableCell>
-                      <TableCell padding="none" align="right">
-                        <Box mr={2}>
-                          <IconButton
-                            aria-label="delete"
-                            onClick={(event) =>
-                              handleProjectDelete(event, row.id)
-                            }
-                          >
-                            <ArchiveIcon />
-                          </IconButton>
-                          <IconButton
-                            aria-label="details"
-                            onClick={(event) =>
-                              handleOpenProject(event, row.id)
-                            }
-                          >
-                            <RemoveRedEyeIcon />
-                          </IconButton>
-                        </Box>
-                      </TableCell>
+                      <TableCell align="left">{row.first_name}</TableCell>
+                      <TableCell align="left">{row.last_name}</TableCell>
+                      <TableCell align="left">{row.grade}</TableCell>
+                      <TableCell align="left">{row.rate}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -330,6 +375,155 @@ function EnhancedTable() {
         />
       </Paper>
     </div>
+  );
+}
+
+function Lane({ title, description, onContainerLoaded, children }) {
+  const handleContainerLoaded = (container) => {
+    if (container) {
+      onContainerLoaded(container);
+    }
+  };
+
+  return (
+    <Card mb={6}>
+      <CardContent pb={0}>
+        <Typography variant="h6" gutterBottom>
+          {title}
+        </Typography>
+        <Typography variant="body2" mb={4}>
+          {description}
+        </Typography>
+        <div ref={handleContainerLoaded}>{children}</div>
+        <Button color="primary" variant="contained" fullWidth>
+          <AddIcon />
+          Add new task
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function Task({ content, avatars }) {
+  return (
+    <TaskWrapper mb={4}>
+      <TaskWrapperContent>
+        {content.badges &&
+          content.badges.map((color, i) => <TaskBadge color={color} key={i} />)}
+
+        <TaskTitle variant="body1" gutterBottom>
+          {content.title}
+        </TaskTitle>
+
+        <TaskAvatars>
+          <AvatarGroup max={3}>
+            {avatars &&
+              avatars.map((avatar, i) => (
+                <Avatar
+                  src={`/static/img/avatars/avatar-${avatar}.jpg`}
+                  key={i}
+                />
+              ))}
+          </AvatarGroup>
+        </TaskAvatars>
+
+        {content.notifications && (
+          <TaskNotifications>
+            <TaskNotificationsAmount>
+              {content.notifications}
+            </TaskNotificationsAmount>
+            <MessageCircleIcon />
+          </TaskNotifications>
+        )}
+      </TaskWrapperContent>
+    </TaskWrapper>
+  );
+}
+
+const demoTasks = [
+  {
+    title: "Redesign the homepage",
+    badges: [green[600], orange[600]],
+    notifications: 2,
+  },
+  {
+    title: "Upgrade dependencies to latest versions",
+    badges: [green[600]],
+    notifications: 1,
+  },
+  {
+    title: "Google Adwords best practices",
+  },
+  {
+    title: "Improve site speed",
+    badges: [green[600]],
+    notifications: 3,
+  },
+  {
+    title: "Stripe payment integration",
+    badges: [blue[600]],
+  },
+];
+
+const containers = [];
+
+function Tasks() {
+  const onContainerReady = (container) => {
+    containers.push(container);
+  };
+
+  useEffect(() => {
+    const drake = dragula(containers);
+    drake.on("drop", (el, target, source, sibling) => {
+      console.log("yep");
+    });
+  }, []);
+
+  return (
+    <React.Fragment>
+      <Typography variant="h3" gutterBottom display="inline">
+        Tasks
+      </Typography>
+
+      <Divider my={6} />
+
+      <Grid container spacing={6}>
+        <Grid item xs={12} lg={4} xl={4}>
+          <Lane
+            title="Backlog"
+            description="Nam pretium turpis et arcu. Duis arcu."
+            onContainerLoaded={onContainerReady}
+          >
+            <Task content={demoTasks[0]} avatars={[1, 2, 3, 4]} />
+            <Task content={demoTasks[2]} avatars={[2]} />
+            <Task content={demoTasks[3]} avatars={[2, 3]} />
+            <Task content={demoTasks[1]} avatars={[]} />
+            <Task content={demoTasks[4]} avatars={[]} />
+          </Lane>
+        </Grid>
+        <Grid item xs={12} lg={4} xl={4}>
+          <Lane
+            title="In Progress"
+            description="Curabitur ligula sapien, tincidunt non."
+            onContainerLoaded={onContainerReady}
+          >
+            <Task content={demoTasks[2]} avatars={[3, 1, 2]} />
+            <Task content={demoTasks[4]} avatars={[2]} />
+          </Lane>
+        </Grid>
+        <Grid item xs={12} lg={4} xl={4}>
+          <Lane
+            title="Completed"
+            description="Aenean posuere, tortor sed cursus feugiat."
+            onContainerLoaded={onContainerReady}
+          >
+            <Task content={demoTasks[3]} avatars={[1, 2]} />
+            <Task content={demoTasks[2]} avatars={[4]} />
+            <Task content={demoTasks[0]} avatars={[]} />
+          </Lane>
+        </Grid>
+      </Grid>
+    </React.Fragment>
   );
 }
 
@@ -390,108 +584,17 @@ function ProjectsList() {
       <Grid justify="space-between" container spacing={10}>
         <Grid item>
           <Typography variant="h3" gutterBottom display="inline">
-            Projects
+            Project
           </Typography>
           <Breadcrumbs aria-label="Breadcrumb" mt={2}>
             <Link component={NavLink} exact to="/dashboard">
               Company
             </Link>
-            <Typography>Projects</Typography>
+            <Link component={NavLink} exact to="/projects">
+              Projects
+            </Link>
+            <Typography>Project</Typography>
           </Breadcrumbs>
-        </Grid>
-        <Grid item>
-          <div>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setOpen(true)}
-            >
-              <AddIcon />
-              New Project
-            </Button>
-            <Dialog
-              open={open}
-              onClose={() => setOpen(false)}
-              aria-labelledby="form-dialog-title"
-            >
-              <DialogTitle id="form-dialog-title">Create Project</DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  To create new project please fill this form
-                </DialogContentText>
-                <Formik
-                  initialValues={{
-                    name: "Test Project",
-                    description: "Test test test",
-                    submit: false,
-                  }}
-                  validationSchema={Yup.object().shape({
-                    name: Yup.string()
-                      .max(255)
-                      .required("Project name is required"),
-                    description: Yup.string()
-                      .max(255)
-                      .required("Description is required"),
-                  })}
-                  onSubmit={handleSubmit}
-                >
-                  {({
-                    errors,
-                    handleBlur,
-                    handleChange,
-                    handleSubmit,
-                    isSubmitting,
-                    touched,
-                    values,
-                  }) => (
-                    <form noValidate onSubmit={handleSubmit}>
-                      {errors.submit && (
-                        <Alert mt={2} mb={1} severity="warning">
-                          {errors.submit}
-                        </Alert>
-                      )}
-                      <TextField
-                        name="name"
-                        label="Project name"
-                        value={values.name}
-                        error={Boolean(touched.name && errors.name)}
-                        fullWidth
-                        helperText={touched.name && errors.name}
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        my={2}
-                      />
-                      <Divider my={6} />
-                      <TextField
-                        name="description"
-                        label="Description"
-                        value={values.description}
-                        error={Boolean(
-                          touched.description && errors.description
-                        )}
-                        fullWidth
-                        helperText={touched.description && errors.description}
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        my={2}
-                      />
-                      <Divider my={6} />
-                      <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        disabled={isSubmitting}
-                        onClick={() => setOpen(false)}
-                      >
-                        Create
-                      </Button>
-                    </form>
-                  )}
-                </Formik>
-              </DialogContent>
-            </Dialog>
-          </div>
         </Grid>
       </Grid>
 
@@ -500,6 +603,14 @@ function ProjectsList() {
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <EnhancedTable />
+        </Grid>
+      </Grid>
+
+      <Divider my={6} />
+
+      <Grid container spacing={6}>
+        <Grid item xs={12}>
+          <Tasks />
         </Grid>
       </Grid>
     </React.Fragment>

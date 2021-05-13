@@ -13,6 +13,12 @@ export default function reducer(state = initialState, actions) {
         resources: actions.resources,
       };
 
+    case types.RESOURCES_GET_PROJECT_SUCCESS:
+      return {
+        ...state,
+        project_resources: actions.resources,
+      };
+
     case types.RESOURCES_ADD_SUCCESS:
       return {
         ...state,

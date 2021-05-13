@@ -6,7 +6,8 @@ from resource_service.permissions import DjangoObjectGetPermission
 from resource_service.viewsets import LoggingViewSet
 
 from resources.serializers import ResourceSerializer
-from resources.models import *
+from resources.models import Resource
+from resources.filters import ResourceFilter
 
 
 class ResourcesViewSet(LoggingViewSet):
@@ -14,4 +15,5 @@ class ResourcesViewSet(LoggingViewSet):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
     permission_classes = [DjangoObjectGetPermission]
-    filter_backends = (ObjectPermissionsFilter,)
+    filter_backends = (ObjectPermissionsFilter, DjangoFilterBackend)
+    filterset_class = ResourceFilter

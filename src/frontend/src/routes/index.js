@@ -24,6 +24,7 @@ const SaaS = async(() => import("../pages/dashboards/SaaS"));
 
 // Pages components
 import Projects from "../pages/pages/Projects";
+import Project from "../pages/pages/Project";
 import Resources from "../pages/pages/Resources";
 
 // Tables components
@@ -59,6 +60,15 @@ const projectsRoutes = {
   path: "/projects",
   icon: <Briefcase />,
   component: Projects,
+  children: null,
+  guard: AuthGuard,
+  exact: true,
+};
+
+const projectRoute = {
+  id: "Project",
+  path: "/projects/:projectID",
+  component: Project,
   children: null,
   guard: AuthGuard,
 };
@@ -113,6 +123,7 @@ const authRoutes = {
 export const dashboardLayoutRoutes = [
   dashboardsRoutes,
   projectsRoutes,
+  projectRoute,
   resourcesRoutes,
   calendarRoutes,
 ];
@@ -125,5 +136,5 @@ export const sidebarRoutes = [
   dashboardsRoutes,
   projectsRoutes,
   resourcesRoutes,
-  calendarRoutes,
+  //calendarRoutes,
 ];

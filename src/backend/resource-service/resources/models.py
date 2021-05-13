@@ -32,5 +32,6 @@ class Resource(models.Model):
     last_name = models.CharField(max_length=100)
     grade = models.IntegerField()
     rate = models.IntegerField()
+    project = models.ManyToManyField(Project, null=True)
 
 
