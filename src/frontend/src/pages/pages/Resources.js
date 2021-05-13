@@ -295,9 +295,6 @@ function EnhancedTable() {
                           >
                             <ArchiveIcon />
                           </IconButton>
-                          <IconButton aria-label="details">
-                            <RemoveRedEyeIcon />
-                          </IconButton>
                         </Box>
                       </TableCell>
                     </TableRow>

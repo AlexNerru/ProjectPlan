@@ -41,6 +41,9 @@ class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.ForeignKey(TaskStatus, on_delete=models.DO_NOTHING)
     resources = models.ManyToManyField(Resource)
+    created = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateField(null=True)
+    closed = models.DateTimeField(null=True)
 
 
 

@@ -56,7 +56,7 @@ class LoggingViewSet(viewsets.ModelViewSet):
         response = super().destroy(request, pk, **kwargs)
         return response
 
-    @method_decorator(cache_page(CACHE_TTL))
-    @method_decorator(vary_on_headers('Authorization'))
+    #@method_decorator(cache_page(CACHE_TTL))
+    #@method_decorator(vary_on_headers('Authorization'))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)

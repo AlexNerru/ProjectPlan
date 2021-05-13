@@ -31,7 +31,13 @@ class TokenGetUserView(APIView):
         :param request:
         :return: 200
         """
+        logger.debug("Processing {0!r} {1!r} request: {2!r} ".format(request.method,
+                                                                     request.path,
+                                                                     request.body))
         serializer = UserSerializer(request.user)
+        logger.debug("Processed {0!r} {1!r} request: {2!r} ".format(request.method,
+                                                                     request.path,
+                                                                     request.body))
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_redis',
     'guardian',
+    'corsheaders',
 
     'tasks',
 
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -141,6 +143,8 @@ STATICFILES_DIRS = (os.path.join('staticfiles'),)
 STATIC_URL = '/staticfiles/'
 STATIC_ROOT = '/staticfiles/'
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Tasks API',
     'DESCRIPTION': 'Api for working with tasks',
@@ -182,21 +186,11 @@ LOGGING = {
             'formatter': 'file',
             'filename': 'debug.log'
         },
-        'logstash': {
-            'level': 'DEBUG',
-            'class': 'logstash.TCPLogstashHandler',
-            'host': 'logstash',
-            'port': 5000,
-            'version': 1,
-            'message_type': 'django',
-            'fqdn': False,
-            'tags': ['django'], 
-        },
     },
     'loggers': {
         'default': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file', 'logstash']
+            'handlers': ['console', 'file']
         }
     }
 }

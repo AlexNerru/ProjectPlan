@@ -24,6 +24,8 @@ class MicroservicesJWTBackend(authentication.BaseAuthentication):
                 TOKEN_VERIFY_URL,
                 data={'token': token},
             )
+            logger.debug("Token {0!r} validation response {1!r}".format(str(token),
+                                                                        response.status_code))
             if response.status_code == 200:
                 response = requests.get(
                     USER_BY_TOKEN_URL,

@@ -61,6 +61,7 @@ import Cookies from "universal-cookie";
 import { MessageCircle } from "react-feather";
 import dragula from "react-dragula";
 import { getResourcesByProjectAction } from "../../redux/actions/resourcesActions";
+import { getTasksByProjectAction } from "../../redux/actions/tasksActions";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -137,6 +138,12 @@ const TaskNotificationsAmount = styled.div`
 const TaskTitle = styled(Typography)`
   font-weight: 600;
   font-size: 15px;
+  margin-right: ${(props) => props.theme.spacing(10)}px;
+`;
+
+const TaskDescription = styled(Typography)`
+  font-weight: 400;
+  font-size: 12px;
   margin-right: ${(props) => props.theme.spacing(10)}px;
 `;
 
@@ -255,10 +262,9 @@ function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const dispatch = useDispatch();
-  const resources = useSelector((state) => state.resources.resources);
+  const resources = useSelector((state) => state.resources.project_resources);
 
   const resourceStatus = useSelector((state) => state.resources.status);
-  const authStatus = useSelector((state) => state.auth.status);
 
   const cookies = new Cookies();
 
@@ -395,25 +401,23 @@ function Lane({ title, description, onContainerLoaded, children }) {
           {description}
         </Typography>
         <div ref={handleContainerLoaded}>{children}</div>
-        <Button color="primary" variant="contained" fullWidth>
-          <AddIcon />
-          Add new task
-        </Button>
       </CardContent>
     </Card>
   );
 }
 
 function Task({ content, avatars }) {
+  console.log(content);
   return (
-    <TaskWrapper mb={4}>
+    <TaskWrapper mt={4}>
       <TaskWrapperContent>
-        {content.badges &&
-          content.badges.map((color, i) => <TaskBadge color={color} key={i} />)}
-
         <TaskTitle variant="body1" gutterBottom>
-          {content.title}
+          {content.name}
         </TaskTitle>
+
+        <TaskDescription variant="body1" gutterBottom>
+          {content.description}
+        </TaskDescription>
 
         <TaskAvatars>
           <AvatarGroup max={3}>
@@ -426,15 +430,6 @@ function Task({ content, avatars }) {
               ))}
           </AvatarGroup>
         </TaskAvatars>
-
-        {content.notifications && (
-          <TaskNotifications>
-            <TaskNotificationsAmount>
-              {content.notifications}
-            </TaskNotificationsAmount>
-            <MessageCircleIcon />
-          </TaskNotifications>
-        )}
       </TaskWrapperContent>
     </TaskWrapper>
   );
@@ -468,9 +463,18 @@ const demoTasks = [
 const containers = [];
 
 function Tasks() {
+  const cookies = new Cookies();
+
+  const [open, setOpen] = React.useState(false);
+
   const onContainerReady = (container) => {
     containers.push(container);
   };
+
+  useEffect(() => {
+    const currentParams = getParams(window.location.href.slice(21));
+    dispatch(getTasksByProjectAction(token, currentParams["projectID"]));
+  }, []);
 
   useEffect(() => {
     const drake = dragula(containers);
@@ -479,47 +483,167 @@ function Tasks() {
     });
   }, []);
 
+  const dispatch = useDispatch();
+  const tasks = useSelector((state) => state.tasks.project_tasks);
+  const token = useSelector((state) => {
+    if (state.auth.user.token !== undefined) {
+      cookies.set("token", state.auth.user.token, { path: "/" });
+      return state.auth.user.token;
+    } else {
+      return cookies.get("token");
+    }
+  });
+
   return (
     <React.Fragment>
-      <Typography variant="h3" gutterBottom display="inline">
-        Tasks
-      </Typography>
+      <Grid justify="space-between" container spacing={10}>
+        <Grid item>
+          <Typography variant="h3" gutterBottom display="inline">
+            Tasks
+          </Typography>
+        </Grid>
+        <Grid item>
+          <div>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setOpen(true)}
+            >
+              <AddIcon />
+              New task
+            </Button>
+            <Dialog
+              open={open}
+              onClose={() => setOpen(false)}
+              aria-labelledby="form-dialog-title"
+            >
+              <DialogTitle id="form-dialog-title">Create Project</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  To create new project please fill this form
+                </DialogContentText>
+                <Formik
+                  initialValues={{
+                    name: "Test Project",
+                    description: "Test test test",
+                    submit: false,
+                  }}
+                  validationSchema={Yup.object().shape({
+                    name: Yup.string()
+                      .max(255)
+                      .required("Project name is required"),
+                    description: Yup.string()
+                      .max(255)
+                      .required("Description is required"),
+                  })}
+                  onSubmit={() => {}}
+                >
+                  {({
+                    errors,
+                    handleBlur,
+                    handleChange,
+                    handleSubmit,
+                    isSubmitting,
+                    touched,
+                    values,
+                  }) => (
+                    <form noValidate onSubmit={handleSubmit}>
+                      {errors.submit && (
+                        <Alert mt={2} mb={1} severity="warning">
+                          {errors.submit}
+                        </Alert>
+                      )}
+                      <TextField
+                        name="name"
+                        label="Project name"
+                        value={values.name}
+                        error={Boolean(touched.name && errors.name)}
+                        fullWidth
+                        helperText={touched.name && errors.name}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        my={2}
+                      />
+                      <Divider my={6} />
+                      <TextField
+                        name="description"
+                        label="Description"
+                        value={values.description}
+                        error={Boolean(
+                          touched.description && errors.description
+                        )}
+                        fullWidth
+                        helperText={touched.description && errors.description}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        my={2}
+                      />
+                      <Divider my={6} />
+                      <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        disabled={isSubmitting}
+                        onClick={() => setOpen(false)}
+                      >
+                        Create
+                      </Button>
+                    </form>
+                  )}
+                </Formik>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </Grid>
+      </Grid>
 
       <Divider my={6} />
 
       <Grid container spacing={6}>
         <Grid item xs={12} lg={4} xl={4}>
           <Lane
-            title="Backlog"
-            description="Nam pretium turpis et arcu. Duis arcu."
+            title="To do"
+            description="Task that we need to do"
             onContainerLoaded={onContainerReady}
           >
-            <Task content={demoTasks[0]} avatars={[1, 2, 3, 4]} />
-            <Task content={demoTasks[2]} avatars={[2]} />
-            <Task content={demoTasks[3]} avatars={[2, 3]} />
-            <Task content={demoTasks[1]} avatars={[]} />
-            <Task content={demoTasks[4]} avatars={[]} />
+            {tasks
+              .filter(function (task) {
+                return task.status === 1;
+              })
+              .map((task, index) => {
+                return <Task content={task} />;
+              })}
           </Lane>
         </Grid>
         <Grid item xs={12} lg={4} xl={4}>
           <Lane
             title="In Progress"
-            description="Curabitur ligula sapien, tincidunt non."
+            description="Tasks that we are doing"
             onContainerLoaded={onContainerReady}
           >
-            <Task content={demoTasks[2]} avatars={[3, 1, 2]} />
-            <Task content={demoTasks[4]} avatars={[2]} />
+            {tasks
+              .filter(function (task) {
+                return task.status === 2;
+              })
+              .map((task, index) => {
+                return <Task content={task} />;
+              })}
           </Lane>
         </Grid>
         <Grid item xs={12} lg={4} xl={4}>
           <Lane
             title="Completed"
-            description="Aenean posuere, tortor sed cursus feugiat."
+            description="Tasks that we have done"
             onContainerLoaded={onContainerReady}
           >
-            <Task content={demoTasks[3]} avatars={[1, 2]} />
-            <Task content={demoTasks[2]} avatars={[4]} />
-            <Task content={demoTasks[0]} avatars={[]} />
+            {tasks
+              .filter(function (task) {
+                return task.status === 3;
+              })
+              .map((task, index) => {
+                return <Task content={task} />;
+              })}
           </Lane>
         </Grid>
       </Grid>

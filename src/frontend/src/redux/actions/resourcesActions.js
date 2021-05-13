@@ -36,7 +36,7 @@ export function getResourcesByProjectAction(token, project) {
         });
       })
       .catch((error) => {
-        dispatch({ type: types.RESOURCES_GET_FAILURE });
+        dispatch({ type: types.RESOURCES_GET_PROJECT_FAILURE });
         throw error;
       });
   };

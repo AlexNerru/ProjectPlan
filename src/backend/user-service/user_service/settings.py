@@ -16,9 +16,6 @@ DEBUG = int(os.environ.get("DEBUG"))
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "user-service"]
 
-# Application definition
-
-# NOTE: all cors-related things are commented out as we use NGINX to control them
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -49,8 +46,6 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
     )
 }
 
@@ -162,21 +157,11 @@ LOGGING = {
             'formatter': 'file',
             'filename': 'debug.log'
         },
-        'logstash': {
-            'level': 'DEBUG',
-            'class': 'logstash.TCPLogstashHandler',
-            'host': 'logstash',
-            'port': 5000,
-            'version': 1,
-            'message_type': 'django',
-            'fqdn': False,
-            'tags': ['django'],
-        },
     },
     'loggers': {
         'default': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file', 'logstash']
+            'handlers': ['console', 'file']
         }
     }
 }

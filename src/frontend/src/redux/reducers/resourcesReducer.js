@@ -3,6 +3,7 @@ import * as types from "../../constants";
 const initialState = {
   resources: [],
   status: "idle",
+  project_resources: [],
 };
 
 export default function reducer(state = initialState, actions) {
