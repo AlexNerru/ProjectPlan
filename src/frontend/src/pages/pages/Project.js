@@ -39,8 +39,6 @@ import {
   Typography,
 } from "@material-ui/core";
 
-import { blue, green, orange, red } from "@material-ui/core/colors";
-
 import { getParams } from "../../routes/Routes";
 
 import {
@@ -50,15 +48,10 @@ import {
   RemoveRedEye as RemoveRedEyeIcon,
 } from "@material-ui/icons";
 
-import { spacing } from "@material-ui/system";
+import { border, spacing } from "@material-ui/system";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addProjectsAction,
-  deleteProjectsAction,
-  getProjectsAction,
-} from "../../redux/actions/projectsActions";
 import * as Yup from "yup";
-import formik, { Formik } from "formik";
+import { Formik } from "formik";
 import { Alert, AvatarGroup } from "@material-ui/lab";
 import Cookies from "universal-cookie";
 import { MessageCircle } from "react-feather";
@@ -70,8 +63,8 @@ import {
 import {
   addTaskAction,
   getTasksByProjectAction,
+  patchTasksAction,
 } from "../../redux/actions/tasksActions";
-import { DatePicker } from "@material-ui/pickers";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -103,6 +96,11 @@ const TaskWrapper = styled(Card)`
   &:hover {
     background: ${(props) => props.theme.palette.background.default};
   }
+`;
+
+const TopTaskWrapper = styled(Card)`
+  border: 1px solid ${(props) => props.theme.palette.grey[300]};
+  margin-bottom: ${(props) => props.theme.spacing(4)}px;
 `;
 
 const TaskWrapperContent = styled(CardContent)`
@@ -407,10 +405,26 @@ function Lane({ title, description, onContainerLoaded, children }) {
   );
 }
 
-function Task({ content, avatars }) {
+function Task({ content, avatars, topTask = false }) {
+  if (topTask) {
+    return (
+      <TopTaskWrapper mt={4}>
+        <TaskWrapperContent>
+          <TaskDescription variant="body1" gutterBottom>
+            {content.name}
+          </TaskDescription>
+        </TaskWrapperContent>
+      </TopTaskWrapper>
+    );
+  }
+
   return (
     <TaskWrapper mt={4}>
       <TaskWrapperContent>
+        <TaskDescription variant="body1" gutterBottom>
+          Task#{content.id}
+        </TaskDescription>
+
         <TaskTitle variant="body1" gutterBottom>
           {content.name}
         </TaskTitle>
@@ -444,7 +458,6 @@ function Tasks() {
   const [elOnDrop, setEl] = React.useState();
 
   const [open, setOpen] = React.useState(false);
-  const [canDrop, setCanDrop] = React.useState(false);
   const [openFinishTask, setFinishTaskOpen] = React.useState(false);
   const [currentProject, setProject] = useState(1);
 
@@ -487,6 +500,9 @@ function Tasks() {
         setFinishTaskOpen(true);
         setSource(source);
         setEl(el);
+      }
+      if (target_div === "progress_div" && source_div === "todo_div") {
+        handleSwitchToProgress(source, el);
       }
     });
   }, []);
@@ -557,7 +573,10 @@ function Tasks() {
     try {
       setFinishTaskOpen(false);
       setSubmitting(true);
-      setCanDrop(true);
+
+      const taskId = elOnDrop.childNodes[0].childNodes[0].childNodes[1].data;
+
+      dispatch(patchTasksAction(token, taskId, 3, values));
 
       setStatus({ sent: true });
       resetForm();
@@ -569,8 +588,19 @@ function Tasks() {
     }
   };
 
+  const handleSwitchToProgress = (source, el) => {
+    const taskId = el.childNodes[0].childNodes[0].childNodes[1].data;
+
+    dispatch(
+      patchTasksAction(token, taskId, 2, {
+        fact_start_date: new Date().toISOString().split("T")[0],
+      })
+    );
+  };
+
   const handleCancel = () => {
     sourceOnDrop.appendChild(elOnDrop);
+    setFinishTaskOpen(false);
   };
 
   return (
@@ -803,6 +833,7 @@ function Tasks() {
                     name: "",
                     description: "",
                   }}
+                  topTask={true}
                 />
               </div>
               {tasks
@@ -829,6 +860,7 @@ function Tasks() {
                     name: "",
                     description: "",
                   }}
+                  topTask={true}
                 />
               </div>
               {tasks
@@ -836,7 +868,7 @@ function Tasks() {
                   return task.status === 2;
                 })
                 .map((task, index) => {
-                  return <Task content={task} />;
+                  return <Task key={task.id} content={task} />;
                 })}
             </Lane>
           </div>
@@ -855,6 +887,7 @@ function Tasks() {
                     name: "",
                     description: "",
                   }}
+                  topTask={true}
                 />
               </div>
               {tasks
@@ -862,7 +895,7 @@ function Tasks() {
                   return task.status === 3;
                 })
                 .map((task, index) => {
-                  return <Task content={task} />;
+                  return <Task key={task.id} content={task} />;
                 })}
             </Lane>
           </div>
@@ -889,7 +922,7 @@ function Tasks() {
                 .min(1, "Task cat last at least one hour")
                 .required("Fact work is required"),
               fact_finish_date: Yup.date()
-                .min(new Date(), "Min date is today")
+                .min(new Date(new Date().getDate() - 1), "Min date is today")
                 .required("Fact finish date is required"),
             })}
             onSubmit={handleFinishTaskSubmit}
@@ -960,10 +993,10 @@ function Tasks() {
                   </Paper>
                   <Paper mt={3}>
                     <Button
-                      type="cancel"
+                      type="button"
                       fullWidth
-                      variant="contained"
-                      color="outlined"
+                      variant="outlined"
+                      color="primary"
                       disabled={isSubmitting}
                       onClick={handleCancel}
                     >

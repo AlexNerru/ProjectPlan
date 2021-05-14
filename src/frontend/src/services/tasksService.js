@@ -52,7 +52,6 @@ export function postTask(token, user, project, data) {
     planned_work_hours: data.planned_work_hours,
     resources: [data.resource],
   };
-  console.log(post_data);
   return new Promise((resolve, reject) => {
     axios
       .post("http://127.0.0.1:8005/api/v1/tasks/", post_data, {
@@ -66,6 +65,33 @@ export function postTask(token, user, project, data) {
           resolve(response.data);
         }
         reject(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+export function patchTask(token, id, status, data) {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(
+        "http://127.0.0.1:8005/api/v1/tasks/" + id + "/",
+        {
+          ...data,
+          status: status,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(id);
+        }
+        reject();
       })
       .catch((error) => {
         reject(error);

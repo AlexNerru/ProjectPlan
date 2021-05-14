@@ -3,6 +3,7 @@ import {
   deleteTask,
   getTasks,
   getTasksByProject,
+  patchTask,
   postTask,
 } from "../../services/tasksService";
 
@@ -55,6 +56,23 @@ export function addTaskAction(token, user, project, data) {
       })
       .catch((error) => {
         dispatch({ type: types.TASKS_ADD_FAILURE });
+        throw error;
+      });
+  };
+}
+
+export function patchTasksAction(token, id, status, data) {
+  return async (dispatch) => {
+    dispatch({ type: types.TASKS_PATCH_REQUEST });
+
+    return patchTask(token, id, status, data)
+      .then(() => {
+        dispatch({
+          type: types.TASKS_PATCH_SUCCESS,
+        });
+      })
+      .catch((error) => {
+        dispatch({ type: types.TASKS_PATCH_FAILURE });
         throw error;
       });
   };
