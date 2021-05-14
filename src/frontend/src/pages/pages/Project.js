@@ -20,8 +20,10 @@ import {
   Divider as MuiDivider,
   Grid,
   IconButton,
+  Input,
   Link,
   Paper as MuiPaper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -55,13 +57,14 @@ import {
   getProjectsAction,
 } from "../../redux/actions/projectsActions";
 import * as Yup from "yup";
-import { Formik } from "formik";
+import formik, { Formik } from "formik";
 import { Alert, AvatarGroup } from "@material-ui/lab";
 import Cookies from "universal-cookie";
 import { MessageCircle } from "react-feather";
 import dragula from "react-dragula";
 import { getResourcesByProjectAction } from "../../redux/actions/resourcesActions";
 import { getTasksByProjectAction } from "../../redux/actions/tasksActions";
+import { DatePicker } from "@material-ui/pickers";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -435,37 +438,15 @@ function Task({ content, avatars }) {
   );
 }
 
-const demoTasks = [
-  {
-    title: "Redesign the homepage",
-    badges: [green[600], orange[600]],
-    notifications: 2,
-  },
-  {
-    title: "Upgrade dependencies to latest versions",
-    badges: [green[600]],
-    notifications: 1,
-  },
-  {
-    title: "Google Adwords best practices",
-  },
-  {
-    title: "Improve site speed",
-    badges: [green[600]],
-    notifications: 3,
-  },
-  {
-    title: "Stripe payment integration",
-    badges: [blue[600]],
-  },
-];
-
 const containers = [];
 
 function Tasks() {
   const cookies = new Cookies();
 
   const [open, setOpen] = React.useState(false);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date("2021-05-10T21:11:54")
+  );
 
   const onContainerReady = (container) => {
     containers.push(container);
@@ -483,6 +464,14 @@ function Tasks() {
     });
   }, []);
 
+  useEffect(() => {
+    const currentParams = getParams(window.location.href.slice(21));
+
+    if (resourceStatus === "idle") {
+      dispatch(getResourcesByProjectAction(token, currentParams["projectID"]));
+    }
+  }, [resourceStatus, dispatch]);
+
   const dispatch = useDispatch();
   const tasks = useSelector((state) => state.tasks.project_tasks);
   const token = useSelector((state) => {
@@ -493,6 +482,39 @@ function Tasks() {
       return cookies.get("token");
     }
   });
+  const id = useSelector((state) => {
+    if (state.auth.user.id !== undefined) {
+      cookies.set("id", state.auth.user.id, { path: "/" });
+      return state.auth.user.id;
+    } else {
+      return cookies.get("id");
+    }
+  });
+  const resources = useSelector((state) => state.resources.project_resources);
+  const resourceStatus = useSelector((state) => state.resources.status);
+
+  const handleSubmit = (
+    values,
+    { resetForm, setErrors, setStatus, setSubmitting }
+  ) => {
+    try {
+      setSubmitting(true);
+      console.log(values);
+      /* (
+        addProjectsAction(token, user, {
+          name: values.name,
+          description: values.description,
+        })
+      ); */
+      setStatus({ sent: true });
+      resetForm();
+      setSubmitting(false);
+    } catch (error) {
+      setStatus({ sent: false });
+      setErrors({ submit: error.message });
+      setSubmitting(false);
+    }
+  };
 
   return (
     <React.Fragment>
@@ -517,26 +539,33 @@ function Tasks() {
               onClose={() => setOpen(false)}
               aria-labelledby="form-dialog-title"
             >
-              <DialogTitle id="form-dialog-title">Create Project</DialogTitle>
+              <DialogTitle id="form-dialog-title">Create Task</DialogTitle>
               <DialogContent>
                 <DialogContentText>
-                  To create new project please fill this form
+                  To create new task please fill this form
                 </DialogContentText>
                 <Formik
                   initialValues={{
-                    name: "Test Project",
-                    description: "Test test test",
+                    name: "Task Name",
+                    description: "Description of Task",
+                    planned_work_hours: 10,
+                    planned_start_date: "2021-05-10",
+                    planned_finish_date: "2021-05-30",
+                    resource: "",
                     submit: false,
                   }}
                   validationSchema={Yup.object().shape({
                     name: Yup.string()
                       .max(255)
-                      .required("Project name is required"),
+                      .required("Task name is required"),
                     description: Yup.string()
                       .max(255)
                       .required("Description is required"),
+                    planned_work_hours: Yup.number()
+                      .min(1, "Task cat last at least one hour")
+                      .required("Planned work is required"),
                   })}
-                  onSubmit={() => {}}
+                  onSubmit={handleSubmit}
                 >
                   {({
                     errors,
@@ -553,42 +582,135 @@ function Tasks() {
                           {errors.submit}
                         </Alert>
                       )}
-                      <TextField
-                        name="name"
-                        label="Project name"
-                        value={values.name}
-                        error={Boolean(touched.name && errors.name)}
-                        fullWidth
-                        helperText={touched.name && errors.name}
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        my={2}
-                      />
-                      <Divider my={6} />
-                      <TextField
-                        name="description"
-                        label="Description"
-                        value={values.description}
-                        error={Boolean(
-                          touched.description && errors.description
-                        )}
-                        fullWidth
-                        helperText={touched.description && errors.description}
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        my={2}
-                      />
-                      <Divider my={6} />
-                      <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        disabled={isSubmitting}
-                        onClick={() => setOpen(false)}
-                      >
-                        Create
-                      </Button>
+                      <Paper mt={3}>
+                        <TextField
+                          name="name"
+                          label="Task name"
+                          value={values.name}
+                          error={Boolean(touched.name && errors.name)}
+                          fullWidth
+                          helperText={touched.name && errors.name}
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          my={2}
+                        />
+                      </Paper>
+                      <Paper mt={3}>
+                        <TextField
+                          name="description"
+                          label="Description"
+                          value={values.description}
+                          error={Boolean(
+                            touched.description && errors.description
+                          )}
+                          fullWidth
+                          helperText={touched.description && errors.description}
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          my={2}
+                        />
+                      </Paper>
+                      <Paper mt={3}>
+                        <TextField
+                          name="planned_work_hours"
+                          label="Work hours estimation"
+                          value={values.planned_work_hours}
+                          error={Boolean(
+                            touched.planned_work_hours &&
+                              errors.planned_work_hours
+                          )}
+                          fullWidth
+                          helperText={
+                            touched.planned_work_hours &&
+                            errors.planned_work_hours
+                          }
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          my={2}
+                        />
+                      </Paper>
+                      <Paper mt={2}>
+                        <TextField
+                          name="resource"
+                          select
+                          label="Employee"
+                          value={values.resource}
+                          error={Boolean(touched.resource && errors.resource)}
+                          fullWidth
+                          helperText={touched.resource && errors.resource}
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          my={2}
+                          defaultValue={"DEFAULT"}
+                        >
+                          <option value="DEFAULT" disabled>
+                            Choose a employee
+                          </option>
+                          {resources.map((resource, index) => {
+                            return (
+                              <option key={resource.id} value={resource.id}>
+                                {resource.first_name + resource.last_name}
+                              </option>
+                            );
+                          })}
+                        </TextField>
+                      </Paper>
+                      <Paper mt={3}>
+                        <TextField
+                          name="planned_start_date"
+                          label="Start date"
+                          type="date"
+                          value={values.planned_start_date}
+                          error={Boolean(
+                            touched.planned_start_date &&
+                              errors.planned_start_date
+                          )}
+                          fullWidth
+                          helperText={
+                            touched.planned_start_date &&
+                            errors.planned_start_date
+                          }
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                        />
+                      </Paper>
+                      <Paper mt={3}>
+                        <TextField
+                          name="planned_finish_date"
+                          label="Finish date"
+                          type="date"
+                          value={values.planned_start_date}
+                          error={Boolean(
+                            touched.planned_finish_date &&
+                              errors.planned_finish_date
+                          )}
+                          fullWidth
+                          helperText={
+                            touched.planned_finish_date &&
+                            errors.planned_finish_date
+                          }
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                        />
+                      </Paper>
+                      <Paper mt={3}>
+                        <Button
+                          type="submit"
+                          fullWidth
+                          variant="contained"
+                          color="primary"
+                          disabled={isSubmitting}
+                          onClick={() => setOpen(false)}
+                        >
+                          Create
+                        </Button>
+                      </Paper>
                     </form>
                   )}
                 </Formik>
@@ -652,55 +774,6 @@ function Tasks() {
 }
 
 function ProjectsList() {
-  const [open, setOpen] = React.useState(false);
-
-  const dispatch = useDispatch();
-  const history = useHistory();
-
-  const cookies = new Cookies();
-
-  const token = useSelector((state) => {
-    if (state.auth.user.token !== undefined) {
-      cookies.set("token", state.auth.user.token, { path: "/" });
-      return state.auth.user.token;
-    } else {
-      return cookies.get("token");
-    }
-  });
-
-  const id = useSelector((state) => {
-    if (state.auth.user.id !== undefined) {
-      cookies.set("id", state.auth.user.id, { path: "/" });
-      return state.auth.user.id;
-    } else {
-      return cookies.get("id");
-    }
-  });
-
-  const user = useSelector((state) => state.auth.user.id);
-
-  const handleSubmit = (
-    values,
-    { resetForm, setErrors, setStatus, setSubmitting }
-  ) => {
-    try {
-      setSubmitting(true);
-      dispatch(
-        addProjectsAction(token, user, {
-          name: values.name,
-          description: values.description,
-        })
-      );
-      setStatus({ sent: true });
-      resetForm();
-      setSubmitting(false);
-    } catch (error) {
-      setStatus({ sent: false });
-      setErrors({ submit: error.message });
-      setSubmitting(false);
-    }
-  };
-
   return (
     <React.Fragment>
       <Helmet title="Projects" />
