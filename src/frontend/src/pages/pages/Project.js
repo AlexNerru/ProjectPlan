@@ -65,7 +65,7 @@ import { MessageCircle } from "react-feather";
 import dragula from "react-dragula";
 import {
   getResourcesAction,
-  getResourcesByProjectAction
+  getResourcesByProjectAction,
 } from "../../redux/actions/resourcesActions";
 import {
   addTaskAction,
