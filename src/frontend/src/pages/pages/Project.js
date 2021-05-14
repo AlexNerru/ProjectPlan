@@ -63,7 +63,10 @@ import { Alert, AvatarGroup } from "@material-ui/lab";
 import Cookies from "universal-cookie";
 import { MessageCircle } from "react-feather";
 import dragula from "react-dragula";
-import { getResourcesByProjectAction } from "../../redux/actions/resourcesActions";
+import {
+  getResourcesAction,
+  getResourcesByProjectAction
+} from "../../redux/actions/resourcesActions";
 import {
   addTaskAction,
   getTasksByProjectAction,
@@ -405,7 +408,6 @@ function Lane({ title, description, onContainerLoaded, children }) {
 }
 
 function Task({ content, avatars }) {
-  console.log(content);
   return (
     <TaskWrapper mt={4}>
       <TaskWrapperContent>
@@ -438,10 +440,12 @@ const containers = [];
 function Tasks() {
   const cookies = new Cookies();
 
+  const [sourceOnDrop, setSource] = React.useState();
+  const [elOnDrop, setEl] = React.useState();
+
   const [open, setOpen] = React.useState(false);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date("2021-05-10T21:11:54")
-  );
+  const [canDrop, setCanDrop] = React.useState(false);
+  const [openFinishTask, setFinishTaskOpen] = React.useState(false);
   const [currentProject, setProject] = useState(1);
 
   const onContainerReady = (container) => {
@@ -457,9 +461,33 @@ function Tasks() {
   }, []);
 
   useEffect(() => {
-    const drake = dragula(containers);
+    const drake = dragula(containers, {
+      accepts: function (el, target, source, sibling) {
+        const target_div = target.parentElement.parentElement.parentElement.id;
+        const source_div = source.parentElement.parentElement.parentElement.id;
+        if (target_div === "progress_div" && source_div === "todo_div") {
+          return true;
+        }
+        if (target_div === "done_div" && source_div === "progress_div") {
+          return true;
+        }
+        return false;
+      },
+      moves: function (el, source, handle, sibling) {
+        if (el.id === "not_movable") {
+          return false;
+        }
+        return true;
+      },
+    });
     drake.on("drop", (el, target, source, sibling) => {
-      console.log("yep");
+      const target_div = target.parentElement.parentElement.parentElement.id;
+      const source_div = source.parentElement.parentElement.parentElement.id;
+      if (target_div === "done_div" && source_div === "progress_div") {
+        setFinishTaskOpen(true);
+        setSource(source);
+        setEl(el);
+      }
     });
   }, []);
 
@@ -468,6 +496,12 @@ function Tasks() {
 
     if (resourceStatus === "idle") {
       dispatch(getResourcesByProjectAction(token, currentParams["projectID"]));
+    }
+  }, [resourceStatus, dispatch]);
+
+  useEffect(() => {
+    if (resourceStatus === "idle") {
+      dispatch(getResourcesAction(token));
     }
   }, [resourceStatus, dispatch]);
 
@@ -514,6 +548,29 @@ function Tasks() {
       setErrors({ submit: error.message });
       setSubmitting(false);
     }
+  };
+
+  const handleFinishTaskSubmit = (
+    values,
+    { resetForm, setErrors, setStatus, setSubmitting }
+  ) => {
+    try {
+      setFinishTaskOpen(false);
+      setSubmitting(true);
+      setCanDrop(true);
+
+      setStatus({ sent: true });
+      resetForm();
+      setSubmitting(false);
+    } catch (error) {
+      setStatus({ sent: false });
+      setErrors({ submit: error.message });
+      setSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    sourceOnDrop.appendChild(elOnDrop);
   };
 
   return (
@@ -733,51 +790,192 @@ function Tasks() {
 
       <Grid container spacing={6}>
         <Grid item xs={12} lg={4} xl={4}>
-          <Lane
-            title="To do"
-            description="Task that we need to do"
-            onContainerLoaded={onContainerReady}
-          >
-            {tasks
-              .filter(function (task) {
-                return task.status === 1;
-              })
-              .map((task, index) => {
-                return <Task content={task} />;
-              })}
-          </Lane>
+          <div id={"todo_div"}>
+            <Lane
+              id="todo_lane"
+              title="To do"
+              description="Task that we need to do"
+              onContainerLoaded={onContainerReady}
+            >
+              <div id={"not_movable"}>
+                <Task
+                  content={{
+                    name: "",
+                    description: "",
+                  }}
+                />
+              </div>
+              {tasks
+                .filter(function (task) {
+                  return task.status === 1;
+                })
+                .map((task, index) => {
+                  return <Task key={task.id} content={task} />;
+                })}
+            </Lane>
+          </div>
         </Grid>
         <Grid item xs={12} lg={4} xl={4}>
-          <Lane
-            title="In Progress"
-            description="Tasks that we are doing"
-            onContainerLoaded={onContainerReady}
-          >
-            {tasks
-              .filter(function (task) {
-                return task.status === 2;
-              })
-              .map((task, index) => {
-                return <Task content={task} />;
-              })}
-          </Lane>
+          <div id={"progress_div"}>
+            <Lane
+              id="progress_lane"
+              title="In Progress"
+              description="Tasks that we are doing"
+              onContainerLoaded={onContainerReady}
+            >
+              <div id={"not_movable"}>
+                <Task
+                  content={{
+                    name: "",
+                    description: "",
+                  }}
+                />
+              </div>
+              {tasks
+                .filter(function (task) {
+                  return task.status === 2;
+                })
+                .map((task, index) => {
+                  return <Task content={task} />;
+                })}
+            </Lane>
+          </div>
         </Grid>
         <Grid item xs={12} lg={4} xl={4}>
-          <Lane
-            title="Completed"
-            description="Tasks that we have done"
-            onContainerLoaded={onContainerReady}
-          >
-            {tasks
-              .filter(function (task) {
-                return task.status === 3;
-              })
-              .map((task, index) => {
-                return <Task content={task} />;
-              })}
-          </Lane>
+          <div id={"done_div"}>
+            <Lane
+              id="done_lane"
+              title="Completed"
+              description="Tasks that we have done"
+              onContainerLoaded={onContainerReady}
+            >
+              <div id={"not_movable"}>
+                <Task
+                  content={{
+                    name: "",
+                    description: "",
+                  }}
+                />
+              </div>
+              {tasks
+                .filter(function (task) {
+                  return task.status === 3;
+                })
+                .map((task, index) => {
+                  return <Task content={task} />;
+                })}
+            </Lane>
+          </div>
         </Grid>
       </Grid>
+
+      <Dialog
+        disableBackdropClick
+        disableEscapeKeyDown
+        open={openFinishTask}
+        onClose={() => setFinishTaskOpen(false)}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Close Task</DialogTitle>
+        <DialogContent>
+          <Formik
+            initialValues={{
+              fact_work_hours: 10,
+              fact_finish_date: "2021-05-30",
+              submit: false,
+            }}
+            validationSchema={Yup.object().shape({
+              fact_work_hours: Yup.number()
+                .min(1, "Task cat last at least one hour")
+                .required("Fact work is required"),
+              fact_finish_date: Yup.date()
+                .min(new Date(), "Min date is today")
+                .required("Fact finish date is required"),
+            })}
+            onSubmit={handleFinishTaskSubmit}
+          >
+            {({
+              errors,
+              handleBlur,
+              handleChange,
+              handleSubmit,
+              isSubmitting,
+              touched,
+              values,
+            }) => (
+              <form noValidate onSubmit={handleSubmit}>
+                {errors.submit && (
+                  <Alert mt={2} mb={1} severity="warning">
+                    {errors.submit}
+                  </Alert>
+                )}
+                <Paper mt={3}>
+                  <TextField
+                    name="fact_work_hours"
+                    label="Fact work hours estimation"
+                    value={values.fact_work_hours}
+                    error={Boolean(
+                      touched.fact_work_hours && errors.fact_work_hours
+                    )}
+                    fullWidth
+                    helperText={
+                      touched.fact_work_hours && errors.fact_work_hours
+                    }
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    my={2}
+                  />
+                </Paper>
+                <Paper mt={3}>
+                  <TextField
+                    name="fact_finish_date"
+                    label="Finish date"
+                    type="date"
+                    value={values.fact_finish_date}
+                    error={Boolean(
+                      touched.fact_finish_date && errors.fact_finish_date
+                    )}
+                    fullWidth
+                    helperText={
+                      touched.fact_finish_date && errors.fact_finish_date
+                    }
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                </Paper>
+                <Grid>
+                  <Paper mt={3}>
+                    <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      disabled={isSubmitting}
+                    >
+                      Finish
+                    </Button>
+                  </Paper>
+                  <Paper mt={3}>
+                    <Button
+                      type="cancel"
+                      fullWidth
+                      variant="contained"
+                      color="outlined"
+                      disabled={isSubmitting}
+                      onClick={handleCancel}
+                    >
+                      Cancel
+                    </Button>
+                  </Paper>
+                </Grid>
+              </form>
+            )}
+          </Formik>
+        </DialogContent>
+      </Dialog>
     </React.Fragment>
   );
 }
