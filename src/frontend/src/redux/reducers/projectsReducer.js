@@ -14,15 +14,18 @@ export default function reducer(state = initialState, actions) {
       };
 
     case types.PROJECTS_ADD_SUCCESS:
-      state.projects.push(actions.projects);
-      return state;
+      return {
+        ...state,
+        projects: [...state.projects, actions.projects],
+      };
 
     case types.PROJECTS_DELETE_SUCCESS:
-      const projects = state.projects.filter(function (project) {
-        return project.id !== actions.id;
-      });
-      state.projects = projects;
-      return state;
+      return {
+        ...state,
+        projects: state.projects.filter(function (project) {
+          return project.id !== actions.id;
+        }),
+      };
 
     default:
       return state;

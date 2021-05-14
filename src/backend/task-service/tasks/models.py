@@ -37,10 +37,19 @@ class Task(models.Model):
     """
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
+
     creator = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.ForeignKey(TaskStatus, on_delete=models.DO_NOTHING)
     resources = models.ManyToManyField(Resource)
+
+    created = models.DateTimeField(auto_now_add=True)
+    planned_start_date = models.DateField()
+    fact_start_date = models.DateField(null=True)
+    planned_finish_date = models.DateField()
+    fact_finish_date = models.DateField(null=True)
+    planned_work_hours = models.IntegerField()
+    fact_work_hours = models.IntegerField(null=True)
 
 
 

@@ -109,10 +109,8 @@ class EventsConsumer:
             new_conn = establish_connection()
             while True:
                 try:
-                    logger.debug("Draining Events")
                     new_conn.drain_events(timeout=2)
                 except socket.timeout:
-                    logger.debug("Heart Beat Check")
                     new_conn.heartbeat_check()
 
         def run():

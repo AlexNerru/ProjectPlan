@@ -20,10 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-SECRET_KEY = os.environ.get("SECRET_KEY", default="some key")
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get("DEBUG", default=0))
+DEBUG = int(os.environ.get("DEBUG"))
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "resource-service"]
 
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_redis',
     'guardian',
+    'corsheaders',
 
     'resources',
 
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -141,6 +143,8 @@ STATICFILES_DIRS = (os.path.join('staticfiles'),)
 STATIC_URL = '/staticfiles/'
 STATIC_ROOT = '/staticfiles/'
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Resources API',
     'DESCRIPTION': 'Api for working with resources',
@@ -181,21 +185,11 @@ LOGGING = {
             'formatter': 'file',
             'filename': 'debug.log'
         },
-        'logstash': {
-            'level': 'DEBUG',
-            'class': 'logstash.TCPLogstashHandler',
-            'host': 'logstash',
-            'port': 5000,
-            'version': 1,
-            'message_type': 'django',
-            'fqdn': False,
-            'tags': ['django'],
-        },
     },
     'loggers': {
         'default': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file', 'logstash']
+            'handlers': ['console', 'file']
         }
     }
 }

@@ -45,10 +45,10 @@ import {
 import { spacing } from "@material-ui/system";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addProjectsAction,
-  deleteProjectsAction,
-  getProjectsAction,
-} from "../../redux/actions/projectsActions";
+  addResourceAction,
+  deleteResourcesAction,
+  getResourcesAction,
+} from "../../redux/actions/resourcesActions";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { Alert } from "@material-ui/lab";
@@ -95,10 +95,11 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  { id: "id", alignment: "left", label: "Project ID" },
-  { id: "name", alignment: "left", label: "Project" },
-  { id: "description", alignment: "left", label: "Description" },
-  { id: "owner", alignment: "left", label: "Owner" },
+  { id: "id", alignment: "left", label: "Resource ID" },
+  { id: "first_name", alignment: "left", label: "First Name" },
+  { id: "last_name", alignment: "left", label: "Last Name" },
+  { id: "grade", alignment: "left", label: "Grade" },
+  { id: "rate", alignment: "left", label: "Rate" },
   { id: "actions", alignment: "right", label: "Actions" },
 ];
 
@@ -183,12 +184,11 @@ function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const dispatch = useDispatch();
-  const history = useHistory();
+  const resources = useSelector((state) => state.resources.resources);
 
-  const projects = useSelector((state) => state.projects.projects);
-  const projectStatus = useSelector((state) => state.projects.status);
+  const resourceStatus = useSelector((state) => state.resources.status);
   const authStatus = useSelector((state) => state.auth.status);
-  const error = useSelector((state) => state.projects.error);
+  const error = useSelector((state) => state.resources.error);
 
   const cookies = new Cookies();
 
@@ -211,19 +211,15 @@ function EnhancedTable() {
   });
 
   useEffect(() => {
-    if (projectStatus === "idle") {
-      dispatch(getProjectsAction(token));
+    if (resourceStatus === "idle") {
+      dispatch(getResourcesAction(token));
     }
-  }, [projectStatus, dispatch]);
+  }, [resourceStatus, dispatch]);
 
-  const rows = projects;
+  const rows = resources;
 
   const handleProjectDelete = (event, id) => {
-    dispatch(deleteProjectsAction(token, id));
-  };
-
-  const handleOpenProject = (event, id) => {
-    history.push("/projects/" + id + "/");
+    dispatch(deleteResourcesAction(token, id));
   };
 
   const handleRequestSort = (event, property) => {
@@ -285,9 +281,10 @@ function EnhancedTable() {
                       key={`${row.id}-${index}`}
                     >
                       <TableCell align="left">#{row.id}</TableCell>
-                      <TableCell align="left">{row.name}</TableCell>
-                      <TableCell align="left">{row.description}</TableCell>
-                      <TableCell align="left">{row.owner}</TableCell>
+                      <TableCell align="left">{row.first_name}</TableCell>
+                      <TableCell align="left">{row.last_name}</TableCell>
+                      <TableCell align="left">{row.grade}</TableCell>
+                      <TableCell align="left">{row.rate}</TableCell>
                       <TableCell padding="none" align="right">
                         <Box mr={2}>
                           <IconButton
@@ -297,14 +294,6 @@ function EnhancedTable() {
                             }
                           >
                             <ArchiveIcon />
-                          </IconButton>
-                          <IconButton
-                            aria-label="details"
-                            onClick={(event) =>
-                              handleOpenProject(event, row.id)
-                            }
-                          >
-                            <RemoveRedEyeIcon />
                           </IconButton>
                         </Box>
                       </TableCell>
@@ -333,7 +322,7 @@ function EnhancedTable() {
   );
 }
 
-function ProjectsList() {
+function ResourcesList() {
   const [open, setOpen] = React.useState(false);
 
   const dispatch = useDispatch();
@@ -368,13 +357,14 @@ function ProjectsList() {
     try {
       setSubmitting(true);
       dispatch(
-        addProjectsAction(token, user, {
-          name: values.name,
-          description: values.description,
+        addResourceAction(token, {
+          first_name: values.first_name,
+          last_name: values.last_name,
+          grade: values.grade,
+          rate: values.rate,
         })
       );
       setStatus({ sent: true });
-      resetForm();
       setSubmitting(false);
     } catch (error) {
       setStatus({ sent: false });
@@ -385,18 +375,18 @@ function ProjectsList() {
 
   return (
     <React.Fragment>
-      <Helmet title="Projects" />
+      <Helmet title="Resources" />
 
       <Grid justify="space-between" container spacing={10}>
         <Grid item>
           <Typography variant="h3" gutterBottom display="inline">
-            Projects
+            Resources
           </Typography>
           <Breadcrumbs aria-label="Breadcrumb" mt={2}>
             <Link component={NavLink} exact to="/dashboard">
               Company
             </Link>
-            <Typography>Projects</Typography>
+            <Typography>Resources</Typography>
           </Breadcrumbs>
         </Grid>
         <Grid item>
@@ -407,31 +397,35 @@ function ProjectsList() {
               onClick={() => setOpen(true)}
             >
               <AddIcon />
-              New Project
+              New Resource
             </Button>
             <Dialog
               open={open}
               onClose={() => setOpen(false)}
               aria-labelledby="form-dialog-title"
             >
-              <DialogTitle id="form-dialog-title">Create Project</DialogTitle>
+              <DialogTitle id="form-dialog-title">Create Resource</DialogTitle>
               <DialogContent>
                 <DialogContentText>
-                  To create new project please fill this form
+                  To create new resource please fill this form
                 </DialogContentText>
                 <Formik
                   initialValues={{
-                    name: "Test Project",
-                    description: "Test test test",
+                    first_name: "Test",
+                    last_name: "Test Test",
+                    grade: 7,
+                    rate: 2500,
                     submit: false,
                   }}
                   validationSchema={Yup.object().shape({
-                    name: Yup.string()
+                    first_name: Yup.string()
                       .max(255)
-                      .required("Project name is required"),
-                    description: Yup.string()
+                      .required("First name is required"),
+                    last_name: Yup.string()
                       .max(255)
-                      .required("Description is required"),
+                      .required("Last name is required"),
+                    grade: Yup.number().required("Grade is required"),
+                    rate: Yup.number().required("Rate is required"),
                   })}
                   onSubmit={handleSubmit}
                 >
@@ -451,26 +445,48 @@ function ProjectsList() {
                         </Alert>
                       )}
                       <TextField
-                        name="name"
-                        label="Project name"
-                        value={values.name}
-                        error={Boolean(touched.name && errors.name)}
+                        name="first_name"
+                        label="First name"
+                        value={values.first_name}
+                        error={Boolean(touched.first_name && errors.first_name)}
                         fullWidth
-                        helperText={touched.name && errors.name}
+                        helperText={touched.first_name && errors.first_name}
                         onBlur={handleBlur}
                         onChange={handleChange}
                         my={2}
                       />
                       <Divider my={6} />
                       <TextField
-                        name="description"
-                        label="Description"
-                        value={values.description}
-                        error={Boolean(
-                          touched.description && errors.description
-                        )}
+                        name="last_name"
+                        label="Last name"
+                        value={values.last_name}
+                        error={Boolean(touched.last_name && errors.last_name)}
                         fullWidth
-                        helperText={touched.description && errors.description}
+                        helperText={touched.last_name && errors.last_name}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        my={2}
+                      />
+                      <Divider my={6} />
+                      <TextField
+                        name="grade"
+                        label="Grade"
+                        value={values.grade}
+                        error={Boolean(touched.grade && errors.grade)}
+                        fullWidth
+                        helperText={touched.grade && errors.grade}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        my={2}
+                      />
+                      <Divider my={6} />
+                      <TextField
+                        name="rate"
+                        label="Rate"
+                        value={values.rate}
+                        error={Boolean(touched.rate && errors.rate)}
+                        fullWidth
+                        helperText={touched.rate && errors.rate}
                         onBlur={handleBlur}
                         onChange={handleChange}
                         my={2}
@@ -506,4 +522,4 @@ function ProjectsList() {
   );
 }
 
-export default ProjectsList;
+export default ResourcesList;

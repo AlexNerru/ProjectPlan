@@ -3,6 +3,7 @@ import {
   signIn as authSignIn,
   signUp as authSignUp,
 } from "../../services/authService";
+import Cookies from "universal-cookie";
 
 export function signIn(credentials) {
   return async (dispatch) => {
@@ -48,6 +49,11 @@ export function signUp(credentials) {
 }
 
 export function signOut() {
+  const cookies = new Cookies();
+
+  cookies.remove("token", { path: "/" });
+  cookies.remove("id", { path: "/" });
+
   return async (dispatch) => {
     dispatch({
       type: types.AUTH_SIGN_OUT,

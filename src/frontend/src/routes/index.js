@@ -17,57 +17,13 @@ import SignUp from "../pages/auth/SignUp";
 import Page404 from "../pages/auth/Page404";
 import Page500 from "../pages/auth/Page500";
 
-// Components components
-import Accordion from "../pages/components/Accordion";
-import Alerts from "../pages/components/Alerts";
-import Avatars from "../pages/components/Avatars";
-import Badges from "../pages/components/Badges";
-import Buttons from "../pages/components/Buttons";
-import Cards from "../pages/components/Cards";
-import Chips from "../pages/components/Chips";
-import Dialogs from "../pages/components/Dialogs";
-import Lists from "../pages/components/Lists";
-import Menus from "../pages/components/Menus";
-import Pagination from "../pages/components/Pagination";
-import Progress from "../pages/components/Progress";
-import Snackbars from "../pages/components/Snackbars";
-import Tooltips from "../pages/components/Tooltips";
-
 // Dashboards components
 const Default = async(() => import("../pages/dashboards/Default"));
-const Analytics = async(() => import("../pages/dashboards/Analytics"));
-const SaaS = async(() => import("../pages/dashboards/SaaS"));
-
-// Forms components
-import SelectionCtrls from "../pages/forms/SelectionControls";
-import Selects from "../pages/forms/Selects";
-import TextFields from "../pages/forms/TextFields";
-const Pickers = async(() => import("../pages/forms/Pickers"));
-const Dropzone = async(() => import("../pages/forms/Dropzone"));
-const Editors = async(() => import("../pages/forms/Editors"));
-const Formik = async(() => import("../pages/forms/Formik"));
-
-// Icons components
-import MaterialIcons from "../pages/icons/MaterialIcons";
-const FeatherIcons = async(() => import("../pages/icons/FeatherIcons"));
 
 // Pages components
 import Projects from "../pages/pages/Projects";
-import Chat from "../pages/pages/Chat";
-const Profile = async(() => import("../pages/pages/Profile"));
-const Tasks = async(() => import("../pages/pages/Tasks"));
-const CalendarPage = async(() => import("../pages/pages/Calendar"));
-
-// Tables components
-import SimpleTable from "../pages/tables/SimpleTable";
-import AdvancedTable from "../pages/tables/AdvancedTable";
-
-// Chart components
-const Chartjs = async(() => import("../pages/charts/Chartjs"));
-
-// Maps components
-const GoogleMaps = async(() => import("../pages/maps/GoogleMaps"));
-const VectorMaps = async(() => import("../pages/maps/VectorMaps"));
+import Project from "../pages/pages/Project";
+import Resources from "../pages/pages/Resources";
 
 const dashboardsRoutes = {
   id: "Dashboard",
@@ -93,13 +49,22 @@ const projectsRoutes = {
   component: Projects,
   children: null,
   guard: AuthGuard,
+  exact: true,
+};
+
+const projectRoute = {
+  id: "Project",
+  path: "/projects/:projectID",
+  component: Project,
+  children: null,
+  guard: AuthGuard,
 };
 
 const resourcesRoutes = {
   id: "Resources",
   path: "/resources",
   icon: <List />,
-  component: Projects, //TODO: change to resources component
+  component: Resources,
   children: null,
   guard: AuthGuard,
 };
@@ -145,6 +110,7 @@ const authRoutes = {
 export const dashboardLayoutRoutes = [
   dashboardsRoutes,
   projectsRoutes,
+  projectRoute,
   resourcesRoutes,
   calendarRoutes,
 ];
@@ -157,5 +123,5 @@ export const sidebarRoutes = [
   dashboardsRoutes,
   projectsRoutes,
   resourcesRoutes,
-  calendarRoutes,
+  //calendarRoutes,
 ];
