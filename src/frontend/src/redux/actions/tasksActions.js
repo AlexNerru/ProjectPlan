@@ -42,11 +42,11 @@ export function getTasksByProjectAction(token, project) {
   };
 }
 
-export function addTaskAction(token, data) {
+export function addTaskAction(token, user, project, data) {
   return async (dispatch) => {
     dispatch({ type: types.TASKS_ADD_REQUEST });
 
-    return postTask(token, data)
+    return postTask(token, user, project, data)
       .then((response) => {
         dispatch({
           type: types.TASKS_ADD_SUCCESS,

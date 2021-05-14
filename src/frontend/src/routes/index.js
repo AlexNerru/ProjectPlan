@@ -19,24 +19,11 @@ import Page500 from "../pages/auth/Page500";
 
 // Dashboards components
 const Default = async(() => import("../pages/dashboards/Default"));
-const Analytics = async(() => import("../pages/dashboards/Analytics"));
-const SaaS = async(() => import("../pages/dashboards/SaaS"));
 
 // Pages components
 import Projects from "../pages/pages/Projects";
 import Project from "../pages/pages/Project";
 import Resources from "../pages/pages/Resources";
-
-// Tables components
-import SimpleTable from "../pages/tables/SimpleTable";
-import AdvancedTable from "../pages/tables/AdvancedTable";
-
-// Chart components
-const Chartjs = async(() => import("../pages/charts/Chartjs"));
-
-// Maps components
-const GoogleMaps = async(() => import("../pages/maps/GoogleMaps"));
-const VectorMaps = async(() => import("../pages/maps/VectorMaps"));
 
 const dashboardsRoutes = {
   id: "Dashboard",

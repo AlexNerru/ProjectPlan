@@ -46,10 +46,10 @@ class Task(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     planned_start_date = models.DateField()
     fact_start_date = models.DateField(null=True)
-    planned_finish_data = models.DateField()
-    fact_finish_data = models.DateField(null=True)
+    planned_finish_date = models.DateField()
+    fact_finish_date = models.DateField(null=True)
     planned_work_hours = models.IntegerField()
-    fact_work_hours = models.IntegerField()
+    fact_work_hours = models.IntegerField(null=True)
 
 
 

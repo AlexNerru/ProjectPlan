@@ -10,4 +10,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         EventsConsumer()
-        #Publisher()
+        Publisher()

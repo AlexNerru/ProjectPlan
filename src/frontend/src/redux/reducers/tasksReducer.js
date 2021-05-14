@@ -24,6 +24,7 @@ export default function reducer(state = initialState, actions) {
       return {
         ...state,
         tasks: [...state.tasks, actions.tasks],
+        project_tasks: [...state.project_tasks, actions.tasks],
       };
 
     case types.TASKS_DELETE_SUCCESS:

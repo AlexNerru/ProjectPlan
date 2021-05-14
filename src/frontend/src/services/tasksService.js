@@ -40,10 +40,22 @@ export function getTasksByProject(token, project) {
   });
 }
 
-export function postTask(token, data) {
+export function postTask(token, user, project, data) {
+  const post_data = {
+    creator: user,
+    project: project,
+    status: 1,
+    description: data.description,
+    name: data.name,
+    planned_finish_date: data.planned_finish_date,
+    planned_start_date: data.planned_start_date,
+    planned_work_hours: data.planned_work_hours,
+    resources: [data.resource],
+  };
+  console.log(post_data);
   return new Promise((resolve, reject) => {
     axios
-      .post("http://127.0.0.1:8005/api/v1/tasks/", data, {
+      .post("http://127.0.0.1:8005/api/v1/tasks/", post_data, {
         headers: {
           Authorization: "Bearer " + token,
         },

@@ -22,6 +22,7 @@ import {
   IconButton,
   Input,
   Link,
+  MenuItem,
   Paper as MuiPaper,
   Select,
   Table,
@@ -63,7 +64,10 @@ import Cookies from "universal-cookie";
 import { MessageCircle } from "react-feather";
 import dragula from "react-dragula";
 import { getResourcesByProjectAction } from "../../redux/actions/resourcesActions";
-import { getTasksByProjectAction } from "../../redux/actions/tasksActions";
+import {
+  addTaskAction,
+  getTasksByProjectAction,
+} from "../../redux/actions/tasksActions";
 import { DatePicker } from "@material-ui/pickers";
 
 const Divider = styled(MuiDivider)(spacing);
@@ -258,6 +262,8 @@ let EnhancedTableToolbar = (props) => {
 };
 
 function EnhancedTable() {
+  const cookies = new Cookies();
+
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("project");
   const [selected, setSelected] = React.useState([]);
@@ -265,27 +271,16 @@ function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const dispatch = useDispatch();
-  const resources = useSelector((state) => state.resources.project_resources);
-
+  const project_resources = useSelector(
+    (state) => state.resources.project_resources
+  );
   const resourceStatus = useSelector((state) => state.resources.status);
-
-  const cookies = new Cookies();
-
   const token = useSelector((state) => {
     if (state.auth.user.token !== undefined) {
       cookies.set("token", state.auth.user.token, { path: "/" });
       return state.auth.user.token;
     } else {
       return cookies.get("token");
-    }
-  });
-
-  const id = useSelector((state) => {
-    if (state.auth.user.id !== undefined) {
-      cookies.set("id", state.auth.user.id, { path: "/" });
-      return state.auth.user.id;
-    } else {
-      return cookies.get("id");
     }
   });
 
@@ -297,7 +292,7 @@ function EnhancedTable() {
     }
   }, [resourceStatus, dispatch]);
 
-  const rows = resources;
+  const rows = project_resources;
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -447,14 +442,18 @@ function Tasks() {
   const [selectedDate, setSelectedDate] = useState(
     new Date("2021-05-10T21:11:54")
   );
+  const [currentProject, setProject] = useState(1);
 
   const onContainerReady = (container) => {
     containers.push(container);
   };
 
   useEffect(() => {
+    //TODO: remove this slice 21
     const currentParams = getParams(window.location.href.slice(21));
-    dispatch(getTasksByProjectAction(token, currentParams["projectID"]));
+    const project = currentParams["projectID"];
+    setProject(project);
+    dispatch(getTasksByProjectAction(token, project));
   }, []);
 
   useEffect(() => {
@@ -490,7 +489,7 @@ function Tasks() {
       return cookies.get("id");
     }
   });
-  const resources = useSelector((state) => state.resources.project_resources);
+  const resources = useSelector((state) => state.resources.resources);
   const resourceStatus = useSelector((state) => state.resources.status);
 
   const handleSubmit = (
@@ -498,14 +497,15 @@ function Tasks() {
     { resetForm, setErrors, setStatus, setSubmitting }
   ) => {
     try {
+      setOpen(false);
       setSubmitting(true);
-      console.log(values);
-      /* (
-        addProjectsAction(token, user, {
-          name: values.name,
-          description: values.description,
-        })
-      ); */
+
+      dispatch(addTaskAction(token, id, currentProject, values));
+
+      setTimeout(() => {
+        dispatch(getResourcesByProjectAction(token, currentProject));
+      }, 1000); //TODO: подумать, что делать с костылем
+
       setStatus({ sent: true });
       resetForm();
       setSubmitting(false);
@@ -564,6 +564,15 @@ function Tasks() {
                     planned_work_hours: Yup.number()
                       .min(1, "Task cat last at least one hour")
                       .required("Planned work is required"),
+                    planned_start_date: Yup.date()
+                      .min(new Date(), "Min date is today")
+                      .required("Planned start date is required"),
+                    planned_finish_date: Yup.date()
+                      .min(new Date(), "Min date is today")
+                      .required("Planned finish date is required"),
+                    resource: Yup.number()
+                      .min(1, "Please select employee")
+                      .required("Employee is required"),
                   })}
                   onSubmit={handleSubmit}
                 >
@@ -633,6 +642,7 @@ function Tasks() {
                         <TextField
                           name="resource"
                           select
+                          multiple
                           label="Employee"
                           value={values.resource}
                           error={Boolean(touched.resource && errors.resource)}
@@ -643,14 +653,14 @@ function Tasks() {
                           my={2}
                           defaultValue={"DEFAULT"}
                         >
-                          <option value="DEFAULT" disabled>
+                          <MenuItem value="DEFAULT" disabled>
                             Choose a employee
-                          </option>
+                          </MenuItem>
                           {resources.map((resource, index) => {
                             return (
-                              <option key={resource.id} value={resource.id}>
+                              <MenuItem key={resource.id} value={resource.id}>
                                 {resource.first_name + resource.last_name}
-                              </option>
+                              </MenuItem>
                             );
                           })}
                         </TextField>
@@ -682,7 +692,7 @@ function Tasks() {
                           name="planned_finish_date"
                           label="Finish date"
                           type="date"
-                          value={values.planned_start_date}
+                          value={values.planned_finish_date}
                           error={Boolean(
                             touched.planned_finish_date &&
                               errors.planned_finish_date
@@ -706,7 +716,6 @@ function Tasks() {
                           variant="contained"
                           color="primary"
                           disabled={isSubmitting}
-                          onClick={() => setOpen(false)}
                         >
                           Create
                         </Button>

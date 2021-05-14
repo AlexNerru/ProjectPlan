@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 
 from guardian.shortcuts import assign_perm
 
-from resources.models import Profile, Project
+from resources.models import Profile, Project, Resource
 
 from resource_service.settings import CELERY_BROKER_URL
 
@@ -18,6 +18,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'resource_service.settings')
 
 app = Celery('resource_service')
 
+
 def event_handler(func):
     def inner(*args, **kwargs):
         logger.info("Message accepted: {0!r}".format(args[0]))
@@ -25,7 +26,11 @@ def event_handler(func):
             try:
                 obj = func(*args, **kwargs)
                 args[1].ack()
-                logger.info("Object {0!r} was created".format(str(obj)))
+                if not obj:
+                    logger.info("Message processed: {0!r}".format(args[0]))
+                else:
+                    logger.info("Object {0!r} was created".format(str(obj)))
+
             except Exception as e:
                 logger.exception(str(e))
                 args[1].ack()
@@ -33,6 +38,7 @@ def event_handler(func):
             logger.debug("Message has invalid version{0!r}".format(args[0]))
 
     return inner
+
 
 @event_handler
 def user_created_event_handler(body, message):
@@ -48,9 +54,28 @@ def user_created_event_handler(body, message):
     Profile.objects.create(user=user, user_service_id=body['id'])
     return user
 
+
 @event_handler
 def project_created_event_handler(body, message):
     return Project.objects.create(project_service_id=body['id'])
+
+
+@event_handler
+def task_created_event_handler(body, message):
+    project = Project.objects.filter(pk=body['project']).first()
+    if project:
+        for resource_id in body['resources']:
+            resource = Resource.objects.filter(pk=resource_id).first()
+            if resource:
+                resource.project.add(project)
+                resource.save()
+                logger.debug("Resource {0!r} was updated with project {1!r}"
+                             .format(str(resource), str(project)))
+            else:
+                logger.debug("Resource {0!r} was not found".format(str(resource)))
+    else:
+        logger.debug("Project {0!r} was not found".format(str(project)))
+
 
 class EventsConsumer:
 
@@ -59,7 +84,7 @@ class EventsConsumer:
             cls.instance = super(EventsConsumer, cls).__new__(cls)
         return cls.instance
 
-    #TODO refactor this to fabric class
+    # TODO refactor this to fabric class
     def __init__(self):
         rabbit_url = CELERY_BROKER_URL
         conn = Connection(rabbit_url, heartbeat=10)
@@ -71,11 +96,18 @@ class EventsConsumer:
         user_consumer.consume()
 
         projects_exchange = Exchange(name='projects_exchange',
-                            type='fanout',
-                            durable=True)
+                                     type='fanout',
+                                     durable=True)
         projects_queue = Queue(name='resources_projects_queue', exchange=projects_exchange)
         project_consumer = Consumer(conn, queues=projects_queue, callbacks=[project_created_event_handler])
         project_consumer.consume()
+
+        tasks_exchange = Exchange(name='tasks_exchange',
+                                  type='fanout',
+                                  durable=True)
+        tasks_queue = Queue(name='resources_tasks_queue', exchange=tasks_exchange)
+        task_consumer = Consumer(conn, queues=tasks_queue, callbacks=[task_created_event_handler])
+        task_consumer.consume()
 
         def establish_connection():
             revived_connection = conn.clone()
@@ -88,16 +120,17 @@ class EventsConsumer:
             project_consumer.revive(channel)
             project_consumer.consume()
 
+            task_consumer.revive(channel)
+            task_consumer.consume()
+
             return revived_connection
 
         def consume():
             new_conn = establish_connection()
             while True:
                 try:
-                    logger.debug("Draining Events")
                     new_conn.drain_events(timeout=2)
                 except socket.timeout:
-                    logger.debug("Heart Beat Check")
                     new_conn.heartbeat_check()
 
         def run():
@@ -105,6 +138,6 @@ class EventsConsumer:
                 try:
                     consume()
                 except conn.connection_errors:
-                    print("connection revived")
+                    print("Connection revived")
 
         run()

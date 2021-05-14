@@ -45,9 +45,23 @@ class Publisher:
                                                    type='fanout',
                                                    durable=True,
                                                    channel=self.channel)
+                self.tasks_exchange = Exchange(name='tasks_exchange',
+                                                   type='fanout',
+                                                   durable=True,
+                                                   channel=self.channel)
                 self.users_exchange.declare()
                 logger.info("Users exchange declared")
                 self.projects_exchange.declare()
                 logger.info("Projects exchange declared")
                 self.resources_exchange.declare()
                 logger.info("Resources exchange declared")
+                self.tasks_exchange.declare()
+                logger.info("Tasks exchange declared")
+
+    def event_task_created(self, data, version):
+        message = data.copy()
+        message['version'] = version
+        self.producer.publish(message, exchange=self.tasks_exchange,
+                              retry_policy=self.retry_policy)
+        logger.info("Message sent: {0!r} to exchange {1!r}".format(message,
+                                                                   self.tasks_exchange))

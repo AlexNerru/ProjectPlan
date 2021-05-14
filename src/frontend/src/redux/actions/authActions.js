@@ -51,8 +51,9 @@ export function signUp(credentials) {
 export function signOut() {
   const cookies = new Cookies();
 
-  cookies.set("token", "", { path: "/" });
-  cookies.set("id", "", { path: "/" });
+  cookies.remove("token", { path: "/" });
+  cookies.remove("id", { path: "/" });
+
   return async (dispatch) => {
     dispatch({
       type: types.AUTH_SIGN_OUT,
