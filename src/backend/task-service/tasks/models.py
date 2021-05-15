@@ -44,12 +44,11 @@ class Task(models.Model):
     resources = models.ManyToManyField(Resource)
 
     created = models.DateTimeField(auto_now_add=True)
+
+    # TODO: add validation that finish is later than start
     planned_start_date = models.DateField()
     fact_start_date = models.DateField(null=True)
     planned_finish_date = models.DateField()
     fact_finish_date = models.DateField(null=True)
     planned_work_hours = models.IntegerField()
     fact_work_hours = models.IntegerField(null=True)
-
-
-

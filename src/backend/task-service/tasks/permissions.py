@@ -4,6 +4,7 @@ RUD_TASK_NAME = 'rud_task'
 RUD_TASK_DESCRIPTION = "Read, update, delete task"
 
 
+# TODO: check to delete this
 class TaskPermission(permissions.BasePermission):
     """
     Global permission check rud permissions.
