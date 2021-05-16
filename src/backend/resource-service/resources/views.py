@@ -15,5 +15,5 @@ class ResourcesViewSet(LoggingViewSet):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
     permission_classes = [DjangoObjectGetPermission]
-    filter_backends = (ObjectPermissionsFilter, DjangoFilterBackend)
+    filter_backends = (DjangoFilterBackend, )
     filterset_class = ResourceFilter

@@ -17,6 +17,7 @@ import { spacing } from "@material-ui/system";
 
 import WorkHoursChart from "../../charts/plotly/WorkHoursChart";
 import CostsChart from "../../charts/plotly/CostsChart";
+import DailyWorkHoursChart from "../../charts/plotly/DailyWorkHoursChart";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -60,6 +61,12 @@ function Default() {
 
         <Grid item xs={12} lg={6}>
           <CostsChart token={token} />
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={6}>
+        <Grid item xs={12} lg={12}>
+          <DailyWorkHoursChart token={token} />
         </Grid>
       </Grid>
     </React.Fragment>

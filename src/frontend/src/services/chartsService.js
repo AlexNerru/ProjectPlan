@@ -82,3 +82,46 @@ export function getCostsDataAll(token) {
       });
   });
 }
+
+export function getDailyWorkHoursData(token, projectID) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        "http://127.0.0.1:8005/api/v1/projects/" + projectID + "/resources/",
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response.data);
+        }
+        reject(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+export function getDailyWorkHoursAllData(token) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get("http://127.0.0.1:8005/api/v1/dashboard/resources/", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response.data);
+        }
+        reject(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}

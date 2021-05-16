@@ -143,10 +143,11 @@ def fact_cost_per_day(task, fact_days):
     return result/len(fact_days)
 
 
-def cumulative_graph_data(planned_function, fact_function, project_id=None):
+def graph_data(planned_function, fact_function, is_cumulative=True, project_id=None):
     """
     Calculates data to create cumulative line graphs with provided function
 
+    :param is_cumulative:
     :param project_id: id of project for calculation
     :type project_id: int
     :param planned_function: function to calculate value for plan
@@ -203,13 +204,17 @@ def cumulative_graph_data(planned_function, fact_function, project_id=None):
             for item in data.items():
                 current_plan_value = item[1]['plan']
                 plan.append(previous_plan_value + current_plan_value)
-                previous_plan_value += current_plan_value
+
+                if is_cumulative:
+                    previous_plan_value += current_plan_value
 
                 latest_fact_finish = latest_fact_finish_date(tasks)
                 if latest_fact_finish and item[0] <= latest_fact_finish:
                     current_fact_value = item[1]['fact']
                     fact.append(previuos_fact_value + current_fact_value)
-                    previuos_fact_value += current_fact_value
+
+                    if is_cumulative:
+                        previuos_fact_value += current_fact_value
 
             return_data = {'labels': labels, 'plan': plan, 'fact': fact}
 

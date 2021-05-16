@@ -1,5 +1,4 @@
 import { combineReducers } from "redux";
-import { configureStore } from "@reduxjs/toolkit";
 
 import themeReducer from "./theme/themeReducer";
 import authReducer from "./auth/authReducer";

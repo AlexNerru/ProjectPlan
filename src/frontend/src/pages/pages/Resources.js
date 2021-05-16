@@ -266,8 +266,6 @@ function EnhancedTable() {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const labelId = `enhanced-table-checkbox-${index}`;
-
                   return (
                     <TableRow
                       hover
@@ -321,7 +319,6 @@ function ResourcesList() {
   const [open, setOpen] = React.useState(false);
 
   const dispatch = useDispatch();
-  const history = useHistory();
 
   const cookies = new Cookies();
 
@@ -333,17 +330,6 @@ function ResourcesList() {
       return cookies.get("token");
     }
   });
-
-  const id = useSelector((state) => {
-    if (state.auth.user.id !== undefined) {
-      cookies.set("id", state.auth.user.id, { path: "/" });
-      return state.auth.user.id;
-    } else {
-      return cookies.get("id");
-    }
-  });
-
-  const user = useSelector((state) => state.auth.user.id);
 
   const handleSubmit = (
     values,

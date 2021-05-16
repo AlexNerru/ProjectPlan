@@ -2,6 +2,7 @@ import * as types from "../../constants";
 
 const initialState = {
   workHours: {},
+  dailyWorkHours: {},
   costs: {},
   status: "idle",
 };
@@ -30,6 +31,18 @@ export default function reducer(state = initialState, actions) {
       return {
         ...state,
         costs: actions.costs,
+      };
+
+    case types.DAILY_WORK_HOURS_CHART_SUCCESS:
+      return {
+        ...state,
+        dailyWorkHours: actions.dailyWorkHours,
+      };
+
+    case types.DAILY_WORK_HOURS_ALL_CHART_SUCCESS:
+      return {
+        ...state,
+        dailyWorkHours: actions.dailyWorkHours,
       };
 
     default:

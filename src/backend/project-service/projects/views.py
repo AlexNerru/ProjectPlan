@@ -16,7 +16,7 @@ class ProjectViewSet(LoggingViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [DjangoObjectGetPermission]
-    filter_backends = (ObjectPermissionsFilter, DjangoFilterBackend)
+    filter_backends = (DjangoFilterBackend, )
     filterset_class = ProjectFilter
 
 
