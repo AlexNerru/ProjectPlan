@@ -15,7 +15,7 @@ import { green, red } from "@material-ui/core/colors";
 
 import Actions from "./Actions";
 import BarChart from "./BarChart";
-import LineChart from "./LineChart";
+import LineChart from "./WorkHoursPlanFactChart";
 import DoughnutChart from "./DoughnutChart";
 import Stats from "./Stats";
 import Table from "./Table";

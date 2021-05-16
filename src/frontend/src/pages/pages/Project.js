@@ -481,16 +481,10 @@ function Tasks() {
         if (target_div === "progress_div" && source_div === "todo_div") {
           return true;
         }
-        if (target_div === "done_div" && source_div === "progress_div") {
-          return true;
-        }
-        return false;
+        return target_div === "done_div" && source_div === "progress_div";
       },
       moves: function (el, source, handle, sibling) {
-        if (el.id === "not_movable") {
-          return false;
-        }
-        return true;
+        return el.id !== "not_movable";
       },
     });
     drake.on("drop", (el, target, source, sibling) => {

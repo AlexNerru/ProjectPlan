@@ -3,9 +3,13 @@ import logging
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.db.models import signals
 
 from tasks.models import Project, Task, TaskStatus, Resource
-from tasks.graphs import get_plan_fact_graph_data, get_dates_between
+from tasks.graphs import cumulative_graph_data, \
+    planned_work_hours_per_day, fact_work_hours_per_day, \
+    planned_cost_per_day, fact_cost_per_day
+from tasks.signals import send_message_task_saved
 
 logger = logging.getLogger('default')
 
@@ -14,6 +18,9 @@ class PlanFactGraphTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        signals.m2m_changed.disconnect(send_message_task_saved,
+                                       sender=Task.resources.through)
+
         Project.objects.bulk_create([
             Project(project_service_id=1),
             Project(project_service_id=2)
@@ -26,8 +33,8 @@ class PlanFactGraphTestCase(TestCase):
         ])
 
         Resource.objects.bulk_create([
-            Resource(resource_service_id=1),
-            Resource(resource_service_id=2)
+            Resource(resource_service_id=1, rate=1000),
+            Resource(resource_service_id=2, rate=2000)
         ])
 
         cls.user = User.objects.create_user("test", "test", "test")
@@ -41,7 +48,7 @@ class PlanFactGraphTestCase(TestCase):
                     fact_finish_date=fact_finish_date, planned_work_hours=planned_work_hours,
                     fact_work_hours=fact_work_hours)
 
-    def test_common_case(self):
+    def test_work_hours_common(self):
         project1 = Project.objects.get(project_service_id=1)
         project2 = Project.objects.get(project_service_id=2)
 
@@ -90,12 +97,12 @@ class PlanFactGraphTestCase(TestCase):
                             fact_work_hours=15)
         ])
 
-        data = get_plan_fact_graph_data(1)
+        data = cumulative_graph_data(1, planned_work_hours_per_day, fact_work_hours_per_day)
 
         self.assertEqual(data['plan'], [5.0, 14.0, 18.0, 22.0, 22.0, 23.0, 24.0, 25.0, 28.0, 30.0, 32.0, 34.0])
         self.assertEqual(data['fact'], [8.0, 13.0, 18.0, 23.0, 30.0, 35.0, 40.0, 43.0, 46.0, 49.0])
 
-    def test_one_task(self):
+    def test_work_hours_one_task(self):
         project1 = Project.objects.get(project_service_id=1)
 
         status_done = TaskStatus.objects.get(name="Done")
@@ -106,14 +113,32 @@ class PlanFactGraphTestCase(TestCase):
                         planned_work_hours=10,
                         fact_start_date=datetime(2020, 5, 1),
                         fact_finish_date=datetime(2020, 5, 1),
-                        fact_work_hours=8)\
+                        fact_work_hours=8) \
             .save()
 
-        data = get_plan_fact_graph_data(1)
+        data = cumulative_graph_data(1, planned_work_hours_per_day, fact_work_hours_per_day)
 
         self.assertEqual(data['fact'], [8.0])
-        self.assertEqual(data['plan'], data['fact'])
+        self.assertEqual(data['plan'], [5.0, 10.0])
 
+    def test_costs_one_task(self):
+        project1 = Project.objects.get(project_service_id=1)
 
+        status_done = TaskStatus.objects.get(name="Done")
 
+        resource_1 = Resource.objects.get(resource_service_id=1)
 
+        task = self.createTask(project1, status_done,
+                               planned_start_date=datetime(2020, 5, 1),
+                               planned_finish_date=datetime(2020, 5, 2),
+                               planned_work_hours=10,
+                               fact_start_date=datetime(2020, 5, 1),
+                               fact_finish_date=datetime(2020, 5, 1),
+                               fact_work_hours=8)
+        task.save()
+        task.resources.add(resource_1)
+
+        data = cumulative_graph_data(1, planned_cost_per_day, fact_cost_per_day)
+
+        self.assertEqual(data['fact'], [8000.0])
+        self.assertEqual(data['plan'], [5000.0, 10000.0])

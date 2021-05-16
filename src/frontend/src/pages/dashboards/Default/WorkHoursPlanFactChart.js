@@ -11,9 +11,9 @@ import { spacing } from "@material-ui/system";
 
 import { fade } from "@material-ui/core/styles/colorManipulator";
 
-import { Line } from "react-chartjs-2";
-
 import { MoreVertical } from "react-feather";
+
+import Plot from "react-plotly.js";
 
 const Card = styled(MuiCard)(spacing);
 
@@ -21,7 +21,7 @@ const ChartWrapper = styled.div`
   height: 378px;
 `;
 
-function LineChart({ theme }) {
+function WorkHoursPlanFactChart({ theme }) {
   const data = (canvas) => {
     const ctx = canvas.getContext("2d");
 
@@ -171,10 +171,23 @@ function LineChart({ theme }) {
       />
       <CardContent>
         <ChartWrapper>
-          <Line data={data} options={options} />
+          <Plot
+            data={[
+              {
+                x: [1, 2, 3],
+                y: [2, 6, 3],
+                type: "scatter",
+                mode: "lines+markers",
+                marker: { color: "red" },
+              },
+              { type: "bar", x: [1, 2, 3], y: [2, 5, 3] },
+            ]}
+            layout={{ title: "A Fancy Plot" }}
+            config={{ responsive: true }}
+          />
         </ChartWrapper>
       </CardContent>
     </Card>
   );
 }
-export default withTheme(LineChart);
+export default withTheme(WorkHoursPlanFactChart);

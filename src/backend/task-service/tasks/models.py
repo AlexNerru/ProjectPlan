@@ -22,6 +22,7 @@ class Resource(models.Model):
     Моdel representing resource from resource-service
     """
     resource_service_id = models.IntegerField()
+    rate = models.IntegerField(null=True)
 
 
 class TaskStatus(models.Model):
