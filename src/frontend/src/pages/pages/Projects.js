@@ -8,9 +8,7 @@ import {
   Box,
   Breadcrumbs as MuiBreadcrumbs,
   Button,
-  Chip as MuiChip,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
@@ -32,8 +30,6 @@ import {
   Tooltip,
   Typography,
 } from "@material-ui/core";
-
-import { green, orange, red } from "@material-ui/core/colors";
 
 import {
   Add as AddIcon,
@@ -98,19 +94,12 @@ const headCells = [
   { id: "id", alignment: "left", label: "Project ID" },
   { id: "name", alignment: "left", label: "Project" },
   { id: "description", alignment: "left", label: "Description" },
-  { id: "owner", alignment: "left", label: "Owner" },
+  { id: "owner_username", alignment: "left", label: "Owner" },
   { id: "actions", alignment: "right", label: "Actions" },
 ];
 
 function EnhancedTableHead(props) {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
+  const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -187,8 +176,6 @@ function EnhancedTable() {
 
   const projects = useSelector((state) => state.projects.projects);
   const projectStatus = useSelector((state) => state.projects.status);
-  const authStatus = useSelector((state) => state.auth.status);
-  const error = useSelector((state) => state.projects.error);
 
   const cookies = new Cookies();
 
@@ -198,15 +185,6 @@ function EnhancedTable() {
       return state.auth.user.token;
     } else {
       return cookies.get("token");
-    }
-  });
-
-  const id = useSelector((state) => {
-    if (state.auth.user.id !== undefined) {
-      cookies.set("id", state.auth.user.id, { path: "/" });
-      return state.auth.user.id;
-    } else {
-      return cookies.get("id");
     }
   });
 
@@ -287,7 +265,7 @@ function EnhancedTable() {
                       <TableCell align="left">#{row.id}</TableCell>
                       <TableCell align="left">{row.name}</TableCell>
                       <TableCell align="left">{row.description}</TableCell>
-                      <TableCell align="left">{row.owner}</TableCell>
+                      <TableCell align="left">{row.owner_username}</TableCell>
                       <TableCell padding="none" align="right">
                         <Box mr={2}>
                           <IconButton

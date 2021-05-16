@@ -15,16 +15,7 @@ import {
 
 import { spacing } from "@material-ui/system";
 
-import { green, red } from "@material-ui/core/colors";
-
-import { getParams } from "../../../routes/Routes";
-
-import Actions from "./Actions";
-import BarChart from "./BarChart";
 import WorkHoursChart from "../../charts/plotly/WorkHoursChart";
-import DoughnutChart from "./DoughnutChart";
-import Stats from "./Stats";
-import Table from "./Table";
 import CostsChart from "../../charts/plotly/CostsChart";
 
 const Divider = styled(MuiDivider)(spacing);
@@ -69,15 +60,6 @@ function Default() {
 
         <Grid item xs={12} lg={6}>
           <CostsChart token={token} />
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={6}>
-        <Grid item xs={12} lg={4}>
-          <BarChart />
-        </Grid>
-        <Grid item xs={12} lg={8}>
-          <Table />
         </Grid>
       </Grid>
     </React.Fragment>

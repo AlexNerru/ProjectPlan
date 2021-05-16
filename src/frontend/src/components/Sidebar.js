@@ -311,6 +311,7 @@ const Sidebar = ({ classes, staticContext, location, ...rest }) => {
 
   const firstName = useSelector((state) => state.auth.user.first_name);
   const lastName = useSelector((state) => state.auth.user.last_name);
+  const username = useSelector((state) => state.auth.user.username);
 
   const toggle = (index) => {
     // Collapse all elements
@@ -408,9 +409,10 @@ const Sidebar = ({ classes, staticContext, location, ...rest }) => {
             </SidebarFooterBadge>
           </Grid>
           <Grid item>
-            <SidebarFooterText variant="body2">
-              {firstName} {lastName}
-            </SidebarFooterText>
+            <SidebarFooterText variant="body2"> {username} </SidebarFooterText>
+            <SidebarFooterSubText variant="body2">
+              Team member
+            </SidebarFooterSubText>
           </Grid>
         </Grid>
       </SidebarFooter>

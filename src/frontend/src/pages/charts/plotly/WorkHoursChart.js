@@ -32,8 +32,6 @@ const ChartWrapper = styled.div`
 function WorkHoursChart({ token }) {
   const dispatch = useDispatch();
 
-  const [projectID, setProjectID] = useState();
-
   useEffect(() => {
     const currentParams = getParams(window.location.href.slice(21));
     if (currentParams["projectID"] !== undefined) {
