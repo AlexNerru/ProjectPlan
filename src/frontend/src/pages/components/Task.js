@@ -33,6 +33,12 @@ const TaskTitle = styled(Typography)`
 
 const TaskDescription = styled(Typography)`
   font-weight: 400;
+  font-size: 14px;
+  margin-right: ${(props) => props.theme.spacing(10)}px;
+`;
+
+const TaskPlannedFinishDate = styled(Typography)`
+  font-weight: 300;
   font-size: 12px;
   margin-right: ${(props) => props.theme.spacing(10)}px;
 `;
@@ -64,6 +70,14 @@ export function Task({ content, topTask = false }) {
         <TaskDescription variant="body1" gutterBottom>
           {content.description}
         </TaskDescription>
+
+        <TaskPlannedFinishDate variant="body1" gutterBottom>
+          Planned due: {content.planned_finish_date}
+        </TaskPlannedFinishDate>
+
+        <TaskPlannedFinishDate variant="body1" gutterBottom>
+          Planned work hours: {content.planned_work_hours}
+        </TaskPlannedFinishDate>
       </TaskWrapperContent>
     </TaskWrapper>
   );

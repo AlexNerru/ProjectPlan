@@ -7,8 +7,6 @@ import { Helmet } from "react-helmet-async";
 import "react-dragula/dist/dragula.css";
 
 import {
-  Avatar,
-  Box,
   Breadcrumbs as MuiBreadcrumbs,
   Button,
   Card as MuiCard,
@@ -20,11 +18,9 @@ import {
   Divider as MuiDivider,
   Grid,
   IconButton,
-  Input,
   Link,
   MenuItem,
   Paper as MuiPaper,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -54,21 +50,25 @@ import { border, spacing } from "@material-ui/system";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { Formik } from "formik";
-import { Alert, AvatarGroup } from "@material-ui/lab";
+import { Alert } from "@material-ui/lab";
 import Cookies from "universal-cookie";
-import { MessageCircle } from "react-feather";
 import dragula from "react-dragula";
 
 import {
   getResourcesAction,
   getResourcesByProjectAction,
-} from "../../redux/actions/resourcesActions";
+} from "../../redux/resources/resourcesActions";
 
 import {
   addTaskAction,
   getTasksByProjectAction,
   patchTasksAction,
-} from "../../redux/actions/tasksActions";
+} from "../../redux/tasks/tasksActions";
+
+import { getCostsAction, getWorkHoursAction } from "../../redux/charts/actions";
+
+import WorkHoursChart from "../charts/plotly/WorkHoursChart";
+import CostsChart from "../charts/plotly/CostsChart";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -90,34 +90,6 @@ const Spacer = styled.div`
 
 const ToolbarTitle = styled.div`
   min-width: 150px;
-`;
-
-const MessageCircleIcon = styled(MessageCircle)`
-  color: ${(props) => props.theme.palette.grey[500]};
-  vertical-align: middle;
-`;
-
-const TaskBadge = styled.div`
-  background: ${(props) => props.color};
-  width: 40px;
-  height: 6px;
-  border-radius: 6px;
-  display: inline-block;
-  margin-right: ${(props) => props.theme.spacing(2)}px;
-`;
-
-const TaskNotifications = styled.div`
-  display: flex;
-  position: absolute;
-  bottom: ${(props) => props.theme.spacing(4)}px;
-  right: ${(props) => props.theme.spacing(4)}px;
-`;
-
-const TaskNotificationsAmount = styled.div`
-  color: ${(props) => props.theme.palette.grey[500]};
-  font-weight: 600;
-  margin-right: ${(props) => props.theme.spacing(1)}px;
-  line-height: 1.75;
 `;
 
 function descendingComparator(a, b, orderBy) {
@@ -203,26 +175,11 @@ let EnhancedTableToolbar = (props) => {
           </Typography>
         ) : (
           <Typography variant="h6" id="tableTitle">
-            Projects
+            Resources
           </Typography>
         )}
       </ToolbarTitle>
       <Spacer />
-      <div>
-        {numSelected > 0 ? (
-          <Tooltip title="Delete">
-            <IconButton aria-label="Delete">
-              <ArchiveIcon />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Filter list">
-            <IconButton aria-label="Filter list">
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-      </div>
     </Toolbar>
   );
 };
@@ -377,21 +334,19 @@ function Tasks() {
 
   const [sourceOnDrop, setSource] = React.useState();
   const [elOnDrop, setEl] = React.useState();
+  const [projectID, setProjectID] = useState();
 
   const [open, setOpen] = React.useState(false);
   const [openFinishTask, setFinishTaskOpen] = React.useState(false);
-  const [currentProject, setProject] = useState(1);
 
   const onContainerReady = (container) => {
     containers.push(container);
   };
 
   useEffect(() => {
-    //TODO: remove this slice 21
     const currentParams = getParams(window.location.href.slice(21));
-    const project = currentParams["projectID"];
-    setProject(project);
-    dispatch(getTasksByProjectAction(token, project));
+    setProjectID(currentParams["projectID"]);
+    dispatch(getTasksByProjectAction(token, currentParams["projectID"]));
   }, []);
 
   useEffect(() => {
@@ -428,13 +383,13 @@ function Tasks() {
     if (resourceStatus === "idle") {
       dispatch(getResourcesByProjectAction(token, currentParams["projectID"]));
     }
-  }, [resourceStatus, dispatch]);
+  }, []);
 
   useEffect(() => {
     if (resourceStatus === "idle") {
       dispatch(getResourcesAction(token));
     }
-  }, [resourceStatus, dispatch]);
+  }, []);
 
   const dispatch = useDispatch();
   const tasks = useSelector((state) => state.tasks.project_tasks);
@@ -465,11 +420,12 @@ function Tasks() {
       setOpen(false);
       setSubmitting(true);
 
-      dispatch(addTaskAction(token, id, currentProject, values));
+      dispatch(addTaskAction(token, id, projectID, values));
 
+      //TODO: подумать, что делать с костылем
       setTimeout(() => {
-        dispatch(getResourcesByProjectAction(token, currentProject));
-      }, 1000); //TODO: подумать, что делать с костылем
+        dispatch(getResourcesByProjectAction(token, projectID));
+      }, 500);
 
       setStatus({ sent: true });
       resetForm();
@@ -492,6 +448,14 @@ function Tasks() {
       const taskId = elOnDrop.childNodes[0].childNodes[0].childNodes[1].data;
 
       dispatch(patchTasksAction(token, taskId, 3, values));
+
+      setTimeout(() => {
+        dispatch(getWorkHoursAction(token, projectID));
+      }, 500);
+
+      setTimeout(() => {
+        dispatch(getCostsAction(token, projectID));
+      }, 500);
 
       setStatus({ sent: true });
       resetForm();
@@ -928,7 +892,26 @@ function Tasks() {
   );
 }
 
-function ProjectsList() {
+function Project() {
+  const cookies = new Cookies();
+
+  const [projectID, setProjectID] = useState();
+
+  const token = useSelector((state) => {
+    if (state.auth.user.token !== undefined) {
+      cookies.set("token", state.auth.user.token, { path: "/" });
+      return state.auth.user.token;
+    } else {
+      return cookies.get("token");
+    }
+  });
+
+  useEffect(() => {
+    //TODO: remove this slice 21
+    const currentParams = getParams(window.location.href.slice(21));
+    setProjectID(currentParams["projectID"]);
+  }, []);
+
   return (
     <React.Fragment>
       <Helmet title="Projects" />
@@ -945,8 +928,22 @@ function ProjectsList() {
             <Link component={NavLink} exact to="/projects">
               Projects
             </Link>
-            <Typography>Project</Typography>
+            <Typography>Project {projectID}</Typography>
           </Breadcrumbs>
+        </Grid>
+      </Grid>
+
+      <Divider my={6} />
+
+      <Grid container spacing={6}>
+        <Grid item xs={12} lg={12}>
+          <WorkHoursChart token={token} projectID={projectID} />
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={6}>
+        <Grid item xs={12} lg={12}>
+          <CostsChart token={token} projectID={projectID} />
         </Grid>
       </Grid>
 
@@ -969,4 +966,4 @@ function ProjectsList() {
   );
 }
 
-export default ProjectsList;
+export default Project;

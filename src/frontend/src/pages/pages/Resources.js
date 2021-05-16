@@ -8,9 +8,7 @@ import {
   Box,
   Breadcrumbs as MuiBreadcrumbs,
   Button,
-  Chip as MuiChip,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
@@ -33,13 +31,10 @@ import {
   Typography,
 } from "@material-ui/core";
 
-import { green, orange, red } from "@material-ui/core/colors";
-
 import {
   Add as AddIcon,
   Archive as ArchiveIcon,
   FilterList as FilterListIcon,
-  RemoveRedEye as RemoveRedEyeIcon,
 } from "@material-ui/icons";
 
 import { spacing } from "@material-ui/system";
@@ -48,7 +43,7 @@ import {
   addResourceAction,
   deleteResourcesAction,
   getResourcesAction,
-} from "../../redux/actions/resourcesActions";
+} from "../../redux/resources/resourcesActions";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { Alert } from "@material-ui/lab";

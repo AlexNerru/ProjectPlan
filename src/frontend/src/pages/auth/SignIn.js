@@ -5,7 +5,7 @@ import styled from "styled-components/macro";
 import { Helmet } from "react-helmet-async";
 import * as Yup from "yup";
 import { Formik } from "formik";
-import { signIn } from "../../redux/actions/authActions";
+import { signInAction } from "../../redux/auth/authActions";
 
 import { Button, Paper, TextField as MuiTextField } from "@material-ui/core";
 import { spacing } from "@material-ui/system";
@@ -47,7 +47,10 @@ function SignIn() {
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
             await dispatch(
-              signIn({ username: values.username, password: values.password })
+              signInAction({
+                username: values.username,
+                password: values.password,
+              })
             );
             history.push("/projects");
           } catch (error) {

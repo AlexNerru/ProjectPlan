@@ -1,6 +1,8 @@
 import logging
 
 from rest_framework import viewsets
+from rest_framework import status
+from rest_framework.response import Response
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -33,8 +35,18 @@ class LoggingViewSet(viewsets.ModelViewSet):
 
     @logging_action
     def create(self, request, **kwargs):
-        response = super().create(request, **kwargs)
-        return response
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            logger.debug("On request {0!r} {1!r} request: {2!r} serialization errors {3!r}"
+                         .format(request.method,
+                                 request.path,
+                                 request.body,
+                                 serializer.errors))
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @logging_action
     def retrieve(self, request, pk=None, **kwargs):

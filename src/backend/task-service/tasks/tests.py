@@ -14,7 +14,7 @@ from tasks.signals import send_message_task_saved
 logger = logging.getLogger('default')
 
 
-class PlanFactGraphTestCase(TestCase):
+class GraphDataTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -48,7 +48,7 @@ class PlanFactGraphTestCase(TestCase):
                     fact_finish_date=fact_finish_date, planned_work_hours=planned_work_hours,
                     fact_work_hours=fact_work_hours)
 
-    def test_work_hours_common(self):
+    def test_values(self):
         project1 = Project.objects.get(project_service_id=1)
         project2 = Project.objects.get(project_service_id=2)
 
@@ -87,22 +87,15 @@ class PlanFactGraphTestCase(TestCase):
             self.createTask(project1, status_todo,
                             planned_start_date=datetime(2020, 5, 10),
                             planned_finish_date=datetime(2020, 5, 12),
-                            planned_work_hours=6),
-            self.createTask(project2, status_done,
-                            planned_start_date=datetime(2020, 5, 9),
-                            planned_finish_date=datetime(2020, 5, 9),
-                            planned_work_hours=6,
-                            fact_start_date=datetime(2020, 5, 6),
-                            fact_finish_date=datetime(2020, 5, 10),
-                            fact_work_hours=15)
+                            planned_work_hours=6)
         ])
 
-        data = cumulative_graph_data(1, planned_work_hours_per_day, fact_work_hours_per_day)
+        data = cumulative_graph_data(planned_work_hours_per_day, fact_work_hours_per_day, 1)
 
         self.assertEqual(data['plan'], [5.0, 14.0, 18.0, 22.0, 22.0, 23.0, 24.0, 25.0, 28.0, 30.0, 32.0, 34.0])
         self.assertEqual(data['fact'], [8.0, 13.0, 18.0, 23.0, 30.0, 35.0, 40.0, 43.0, 46.0, 49.0])
 
-    def test_work_hours_one_task(self):
+    def test_one_task(self):
         project1 = Project.objects.get(project_service_id=1)
 
         status_done = TaskStatus.objects.get(name="Done")
@@ -116,9 +109,31 @@ class PlanFactGraphTestCase(TestCase):
                         fact_work_hours=8) \
             .save()
 
-        data = cumulative_graph_data(1, planned_work_hours_per_day, fact_work_hours_per_day)
+        data = cumulative_graph_data(planned_work_hours_per_day, fact_work_hours_per_day, 1)
 
         self.assertEqual(data['fact'], [8.0])
+        self.assertEqual(data['plan'], [5.0, 10.0])
+
+    def test_task_in_todo(self):
+        """
+        Tests when tasks are in "To do" state
+        """
+        project1 = Project.objects.get(project_service_id=1)
+
+        status_todo = TaskStatus.objects.get(name="To Do")
+
+        self.createTask(project1, status_todo,
+                        planned_start_date=datetime(2020, 5, 1),
+                        planned_finish_date=datetime(2020, 5, 2),
+                        planned_work_hours=10,
+                        fact_start_date=datetime(2020, 5, 1),
+                        fact_finish_date=datetime(2020, 5, 1),
+                        fact_work_hours=8) \
+            .save()
+
+        data = cumulative_graph_data(planned_work_hours_per_day, fact_work_hours_per_day, 1)
+
+        self.assertEqual(data['fact'], [])
         self.assertEqual(data['plan'], [5.0, 10.0])
 
     def test_costs_one_task(self):
@@ -138,7 +153,7 @@ class PlanFactGraphTestCase(TestCase):
         task.save()
         task.resources.add(resource_1)
 
-        data = cumulative_graph_data(1, planned_cost_per_day, fact_cost_per_day)
+        data = cumulative_graph_data(planned_cost_per_day, fact_cost_per_day, 1)
 
         self.assertEqual(data['fact'], [8000.0])
         self.assertEqual(data['plan'], [5000.0, 10000.0])

@@ -1,11 +1,34 @@
 import axios from "axios";
 
-export function getResources(token) {
+export function getWorkHoursData(token, projectID) {
   return new Promise((resolve, reject) => {
     axios
-      .get("http://127.0.0.1:8003/api/v1/resources/", {
+      .get(
+        "http://127.0.0.1:8005/api/v1/projects/" + projectID + "/work_hours/",
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response.data);
+        }
+        reject(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+export function getCostsData(token, projectID) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get("http://127.0.0.1:8005/api/v1/projects/" + projectID + "/costs/", {
         headers: {
-          Authorization: "Bearer " + token, //the token is a variable which holds the token
+          Authorization: "Bearer " + token,
         },
       })
       .then((response) => {
@@ -20,12 +43,12 @@ export function getResources(token) {
   });
 }
 
-export function getResourcesByProject(token, project) {
+export function getWorkHoursDataAll(token) {
   return new Promise((resolve, reject) => {
     axios
-      .get("http://127.0.0.1:8003/api/v1/resources/?project=" + project, {
+      .get("http://127.0.0.1:8005/api/v1/dashboard/work_hours/", {
         headers: {
-          Authorization: "Bearer " + token, //the token is a variable which holds the token
+          Authorization: "Bearer " + token,
         },
       })
       .then((response) => {
@@ -40,39 +63,19 @@ export function getResourcesByProject(token, project) {
   });
 }
 
-export function postResource(token, data) {
+export function getCostsDataAll(token) {
   return new Promise((resolve, reject) => {
     axios
-      .post("http://127.0.0.1:8003/api/v1/resources/", data, {
+      .get("http://127.0.0.1:8005/api/v1/dashboard/costs/", {
         headers: {
           Authorization: "Bearer " + token,
         },
       })
       .then((response) => {
-        if (response.status === 201) {
+        if (response.status === 200) {
           resolve(response.data);
         }
         reject(response.data);
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
-}
-
-export function deleteResource(token, id) {
-  return new Promise((resolve, reject) => {
-    axios
-      .delete("http://127.0.0.1:8003/api/v1/resources/" + id, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      })
-      .then((response) => {
-        if (response.status === 204) {
-          resolve(id);
-        }
-        reject();
       })
       .catch((error) => {
         reject(error);

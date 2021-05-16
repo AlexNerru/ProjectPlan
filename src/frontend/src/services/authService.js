@@ -50,3 +50,23 @@ export function signUp(credentials) {
       });
   });
 }
+
+export function getUser(token) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get("http://127.0.0.1:8001/token/user/", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response.data);
+        }
+        reject(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}

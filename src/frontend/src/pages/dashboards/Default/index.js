@@ -1,4 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
+import Cookies from "universal-cookie";
+
 import styled from "styled-components/macro";
 
 import { Helmet } from "react-helmet-async";
@@ -13,88 +17,61 @@ import { spacing } from "@material-ui/system";
 
 import { green, red } from "@material-ui/core/colors";
 
+import { getParams } from "../../../routes/Routes";
+
 import Actions from "./Actions";
 import BarChart from "./BarChart";
-import LineChart from "./WorkHoursPlanFactChart";
+import WorkHoursChart from "../../charts/plotly/WorkHoursChart";
 import DoughnutChart from "./DoughnutChart";
 import Stats from "./Stats";
 import Table from "./Table";
+import CostsChart from "../../charts/plotly/CostsChart";
 
 const Divider = styled(MuiDivider)(spacing);
 
 const Typography = styled(MuiTypography)(spacing);
 
 function Default() {
+  const cookies = new Cookies();
+
+  const token = useSelector((state) => {
+    if (state.auth.user.token !== undefined) {
+      cookies.set("token", state.auth.user.token, { path: "/" });
+      return state.auth.user.token;
+    } else {
+      return cookies.get("token");
+    }
+  });
+
   return (
     <React.Fragment>
-      <Helmet title="Default Dashboard" />
+      <Helmet title="ProjectPlan Dashboard" />
       <Grid justify="space-between" container spacing={6}>
         <Grid item>
           <Typography variant="h3" gutterBottom>
-            Default Dashboard
+            ProjectPlan Dashboard
           </Typography>
           <Typography variant="subtitle1">
-            Welcome back, Lucy! We've missed you.{" "}
+            Welcome back, to ProjectPlan!{" "}
             <span role="img" aria-label="Waving Hand Sign">
               👋
             </span>
           </Typography>
-        </Grid>
-
-        <Grid item>
-          <Actions />
         </Grid>
       </Grid>
 
       <Divider my={6} />
 
       <Grid container spacing={6}>
-        <Grid item xs={12} sm={12} md={6} lg={3} xl>
-          <Stats
-            title="Sales Today"
-            amount="2.532"
-            chip="Today"
-            percentageText="+26%"
-            percentagecolor={green[500]}
-          />
+        <Grid item xs={12} lg={6}>
+          <WorkHoursChart token={token} />
         </Grid>
-        <Grid item xs={12} sm={12} md={6} lg={3} xl>
-          <Stats
-            title="Visitors"
-            amount="170.212"
-            chip="Annual"
-            percentageText="-14%"
-            percentagecolor={red[500]}
-          />
-        </Grid>
-        <Grid item xs={12} sm={12} md={6} lg={3} xl>
-          <Stats
-            title="Total Earnings"
-            amount="$ 24.300"
-            chip="Monthly"
-            percentageText="+18%"
-            percentagecolor={green[500]}
-          />
-        </Grid>
-        <Grid item xs={12} sm={12} md={6} lg={3} xl>
-          <Stats
-            title="Pending Orders"
-            amount="45"
-            chip="Yearly"
-            percentageText="-9%"
-            percentagecolor={red[500]}
-          />
+
+        <Grid item xs={12} lg={6}>
+          <CostsChart token={token} />
         </Grid>
       </Grid>
 
-      <Grid container spacing={6}>
-        <Grid item xs={12} lg={8}>
-          <LineChart />
-        </Grid>
-        <Grid item xs={12} lg={4}>
-          <DoughnutChart />
-        </Grid>
-      </Grid>
       <Grid container spacing={6}>
         <Grid item xs={12} lg={4}>
           <BarChart />

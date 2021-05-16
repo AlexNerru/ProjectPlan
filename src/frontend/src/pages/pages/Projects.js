@@ -48,7 +48,7 @@ import {
   addProjectsAction,
   deleteProjectsAction,
   getProjectsAction,
-} from "../../redux/actions/projectsActions";
+} from "../../redux/projects/projectsActions";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { Alert } from "@material-ui/lab";

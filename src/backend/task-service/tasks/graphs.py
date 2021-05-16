@@ -30,22 +30,29 @@ def earliest_planned_start_date(tasks_queryset):
 
 
 def earliest_fact_start_date(tasks_queryset):
-    return tasks_queryset \
-        .filter(fact_start_date__isnull=False) \
-        .earliest('fact_start_date').fact_start_date
+    tasks = tasks_queryset \
+        .filter(fact_start_date__isnull=False)
 
+    if tasks.exists():
+        return tasks.earliest('fact_start_date').fact_start_date
 
-def latest_fact_finish_date(tasks_queryset):
-    latest_fact_finish = tasks_queryset \
-        .filter(fact_finish_date__isnull=False) \
-        .latest('fact_finish_date').fact_finish_date
-    return latest_fact_finish
+    return None
 
 
 def latest_plan_finish_date(tasks_queryset):
     latest_planned_finish = tasks_queryset \
         .latest('planned_finish_date').planned_finish_date
     return latest_planned_finish
+
+
+def latest_fact_finish_date(tasks_queryset):
+    tasks = tasks_queryset \
+        .filter(fact_finish_date__isnull=False)
+
+    if tasks.exists():
+        return tasks.latest('fact_finish_date').fact_finish_date
+
+    return None
 
 
 def graph_data_labels(tasks_queryset):
@@ -55,13 +62,15 @@ def graph_data_labels(tasks_queryset):
     latest_planned_finish = latest_plan_finish_date(tasks_queryset)
     latest_fact_finish = latest_fact_finish_date(tasks_queryset)
 
-    start_date = earliest_planned_start \
-        if earliest_planned_start < earliest_fact_start \
-        else earliest_fact_start
+    dates = [earliest_planned_start, earliest_fact_start,
+             latest_planned_finish, latest_fact_finish]
 
-    end_date = latest_fact_finish \
-        if latest_fact_finish > latest_planned_finish \
-        else latest_planned_finish
+    clear_dates = [x for x in dates if x is not None]
+    clear_dates.sort()
+
+    start_date = clear_dates[0]
+
+    end_date = clear_dates[-1]
 
     return dates_between(start_date, end_date)
 
@@ -134,7 +143,7 @@ def fact_cost_per_day(task, fact_days):
     return result/len(fact_days)
 
 
-def cumulative_graph_data(project_id, planned_function, fact_function):
+def cumulative_graph_data(planned_function, fact_function, project_id=None):
     """
     Calculates data to create cumulative line graphs with provided function
 
@@ -148,8 +157,17 @@ def cumulative_graph_data(project_id, planned_function, fact_function):
     :rtype: dict {labels: [datetime.date], plan: [float], fact: [float]}
     """
 
-    if Project.objects.filter(project_service_id=project_id).exists():
-        tasks = Task.objects.filter(project=project_id)
+    projects = Project.objects.all()
+
+    if project_id:
+        projects = Project.objects.filter(project_service_id=project_id)
+
+    if projects.exists():
+
+        tasks = Task.objects.all()
+        if project_id:
+            tasks = Task.objects.filter(project=project_id)
+
         if tasks.exists():
 
             labels = graph_data_labels(tasks)
@@ -187,7 +205,8 @@ def cumulative_graph_data(project_id, planned_function, fact_function):
                 plan.append(previous_plan_value + current_plan_value)
                 previous_plan_value += current_plan_value
 
-                if item[0] <= latest_fact_finish_date(tasks):
+                latest_fact_finish = latest_fact_finish_date(tasks)
+                if latest_fact_finish and item[0] <= latest_fact_finish:
                     current_fact_value = item[1]['fact']
                     fact.append(previuos_fact_value + current_fact_value)
                     previuos_fact_value += current_fact_value
@@ -199,7 +218,7 @@ def cumulative_graph_data(project_id, planned_function, fact_function):
 
             return return_data
         else:
-            raise Exception("There is no tasks for project {0!r}".format(project_id))
+            return {'labels': [], 'plan': [], 'fact': []}
     else:
         raise Exception("Project with id {0!r} was not found".format(project_id))
 

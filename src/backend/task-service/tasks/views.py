@@ -15,7 +15,9 @@ from task_service.viewsets import LoggingViewSet, logging_action
 from tasks.models import Task
 from tasks.serializers import TaskSerializer
 from tasks.filters import TaskFilter
-from tasks.graphs import cumulative_graph_data, planned_work_hours_per_day, fact_work_hours_per_day
+from tasks.graphs import cumulative_graph_data,\
+    planned_work_hours_per_day, fact_work_hours_per_day,\
+    planned_cost_per_day, fact_cost_per_day
 
 logger = logging.getLogger('default')
 
@@ -29,12 +31,39 @@ class TaskViewSet(LoggingViewSet):
     filterset_class = TaskFilter
 
 
-class PlanFactGraphView(APIView):
+class WorkHoursGraphView(APIView):
     permission_classes = [IsAuthenticated]
 
     @logging_action
     def get(self, request, pk):
-        data = cumulative_graph_data(pk, planned_work_hours_per_day, fact_work_hours_per_day)
+        data = cumulative_graph_data(planned_work_hours_per_day, fact_work_hours_per_day, pk)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class CostsGraphView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @logging_action
+    def get(self, request, pk):
+        data = cumulative_graph_data(planned_cost_per_day, fact_cost_per_day, pk)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class WorkHoursAllGraphView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @logging_action
+    def get(self, request):
+        data = cumulative_graph_data(planned_work_hours_per_day, fact_work_hours_per_day)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class CostsGraphAllView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @logging_action
+    def get(self, request):
+        data = cumulative_graph_data(planned_cost_per_day, fact_cost_per_day)
         return Response(data, status=status.HTTP_200_OK)
 
 
