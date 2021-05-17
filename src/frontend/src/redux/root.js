@@ -2,7 +2,7 @@ import { combineReducers } from "redux";
 
 import themeReducer from "./theme/themeReducer";
 import authReducer from "./auth/authReducer";
-import projectReducer from "./projects/projectsReducer";
+import projectReducer from "./projects/reducer";
 import resourceReducer from "./resources/resourcesReducer";
 import taskReducer from "./tasks/tasksReducer";
 import chartReducer from "./charts/reducer";

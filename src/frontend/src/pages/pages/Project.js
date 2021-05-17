@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components/macro";
-import { NavLink, useHistory } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import { Helmet } from "react-helmet-async";
 
@@ -17,7 +17,6 @@ import {
   DialogTitle,
   Divider as MuiDivider,
   Grid,
-  IconButton,
   Link,
   MenuItem,
   Paper as MuiPaper,
@@ -31,7 +30,6 @@ import {
   TableSortLabel,
   TextField,
   Toolbar,
-  Tooltip,
   Typography,
 } from "@material-ui/core";
 
@@ -39,14 +37,9 @@ import { Task } from "../components/Task";
 
 import { getParams } from "../../routes/Routes";
 
-import {
-  Add as AddIcon,
-  Archive as ArchiveIcon,
-  FilterList as FilterListIcon,
-  RemoveRedEye as RemoveRedEyeIcon,
-} from "@material-ui/icons";
+import { Add as AddIcon } from "@material-ui/icons";
 
-import { border, spacing } from "@material-ui/system";
+import { spacing } from "@material-ui/system";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { Formik } from "formik";

@@ -44,11 +44,13 @@ import {
   addProjectsAction,
   deleteProjectsAction,
   getProjectsAction,
-} from "../../redux/projects/projectsActions";
+} from "../../redux/projects/actions";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { Alert } from "@material-ui/lab";
 import Cookies from "universal-cookie";
+import { Edit } from "react-feather";
+import { ProjectEditForm } from "../components/ProjectEditForm";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -164,20 +166,22 @@ let EnhancedTableToolbar = (props) => {
   );
 };
 
-function EnhancedTable() {
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("project");
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+function ProjectsTable() {
+  const cookies = new Cookies();
 
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const projects = useSelector((state) => state.projects.projects);
-  const projectStatus = useSelector((state) => state.projects.status);
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("id");
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const cookies = new Cookies();
+  const [dialogProjectEditOpen, setDialogProjectEditOpen] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState();
+
+  const projects = useSelector((state) => state.projects.projects);
 
   const token = useSelector((state) => {
     if (state.auth.user.token !== undefined) {
@@ -189,12 +193,11 @@ function EnhancedTable() {
   });
 
   useEffect(() => {
-    if (projectStatus === "idle") {
-      dispatch(getProjectsAction(token));
-    }
-  }, [projectStatus, dispatch]);
+    dispatch(getProjectsAction(token));
+  }, []);
 
-  const rows = projects;
+  const emptyRows =
+    rowsPerPage - Math.min(rowsPerPage, projects.length - page * rowsPerPage);
 
   const handleProjectDelete = (event, id) => {
     dispatch(deleteProjectsAction(token, id));
@@ -212,7 +215,7 @@ function EnhancedTable() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.id);
+      const newSelecteds = projects.map((n) => n.id);
       setSelected(newSelecteds);
       return;
     }
@@ -228,8 +231,9 @@ function EnhancedTable() {
     setPage(0);
   };
 
-  const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+  const getProjectToEdit = () => projectToEdit;
+
+  const closeDialog = () => setDialogProjectEditOpen(false);
 
   return (
     <div>
@@ -247,14 +251,12 @@ function EnhancedTable() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={projects.length}
             />
             <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
+              {stableSort(projects, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const labelId = `enhanced-table-checkbox-${index}`;
-
                   return (
                     <TableRow
                       hover
@@ -267,15 +269,7 @@ function EnhancedTable() {
                       <TableCell align="left">{row.description}</TableCell>
                       <TableCell align="left">{row.owner_username}</TableCell>
                       <TableCell padding="none" align="right">
-                        <Box mr={2}>
-                          <IconButton
-                            aria-label="delete"
-                            onClick={(event) =>
-                              handleProjectDelete(event, row.id)
-                            }
-                          >
-                            <ArchiveIcon />
-                          </IconButton>
+                        <Box mr={3}>
                           <IconButton
                             aria-label="details"
                             onClick={(event) =>
@@ -283,6 +277,23 @@ function EnhancedTable() {
                             }
                           >
                             <RemoveRedEyeIcon />
+                          </IconButton>
+                          <IconButton
+                            aria-label="details"
+                            onClick={() => {
+                              setProjectToEdit(row);
+                              setDialogProjectEditOpen(true);
+                            }}
+                          >
+                            <Edit />
+                          </IconButton>
+                          <IconButton
+                            aria-label="delete"
+                            onClick={(event) =>
+                              handleProjectDelete(event, row.id)
+                            }
+                          >
+                            <ArchiveIcon />
                           </IconButton>
                         </Box>
                       </TableCell>
@@ -300,13 +311,19 @@ function EnhancedTable() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={rows.length}
+          count={projects.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
+      <ProjectEditForm
+        token={token}
+        isOpen={dialogProjectEditOpen}
+        getProject={getProjectToEdit}
+        closeDialog={closeDialog}
+      />
     </div>
   );
 }
@@ -315,7 +332,6 @@ function ProjectsList() {
   const [open, setOpen] = React.useState(false);
 
   const dispatch = useDispatch();
-  const history = useHistory();
 
   const cookies = new Cookies();
 
@@ -325,15 +341,6 @@ function ProjectsList() {
       return state.auth.user.token;
     } else {
       return cookies.get("token");
-    }
-  });
-
-  const id = useSelector((state) => {
-    if (state.auth.user.id !== undefined) {
-      cookies.set("id", state.auth.user.id, { path: "/" });
-      return state.auth.user.id;
-    } else {
-      return cookies.get("id");
     }
   });
 
@@ -477,7 +484,7 @@ function ProjectsList() {
 
       <Grid container spacing={6}>
         <Grid item xs={12}>
-          <EnhancedTable />
+          <ProjectsTable />
         </Grid>
       </Grid>
     </React.Fragment>

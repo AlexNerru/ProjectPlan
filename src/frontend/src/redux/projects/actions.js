@@ -1,6 +1,10 @@
-import * as types from "../../constants";
-import { deleteProject, getProjects } from "../../services/projectsService";
-import { postProjects } from "../../services/projectsService";
+import * as types from "./constants";
+import {
+  deleteProject,
+  getProjects,
+  patchProject,
+  postProjects,
+} from "../../services/projectsService";
 
 export function getProjectsAction(token) {
   return async (dispatch) => {
@@ -33,6 +37,24 @@ export function addProjectsAction(token, user, data) {
       })
       .catch((error) => {
         dispatch({ type: types.PROJECTS_ADD_FAILURE });
+        throw error;
+      });
+  };
+}
+
+export function patchProjectsAction(token, id, data) {
+  return async (dispatch) => {
+    dispatch({ type: types.PROJECTS_PATCH_REQUEST });
+
+    return patchProject(token, id, data)
+      .then((response) => {
+        dispatch({
+          type: types.PROJECTS_PATCH_SUCCESS,
+          project: response,
+        });
+      })
+      .catch((error) => {
+        dispatch({ type: types.PROJECTS_PATCH_FAILURE });
         throw error;
       });
   };

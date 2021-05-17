@@ -64,3 +64,29 @@ export function deleteProject(token, id) {
       });
   });
 }
+
+export function patchProject(token, id, data) {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch(
+        "http://127.0.0.1:8002/api/v1/projects/" + id + "/",
+        {
+          ...data,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response.data);
+        }
+        reject();
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}

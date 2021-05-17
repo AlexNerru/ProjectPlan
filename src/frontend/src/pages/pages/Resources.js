@@ -182,8 +182,6 @@ function EnhancedTable() {
   const resources = useSelector((state) => state.resources.resources);
 
   const resourceStatus = useSelector((state) => state.resources.status);
-  const authStatus = useSelector((state) => state.auth.status);
-  const error = useSelector((state) => state.resources.error);
 
   const cookies = new Cookies();
 
@@ -196,20 +194,11 @@ function EnhancedTable() {
     }
   });
 
-  const id = useSelector((state) => {
-    if (state.auth.user.id !== undefined) {
-      cookies.set("id", state.auth.user.id, { path: "/" });
-      return state.auth.user.id;
-    } else {
-      return cookies.get("id");
-    }
-  });
-
   useEffect(() => {
     if (resourceStatus === "idle") {
       dispatch(getResourcesAction(token));
     }
-  }, [resourceStatus, dispatch]);
+  });
 
   const rows = resources;
 

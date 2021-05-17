@@ -1,4 +1,4 @@
-import * as types from "../../constants";
+import * as types from "./constants";
 
 const initialState = {
   projects: [],
@@ -25,6 +25,17 @@ export default function reducer(state = initialState, actions) {
         projects: state.projects.filter(function (project) {
           return project.id !== actions.id;
         }),
+      };
+
+    case types.PROJECTS_PATCH_SUCCESS:
+      return {
+        ...state,
+        projects: [
+          ...state.projects.filter(function (project) {
+            return project.id !== actions.project.id;
+          }),
+          actions.project,
+        ],
       };
 
     default:
