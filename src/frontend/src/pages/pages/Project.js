@@ -420,6 +420,14 @@ function Tasks() {
         dispatch(getResourcesByProjectAction(token, projectID));
       }, 500);
 
+      setTimeout(() => {
+        dispatch(getWorkHoursAction(token, projectID));
+      }, 500);
+
+      setTimeout(() => {
+        dispatch(getCostsAction(token, projectID));
+      }, 500);
+
       setStatus({ sent: true });
       resetForm();
       setSubmitting(false);

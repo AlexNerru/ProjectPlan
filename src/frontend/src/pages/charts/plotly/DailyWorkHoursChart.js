@@ -46,11 +46,12 @@ function DailyWorkHoursChart({ token }) {
   const labels = useSelector(selectDailyWorkHoursLabels);
   const plan = useSelector(selectDailyWorkHoursPlan);
   const fact = useSelector(selectDailyWorkHoursFact);
-
   const resourcesLength = useSelector(
     (state) => state.resources.resources.length
   );
-  const maxWorkHours = Array.apply(null, Array(labels.length)).map(function (
+
+  const labelsLength = labels !== undefined ? labels.length : 0;
+  const maxWorkHours = Array.apply(null, Array(labelsLength)).map(function (
     x,
     i
   ) {
