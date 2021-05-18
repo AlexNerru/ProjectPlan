@@ -16,6 +16,7 @@ import {
   Grid,
   IconButton,
   Link,
+  MenuItem,
   Paper as MuiPaper,
   Table,
   TableBody,
@@ -25,7 +26,7 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  TextField,
+  TextField as MuiTextField,
   Toolbar,
   Tooltip,
   Typography,
@@ -54,6 +55,7 @@ const Divider = styled(MuiDivider)(spacing);
 const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
 
 const Paper = styled(MuiPaper)(spacing);
+const TextField = styled(MuiTextField)(spacing);
 
 const Spacer = styled.div`
   flex: 1 1 100%;
@@ -95,6 +97,8 @@ const headCells = [
   { id: "last_name", alignment: "left", label: "Last Name" },
   { id: "grade", alignment: "left", label: "Grade" },
   { id: "rate", alignment: "left", label: "Rate" },
+  { id: "skill_name", alignment: "left", label: "Skill" },
+  { id: "skill_level_value", alignment: "left", label: "Level" },
   { id: "actions", alignment: "right", label: "Actions" },
 ];
 
@@ -255,6 +259,10 @@ function EnhancedTable() {
                       <TableCell align="left">{row.last_name}</TableCell>
                       <TableCell align="left">{row.grade}</TableCell>
                       <TableCell align="left">{row.rate}</TableCell>
+                      <TableCell align="left">{row.skill_name}</TableCell>
+                      <TableCell align="left">
+                        {row.skill_level_value}
+                      </TableCell>
                       <TableCell padding="none" align="right">
                         <Box mr={2}>
                           <IconButton
@@ -330,6 +338,8 @@ function ResourcesList() {
           last_name: values.last_name,
           grade: values.grade,
           rate: values.rate,
+          skill_name: values.skill_name,
+          skill_level: values.skill_level,
         })
       );
       setStatus({ sent: true });
@@ -383,6 +393,8 @@ function ResourcesList() {
                     last_name: "Test Test",
                     grade: 7,
                     rate: 2500,
+                    skill_name: "Development",
+                    skill_level: "",
                     submit: false,
                   }}
                   validationSchema={Yup.object().shape({
@@ -394,6 +406,10 @@ function ResourcesList() {
                       .required("Last name is required"),
                     grade: Yup.number().required("Grade is required"),
                     rate: Yup.number().required("Rate is required"),
+                    skill_name: Yup.string().required("Skill is required"),
+                    skill_level: Yup.string().required(
+                      "Skill level is required"
+                    ),
                   })}
                   onSubmit={handleSubmit}
                 >
@@ -423,7 +439,6 @@ function ResourcesList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
                       <TextField
                         name="last_name"
                         label="Last name"
@@ -435,7 +450,6 @@ function ResourcesList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
                       <TextField
                         name="grade"
                         label="Grade"
@@ -447,7 +461,6 @@ function ResourcesList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
                       <TextField
                         name="rate"
                         label="Rate"
@@ -459,7 +472,36 @@ function ResourcesList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
+                      <TextField
+                        name="skill_name"
+                        label="Skill"
+                        value={values.skill_name}
+                        error={Boolean(touched.skill_name && errors.skill_name)}
+                        fullWidth
+                        helperText={touched.skill_name && errors.skill_name}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        my={2}
+                      />
+                      <TextField
+                        name="skill_level"
+                        select
+                        label="Skill level"
+                        value={values.skill_level}
+                        error={Boolean(
+                          touched.skill_level && errors.skill_level
+                        )}
+                        fullWidth
+                        helperText={touched.skill_level && errors.skill_level}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        my={2}
+                        defaultValue={"MI"}
+                      >
+                        <MenuItem value="JR">Junior</MenuItem>
+                        <MenuItem value="MI">Middle</MenuItem>
+                        <MenuItem value="SE">Senior</MenuItem>
+                      </TextField>
                       <Button
                         type="submit"
                         fullWidth

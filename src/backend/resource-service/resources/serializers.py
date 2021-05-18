@@ -10,9 +10,15 @@ from resource_service.serializers import LoggingSerializer
 
 
 class ResourceSerializer(LoggingSerializer):
+    skill_level_value = serializers.SerializerMethodField('get_skill_level')
+
+    def get_skill_level(self, obj):
+        return obj.get_skill_level_display()
+
     class Meta:
         model = Resource
-        fields = '__all__'
+        exclude = ['skill_level']
+        depth = 1
 
     def get_permissions_map(self, created):
         current_user = self.context['request'].user
