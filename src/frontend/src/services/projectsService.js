@@ -8,7 +8,15 @@ export function getProjects(token) {
           Authorization: "Bearer " + token,
         },
       })
-      .then((response) => response.data);
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response.data);
+        }
+        reject(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
   });
 }
 
