@@ -26,7 +26,7 @@ class TaskViewSet(LoggingViewSet):
 
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = [DjangoObjectGetPermission]
+    permission_classes = [IsAuthenticated]
     filter_backends = (DjangoFilterBackend, )
     filterset_class = TaskFilter
 
