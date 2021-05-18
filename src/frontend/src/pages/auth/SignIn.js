@@ -26,10 +26,6 @@ function SignIn() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const token = useSelector((state) => {
-    if (state.auth.user !== undefined) return state.auth.user.token;
-  });
-
   return (
     <Wrapper>
       <Helmet title="Sign In" />

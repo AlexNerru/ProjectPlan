@@ -11,6 +11,8 @@ import DashboardLayout from "../layouts/Dashboard";
 import AuthLayout from "../layouts/Auth";
 import Page404 from "../pages/auth/Page404";
 
+import history from "./history";
+
 export function getParams(pathname) {
   const matchProfile = matchPath(pathname, {
     path: "/projects/:projectID",
@@ -59,7 +61,7 @@ const childRoutes = (Layout, routes) =>
   });
 
 const Routes = () => (
-  <Router>
+  <Router history={history}>
     <Switch>
       {childRoutes(DashboardLayout, dashboardLayoutRoutes)}
       {childRoutes(AuthLayout, authLayoutRoutes)}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components/macro";
-import { NavLink, useHistory } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import { Helmet } from "react-helmet-async";
 
@@ -41,7 +41,6 @@ import { spacing } from "@material-ui/system";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addResourceAction,
-  deleteResourcesAction,
   getResourcesAction,
 } from "../../redux/resources/resourcesActions";
 import * as Yup from "yup";
@@ -100,14 +99,7 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
+  const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -185,8 +177,6 @@ function EnhancedTable() {
   const dispatch = useDispatch();
   const resources = useSelector((state) => state.resources.resources);
 
-  const resourceStatus = useSelector((state) => state.resources.status);
-
   const cookies = new Cookies();
 
   const token = useSelector((state) => {
@@ -203,10 +193,6 @@ function EnhancedTable() {
   }, []);
 
   const rows = resources;
-
-  const handleProjectDelete = (event, id) => {
-    dispatch(deleteResourcesAction(token, id));
-  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";

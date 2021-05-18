@@ -26,15 +26,12 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
-  Toolbar,
-  Tooltip,
   Typography,
 } from "@material-ui/core";
 
 import {
   Add as AddIcon,
   Archive as ArchiveIcon,
-  FilterList as FilterListIcon,
   RemoveRedEye as RemoveRedEyeIcon,
 } from "@material-ui/icons";
 
@@ -42,7 +39,6 @@ import { spacing } from "@material-ui/system";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addProjectsAction,
-  deleteProjectsAction,
   getProjectsAction,
 } from "../../redux/projects/actions";
 import * as Yup from "yup";
@@ -58,14 +54,6 @@ const Divider = styled(MuiDivider)(spacing);
 const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
 
 const Paper = styled(MuiPaper)(spacing);
-
-const Spacer = styled.div`
-  flex: 1 1 100%;
-`;
-
-const ToolbarTitle = styled.div`
-  min-width: 150px;
-`;
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -130,42 +118,6 @@ function EnhancedTableHead(props) {
     </TableHead>
   );
 }
-
-let EnhancedTableToolbar = (props) => {
-  const { numSelected } = props;
-
-  return (
-    <Toolbar>
-      <ToolbarTitle>
-        {numSelected > 0 ? (
-          <Typography color="inherit" variant="subtitle1">
-            {numSelected} selected
-          </Typography>
-        ) : (
-          <Typography variant="h6" id="tableTitle">
-            Projects
-          </Typography>
-        )}
-      </ToolbarTitle>
-      <Spacer />
-      <div>
-        {numSelected > 0 ? (
-          <Tooltip title="Delete">
-            <IconButton aria-label="Delete">
-              <ArchiveIcon />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Filter list">
-            <IconButton aria-label="Filter list">
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-      </div>
-    </Toolbar>
-  );
-};
 
 function ProjectsTable() {
   const cookies = new Cookies();

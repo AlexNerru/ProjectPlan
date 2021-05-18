@@ -30,7 +30,6 @@ import { sidebarRoutes as routes } from "../routes/index";
 
 import { ReactComponent as Logo } from "../vendor/logo.svg";
 import { useSelector } from "react-redux";
-import Cookies from "universal-cookie";
 
 const Box = styled(MuiBox)(spacing);
 
@@ -309,8 +308,6 @@ const Sidebar = ({ classes, staticContext, location, ...rest }) => {
 
   const [openRoutes, setOpenRoutes] = useState(() => initOpenRoutes());
 
-  const firstName = useSelector((state) => state.auth.user.first_name);
-  const lastName = useSelector((state) => state.auth.user.last_name);
   const username = useSelector((state) => state.auth.user.username);
 
   const toggle = (index) => {
