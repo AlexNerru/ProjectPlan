@@ -34,7 +34,6 @@ export function postProjects(token, user, data) {
       )
       .then((response) => {
         if (response.status === 201) {
-          console.log(response);
           resolve(response.data);
         }
         reject(response.data);
@@ -48,7 +47,7 @@ export function postProjects(token, user, data) {
 export function deleteProject(token, id) {
   return new Promise((resolve, reject) => {
     axios
-      .delete("http://127.0.0.1:8002/api/v1/projects/" + id, {
+      .delete("http://127.0.0.1:8002/api/v1/projects/" + id + "/", {
         headers: {
           Authorization: "Bearer " + token,
         },

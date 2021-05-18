@@ -48,6 +48,7 @@ import * as Yup from "yup";
 import { Formik } from "formik";
 import { Alert } from "@material-ui/lab";
 import Cookies from "universal-cookie";
+import { ArchiveForm } from "../components/AcrhiveForm";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -173,10 +174,13 @@ let EnhancedTableToolbar = (props) => {
 
 function EnhancedTable() {
   const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("project");
+  const [orderBy, setOrderBy] = React.useState("id");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+  const [dialogArchiveOpen, setDialogArchiveOpen] = useState(false);
+  const [resourceToArchive, setResourceToArchive] = useState();
 
   const dispatch = useDispatch();
   const resources = useSelector((state) => state.resources.resources);
@@ -195,10 +199,8 @@ function EnhancedTable() {
   });
 
   useEffect(() => {
-    if (resourceStatus === "idle") {
-      dispatch(getResourcesAction(token));
-    }
-  });
+    dispatch(getResourcesAction(token));
+  }, []);
 
   const rows = resources;
 
@@ -271,9 +273,13 @@ function EnhancedTable() {
                         <Box mr={2}>
                           <IconButton
                             aria-label="delete"
-                            onClick={(event) =>
-                              handleProjectDelete(event, row.id)
-                            }
+                            onClick={() => {
+                              setResourceToArchive({
+                                data: row,
+                                type: "resource",
+                              });
+                              setDialogArchiveOpen(true);
+                            }}
                           >
                             <ArchiveIcon />
                           </IconButton>
@@ -300,6 +306,12 @@ function EnhancedTable() {
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
+      <ArchiveForm
+        token={token}
+        isOpen={dialogArchiveOpen}
+        getObject={() => resourceToArchive}
+        closeDialog={() => setDialogArchiveOpen(false)}
+      />
     </div>
   );
 }

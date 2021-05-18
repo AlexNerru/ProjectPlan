@@ -51,6 +51,7 @@ import { Alert } from "@material-ui/lab";
 import Cookies from "universal-cookie";
 import { Edit } from "react-feather";
 import { ProjectEditForm } from "../components/ProjectEditForm";
+import { ArchiveForm } from "../components/AcrhiveForm";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -178,8 +179,11 @@ function ProjectsTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [dialogProjectEditOpen, setDialogProjectEditOpen] = useState(false);
+  const [dialogEditOpen, setDialogEditOpen] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState();
+
+  const [dialogArchiveOpen, setDialogArchiveOpen] = useState(false);
+  const [projectToArchive, setProjectToArchive] = useState();
 
   const projects = useSelector((state) => state.projects.projects);
 
@@ -198,10 +202,6 @@ function ProjectsTable() {
 
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, projects.length - page * rowsPerPage);
-
-  const handleProjectDelete = (event, id) => {
-    dispatch(deleteProjectsAction(token, id));
-  };
 
   const handleOpenProject = (event, id) => {
     history.push("/projects/" + id + "/");
@@ -231,14 +231,9 @@ function ProjectsTable() {
     setPage(0);
   };
 
-  const getProjectToEdit = () => projectToEdit;
-
-  const closeDialog = () => setDialogProjectEditOpen(false);
-
   return (
     <div>
       <Paper>
-        <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
           <Table
             aria-labelledby="tableTitle"
@@ -282,16 +277,18 @@ function ProjectsTable() {
                             aria-label="details"
                             onClick={() => {
                               setProjectToEdit(row);
-                              setDialogProjectEditOpen(true);
+                              setDialogEditOpen(true);
                             }}
                           >
                             <Edit />
                           </IconButton>
                           <IconButton
                             aria-label="delete"
-                            onClick={(event) =>
-                              handleProjectDelete(event, row.id)
-                            }
+                            onClick={() => {
+                              // eslint-disable-next-line
+                              setProjectToArchive({data: row, type: "project"});
+                              setDialogArchiveOpen(true);
+                            }}
                           >
                             <ArchiveIcon />
                           </IconButton>
@@ -320,9 +317,15 @@ function ProjectsTable() {
       </Paper>
       <ProjectEditForm
         token={token}
-        isOpen={dialogProjectEditOpen}
-        getProject={getProjectToEdit}
-        closeDialog={closeDialog}
+        isOpen={dialogEditOpen}
+        getProject={() => projectToEdit}
+        closeDialog={() => setDialogEditOpen(false)}
+      />
+      <ArchiveForm
+        token={token}
+        isOpen={dialogArchiveOpen}
+        getObject={() => projectToArchive}
+        closeDialog={() => setDialogArchiveOpen(false)}
       />
     </div>
   );
