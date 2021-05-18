@@ -12,3 +12,11 @@ export const selectDailyWorkHoursPlan = (state) =>
   state.charts.dailyWorkHours.plan;
 export const selectDailyWorkHoursFact = (state) =>
   state.charts.dailyWorkHours.fact;
+
+export const selectResourcesLevelLabels = (state) =>
+  state.charts.resourcesLevel.keys;
+export const selectResourcesLevelValues = (state) =>
+  state.charts.resourcesLevel.values;
+
+export const selectSkillsLabels = (state) => state.charts.skills.keys;
+export const selectSkillsValues = (state) => state.charts.skills.values;

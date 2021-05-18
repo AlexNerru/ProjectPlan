@@ -17,7 +17,7 @@ class ResourceSerializer(LoggingSerializer):
 
     class Meta:
         model = Resource
-        exclude = ['skill_level']
+        fields = '__all__'
         depth = 1
 
     def get_permissions_map(self, created):

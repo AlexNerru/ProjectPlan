@@ -4,6 +4,8 @@ const initialState = {
   workHours: {},
   dailyWorkHours: {},
   costs: {},
+  resourcesLevel: {},
+  skills: {},
   status: "idle",
 };
 
@@ -43,6 +45,18 @@ export default function reducer(state = initialState, actions) {
       return {
         ...state,
         dailyWorkHours: actions.dailyWorkHours,
+      };
+
+    case types.RESOURCES_LEVEL_CHART_SUCCESS:
+      return {
+        ...state,
+        resourcesLevel: actions.resourcesLevel,
+      };
+
+    case types.SKILLS_CHART_SUCCESS:
+      return {
+        ...state,
+        skills: actions.skills,
       };
 
     default:

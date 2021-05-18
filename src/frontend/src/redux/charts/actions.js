@@ -4,6 +4,8 @@ import {
   getCostsDataAll,
   getDailyWorkHoursAllData,
   getDailyWorkHoursData,
+  getSkillsData,
+  getSkillsLevelData,
   getWorkHoursData,
   getWorkHoursDataAll,
 } from "../../services/chartsService";
@@ -111,6 +113,42 @@ export function getDailyWorkHoursAllAction(token) {
       })
       .catch((error) => {
         dispatch({ type: types.DAILY_WORK_HOURS_ALL_CHART_FAILURE });
+        throw error;
+      });
+  };
+}
+
+export function getSkillsLevelAction(token) {
+  return async (dispatch) => {
+    dispatch({ type: types.RESOURCES_LEVEL_CHART_REQUEST });
+
+    return getSkillsLevelData(token)
+      .then((response) => {
+        dispatch({
+          type: types.RESOURCES_LEVEL_CHART_SUCCESS,
+          resourcesLevel: response,
+        });
+      })
+      .catch((error) => {
+        dispatch({ type: types.RESOURCES_LEVEL_CHART_FAILURE });
+        throw error;
+      });
+  };
+}
+
+export function getSkillsAction(token) {
+  return async (dispatch) => {
+    dispatch({ type: types.SKILLS_CHART_REQUEST });
+
+    return getSkillsData(token)
+      .then((response) => {
+        dispatch({
+          type: types.SKILLS_CHART_SUCCESS,
+          skills: response,
+        });
+      })
+      .catch((error) => {
+        dispatch({ type: types.SKILLS_CHART_FAILURE });
         throw error;
       });
   };

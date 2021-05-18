@@ -49,6 +49,13 @@ import { Formik } from "formik";
 import { Alert } from "@material-ui/lab";
 import Cookies from "universal-cookie";
 import { ArchiveForm } from "../components/AcrhiveForm";
+import WorkHoursChart from "../charts/plotly/WorkHoursChart";
+import ResourcesLevelChart from "../charts/plotly/ResourcesLevelChart";
+import SkillsChart from "../charts/plotly/SkillsChart";
+import {
+  getSkillsAction,
+  getSkillsLevelAction,
+} from "../../redux/charts/actions";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -332,6 +339,7 @@ function ResourcesList() {
   ) => {
     try {
       setSubmitting(true);
+      console.log(values);
       dispatch(
         addResourceAction(token, {
           first_name: values.first_name,
@@ -342,6 +350,10 @@ function ResourcesList() {
           skill_level: values.skill_level,
         })
       );
+
+      dispatch(getSkillsLevelAction(token));
+      dispatch(getSkillsAction(token));
+
       setStatus({ sent: true });
       setSubmitting(false);
     } catch (error) {
@@ -518,6 +530,16 @@ function ResourcesList() {
               </DialogContent>
             </Dialog>
           </div>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={6}>
+        <Grid item xs={12} lg={6}>
+          <ResourcesLevelChart token={token} />
+        </Grid>
+
+        <Grid item xs={12} lg={6}>
+          <SkillsChart token={token} />
         </Grid>
       </Grid>
 

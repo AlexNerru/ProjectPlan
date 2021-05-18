@@ -125,3 +125,43 @@ export function getDailyWorkHoursAllData(token) {
       });
   });
 }
+
+export function getSkillsLevelData(token) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get("http://127.0.0.1:8003/api/v1/dashboard/skill_levels/", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response.data);
+        }
+        reject(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+export function getSkillsData(token) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get("http://127.0.0.1:8003/api/v1/dashboard/skills/", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response.data);
+        }
+        reject(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
