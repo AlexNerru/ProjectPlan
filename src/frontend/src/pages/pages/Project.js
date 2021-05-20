@@ -526,7 +526,7 @@ function Tasks() {
                       .max(255)
                       .required("Task name is required"),
                     description: Yup.string()
-                      .max(255)
+                      .max(2000)
                       .required("Description is required"),
                     planned_work_hours: Yup.number()
                       .min(1, "Task cat last at least one hour")

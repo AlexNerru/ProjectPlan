@@ -37,7 +37,7 @@ class Task(models.Model):
     Model representing general task class
     """
     name = models.CharField(max_length=100)
-    description = models.CharField(max_length=100)
+    description = models.CharField(max_length=2000)
 
     creator = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)

@@ -28,6 +28,7 @@ class TokenGetUserView(APIView):
         """
         Method to get user by his JWT token.
         Because all users are authenticated there is always user in request
+
         :param request:
         :return: 200
         """

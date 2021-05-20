@@ -13,7 +13,6 @@ services:
       - user-db
       - redis
       - rabbitmq
-      #- elk
 
   project-service:
     build: ../backend/project-service
@@ -27,7 +26,6 @@ services:
       - project-db
       - redis
       - rabbitmq
-      #- elk
 
   resource-service:
     build: ../backend/resource-service
