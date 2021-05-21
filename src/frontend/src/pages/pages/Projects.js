@@ -7,10 +7,8 @@ import { Helmet } from "react-helmet-async";
 import {
   Box,
   Breadcrumbs as MuiBreadcrumbs,
-  Button,
-  Chip as MuiChip,
+  Button as MuiButton,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
@@ -27,18 +25,13 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  TextField,
-  Toolbar,
-  Tooltip,
+  TextField as MuiTextField,
   Typography,
 } from "@material-ui/core";
-
-import { green, orange, red } from "@material-ui/core/colors";
 
 import {
   Add as AddIcon,
   Archive as ArchiveIcon,
-  FilterList as FilterListIcon,
   RemoveRedEye as RemoveRedEyeIcon,
 } from "@material-ui/icons";
 
@@ -46,27 +39,24 @@ import { spacing } from "@material-ui/system";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addProjectsAction,
-  deleteProjectsAction,
   getProjectsAction,
-} from "../../redux/actions/projectsActions";
+} from "../../redux/projects/actions";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { Alert } from "@material-ui/lab";
 import Cookies from "universal-cookie";
+import { Edit } from "react-feather";
+import { ProjectEditForm } from "../components/ProjectEditForm";
+import { ArchiveForm } from "../components/AcrhiveForm";
 
 const Divider = styled(MuiDivider)(spacing);
+
+const TextField = styled(MuiTextField)(spacing);
+const Button = styled(MuiButton)(spacing);
 
 const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
 
 const Paper = styled(MuiPaper)(spacing);
-
-const Spacer = styled.div`
-  flex: 1 1 100%;
-`;
-
-const ToolbarTitle = styled.div`
-  min-width: 150px;
-`;
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -98,19 +88,12 @@ const headCells = [
   { id: "id", alignment: "left", label: "Project ID" },
   { id: "name", alignment: "left", label: "Project" },
   { id: "description", alignment: "left", label: "Description" },
-  { id: "owner", alignment: "left", label: "Owner" },
+  { id: "owner_username", alignment: "left", label: "Owner" },
   { id: "actions", alignment: "right", label: "Actions" },
 ];
 
 function EnhancedTableHead(props) {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
+  const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -139,58 +122,25 @@ function EnhancedTableHead(props) {
   );
 }
 
-let EnhancedTableToolbar = (props) => {
-  const { numSelected } = props;
-
-  return (
-    <Toolbar>
-      <ToolbarTitle>
-        {numSelected > 0 ? (
-          <Typography color="inherit" variant="subtitle1">
-            {numSelected} selected
-          </Typography>
-        ) : (
-          <Typography variant="h6" id="tableTitle">
-            Projects
-          </Typography>
-        )}
-      </ToolbarTitle>
-      <Spacer />
-      <div>
-        {numSelected > 0 ? (
-          <Tooltip title="Delete">
-            <IconButton aria-label="Delete">
-              <ArchiveIcon />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Filter list">
-            <IconButton aria-label="Filter list">
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-      </div>
-    </Toolbar>
-  );
-};
-
-function EnhancedTable() {
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("project");
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+function ProjectsTable() {
+  const cookies = new Cookies();
 
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const projects = useSelector((state) => state.projects.projects);
-  const projectStatus = useSelector((state) => state.projects.status);
-  const authStatus = useSelector((state) => state.auth.status);
-  const error = useSelector((state) => state.projects.error);
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("id");
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const cookies = new Cookies();
+  const [dialogEditOpen, setDialogEditOpen] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState();
+
+  const [dialogArchiveOpen, setDialogArchiveOpen] = useState(false);
+  const [projectToArchive, setProjectToArchive] = useState();
+
+  const projects = useSelector((state) => state.projects.projects);
 
   const token = useSelector((state) => {
     if (state.auth.user.token !== undefined) {
@@ -201,26 +151,12 @@ function EnhancedTable() {
     }
   });
 
-  const id = useSelector((state) => {
-    if (state.auth.user.id !== undefined) {
-      cookies.set("id", state.auth.user.id, { path: "/" });
-      return state.auth.user.id;
-    } else {
-      return cookies.get("id");
-    }
-  });
-
   useEffect(() => {
-    if (projectStatus === "idle") {
-      dispatch(getProjectsAction(token));
-    }
-  }, [projectStatus, dispatch]);
+    dispatch(getProjectsAction(token));
+  }, []);
 
-  const rows = projects;
-
-  const handleProjectDelete = (event, id) => {
-    dispatch(deleteProjectsAction(token, id));
-  };
+  const emptyRows =
+    rowsPerPage - Math.min(rowsPerPage, projects.length - page * rowsPerPage);
 
   const handleOpenProject = (event, id) => {
     history.push("/projects/" + id + "/");
@@ -234,7 +170,7 @@ function EnhancedTable() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.id);
+      const newSelecteds = projects.map((n) => n.id);
       setSelected(newSelecteds);
       return;
     }
@@ -250,13 +186,9 @@ function EnhancedTable() {
     setPage(0);
   };
 
-  const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-
   return (
     <div>
       <Paper>
-        <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
           <Table
             aria-labelledby="tableTitle"
@@ -269,14 +201,12 @@ function EnhancedTable() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={projects.length}
             />
             <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
+              {stableSort(projects, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const labelId = `enhanced-table-checkbox-${index}`;
-
                   return (
                     <TableRow
                       hover
@@ -287,17 +217,9 @@ function EnhancedTable() {
                       <TableCell align="left">#{row.id}</TableCell>
                       <TableCell align="left">{row.name}</TableCell>
                       <TableCell align="left">{row.description}</TableCell>
-                      <TableCell align="left">{row.owner}</TableCell>
+                      <TableCell align="left">{row.owner_username}</TableCell>
                       <TableCell padding="none" align="right">
-                        <Box mr={2}>
-                          <IconButton
-                            aria-label="delete"
-                            onClick={(event) =>
-                              handleProjectDelete(event, row.id)
-                            }
-                          >
-                            <ArchiveIcon />
-                          </IconButton>
+                        <Box mr={3}>
                           <IconButton
                             aria-label="details"
                             onClick={(event) =>
@@ -305,6 +227,25 @@ function EnhancedTable() {
                             }
                           >
                             <RemoveRedEyeIcon />
+                          </IconButton>
+                          <IconButton
+                            aria-label="details"
+                            onClick={() => {
+                              setProjectToEdit(row);
+                              setDialogEditOpen(true);
+                            }}
+                          >
+                            <Edit />
+                          </IconButton>
+                          <IconButton
+                            aria-label="delete"
+                            onClick={() => {
+                              // eslint-disable-next-line
+                              setProjectToArchive({data: row, type: "project"});
+                              setDialogArchiveOpen(true);
+                            }}
+                          >
+                            <ArchiveIcon />
                           </IconButton>
                         </Box>
                       </TableCell>
@@ -322,13 +263,25 @@ function EnhancedTable() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={rows.length}
+          count={projects.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
+      <ProjectEditForm
+        token={token}
+        isOpen={dialogEditOpen}
+        getProject={() => projectToEdit}
+        closeDialog={() => setDialogEditOpen(false)}
+      />
+      <ArchiveForm
+        token={token}
+        isOpen={dialogArchiveOpen}
+        getObject={() => projectToArchive}
+        closeDialog={() => setDialogArchiveOpen(false)}
+      />
     </div>
   );
 }
@@ -337,7 +290,6 @@ function ProjectsList() {
   const [open, setOpen] = React.useState(false);
 
   const dispatch = useDispatch();
-  const history = useHistory();
 
   const cookies = new Cookies();
 
@@ -347,15 +299,6 @@ function ProjectsList() {
       return state.auth.user.token;
     } else {
       return cookies.get("token");
-    }
-  });
-
-  const id = useSelector((state) => {
-    if (state.auth.user.id !== undefined) {
-      cookies.set("id", state.auth.user.id, { path: "/" });
-      return state.auth.user.id;
-    } else {
-      return cookies.get("id");
     }
   });
 
@@ -461,7 +404,6 @@ function ProjectsList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
                       <TextField
                         name="description"
                         label="Description"
@@ -475,7 +417,6 @@ function ProjectsList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
                       <Button
                         type="submit"
                         fullWidth
@@ -499,7 +440,7 @@ function ProjectsList() {
 
       <Grid container spacing={6}>
         <Grid item xs={12}>
-          <EnhancedTable />
+          <ProjectsTable />
         </Grid>
       </Grid>
     </React.Fragment>

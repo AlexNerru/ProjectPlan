@@ -6,6 +6,11 @@ from project_service.serializers import LoggingSerializer
 
 
 class ProjectSerializer(LoggingSerializer):
+    owner_username = serializers.SerializerMethodField('get_owner_username')
+
+    def get_owner_username(self, obj):
+        return obj.owner.username
+
     class Meta:
         model = Project
         fields = '__all__'

@@ -5,7 +5,7 @@ import styled from "styled-components/macro";
 import { Helmet } from "react-helmet-async";
 import * as Yup from "yup";
 import { Formik } from "formik";
-import { signUp } from "../../redux/actions/authActions";
+import { signUpAction } from "../../redux/auth/authActions";
 
 import {
   Button,
@@ -68,7 +68,7 @@ function SignUp() {
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
             await dispatch(
-              signUp({
+              signUpAction({
                 username: values.username,
                 first_name: "testtest",
                 last_name: "testtest",

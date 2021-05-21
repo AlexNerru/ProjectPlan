@@ -18,6 +18,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'task_service.settings')
 
 app = Celery('task_service')
 
+
 def event_handler(func):
     def inner(*args, **kwargs):
         logger.info("Message accepted: {0!r}".format(args[0]))
@@ -34,6 +35,7 @@ def event_handler(func):
 
     return inner
 
+
 @event_handler
 def user_created_event_handler(body, message):
     user = User(username=body['username'])
@@ -48,13 +50,15 @@ def user_created_event_handler(body, message):
     Profile.objects.create(user=user, user_service_id=body['id'])
     return user
 
+
 @event_handler
 def project_created_event_handler(body, message):
     return Project.objects.create(project_service_id=body['id'])
 
+
 @event_handler
 def resource_created_event_handler(body, message):
-    return Resource.objects.create(resource_service_id=body['id'])
+    return Resource.objects.create(resource_service_id=body['id'], rate=body['rate'])
 
 
 class EventsConsumer:
@@ -64,7 +68,7 @@ class EventsConsumer:
             cls.instance = super(EventsConsumer, cls).__new__(cls)
         return cls.instance
 
-    #TODO refactor this to fabric class
+    # TODO refactor this to fabric class
     def __init__(self):
         rabbit_url = CELERY_BROKER_URL
         conn = Connection(rabbit_url, heartbeat=10)
@@ -76,15 +80,15 @@ class EventsConsumer:
         user_consumer.consume()
 
         projects_exchange = Exchange(name='projects_exchange',
-                            type='fanout',
-                            durable=True)
+                                     type='fanout',
+                                     durable=True)
         projects_queue = Queue(name='tasks_projects_queue', exchange=projects_exchange)
         project_consumer = Consumer(conn, queues=projects_queue, callbacks=[project_created_event_handler])
         project_consumer.consume()
 
         resources_exchange = Exchange(name='resources_exchange',
-                                     type='fanout',
-                                     durable=True)
+                                      type='fanout',
+                                      durable=True)
         resources_queue = Queue(name='tasks_resources_queue', exchange=resources_exchange)
         resource_consumer = Consumer(conn, queues=resources_queue, callbacks=[resource_created_event_handler])
         resource_consumer.consume()

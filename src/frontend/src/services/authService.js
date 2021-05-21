@@ -38,14 +38,32 @@ export function signUp(credentials) {
     axios
       .post("http://127.0.0.1:8001/users/register/", credentials)
       .then((response) => {
-        console.log(response.data);
         if (response.status === 201) {
           resolve(response.data);
         }
         reject(response.data);
       })
       .catch((error) => {
-        console.log(error);
+        reject(error);
+      });
+  });
+}
+
+export function getUser(token) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get("http://127.0.0.1:8001/token/user/", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response.data);
+        }
+        reject(response.data);
+      })
+      .catch((error) => {
         reject(error);
       });
   });

@@ -11,7 +11,7 @@ import {
   IconButton as MuiIconButton,
 } from "@material-ui/core";
 
-import { signOut } from "../redux/actions/authActions";
+import { signOut } from "../redux/auth/authActions";
 import Cookies from "universal-cookie";
 
 const IconButton = styled(MuiIconButton)`

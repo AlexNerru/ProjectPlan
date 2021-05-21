@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components/macro";
-import { NavLink, useHistory } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import { Helmet } from "react-helmet-async";
 
@@ -8,9 +8,7 @@ import {
   Box,
   Breadcrumbs as MuiBreadcrumbs,
   Button,
-  Chip as MuiChip,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
@@ -18,6 +16,7 @@ import {
   Grid,
   IconButton,
   Link,
+  MenuItem,
   Paper as MuiPaper,
   Table,
   TableBody,
@@ -27,38 +26,43 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  TextField,
+  TextField as MuiTextField,
   Toolbar,
   Tooltip,
   Typography,
 } from "@material-ui/core";
 
-import { green, orange, red } from "@material-ui/core/colors";
-
 import {
   Add as AddIcon,
   Archive as ArchiveIcon,
   FilterList as FilterListIcon,
-  RemoveRedEye as RemoveRedEyeIcon,
 } from "@material-ui/icons";
 
 import { spacing } from "@material-ui/system";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addResourceAction,
-  deleteResourcesAction,
   getResourcesAction,
-} from "../../redux/actions/resourcesActions";
+} from "../../redux/resources/resourcesActions";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import { Alert } from "@material-ui/lab";
 import Cookies from "universal-cookie";
+import { ArchiveForm } from "../components/AcrhiveForm";
+import WorkHoursChart from "../charts/plotly/WorkHoursChart";
+import ResourcesLevelChart from "../charts/plotly/ResourcesLevelChart";
+import SkillsChart from "../charts/plotly/SkillsChart";
+import {
+  getSkillsAction,
+  getSkillsLevelAction,
+} from "../../redux/charts/actions";
 
 const Divider = styled(MuiDivider)(spacing);
 
 const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
 
 const Paper = styled(MuiPaper)(spacing);
+const TextField = styled(MuiTextField)(spacing);
 
 const Spacer = styled.div`
   flex: 1 1 100%;
@@ -100,18 +104,13 @@ const headCells = [
   { id: "last_name", alignment: "left", label: "Last Name" },
   { id: "grade", alignment: "left", label: "Grade" },
   { id: "rate", alignment: "left", label: "Rate" },
+  { id: "skill_name", alignment: "left", label: "Skill" },
+  { id: "skill_level_value", alignment: "left", label: "Level" },
   { id: "actions", alignment: "right", label: "Actions" },
 ];
 
 function EnhancedTableHead(props) {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
+  const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -152,7 +151,7 @@ let EnhancedTableToolbar = (props) => {
           </Typography>
         ) : (
           <Typography variant="h6" id="tableTitle">
-            Projects
+            Resources
           </Typography>
         )}
       </ToolbarTitle>
@@ -178,17 +177,16 @@ let EnhancedTableToolbar = (props) => {
 
 function EnhancedTable() {
   const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("project");
+  const [orderBy, setOrderBy] = React.useState("id");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
+  const [dialogArchiveOpen, setDialogArchiveOpen] = useState(false);
+  const [resourceToArchive, setResourceToArchive] = useState();
+
   const dispatch = useDispatch();
   const resources = useSelector((state) => state.resources.resources);
-
-  const resourceStatus = useSelector((state) => state.resources.status);
-  const authStatus = useSelector((state) => state.auth.status);
-  const error = useSelector((state) => state.resources.error);
 
   const cookies = new Cookies();
 
@@ -201,26 +199,11 @@ function EnhancedTable() {
     }
   });
 
-  const id = useSelector((state) => {
-    if (state.auth.user.id !== undefined) {
-      cookies.set("id", state.auth.user.id, { path: "/" });
-      return state.auth.user.id;
-    } else {
-      return cookies.get("id");
-    }
-  });
-
   useEffect(() => {
-    if (resourceStatus === "idle") {
-      dispatch(getResourcesAction(token));
-    }
-  }, [resourceStatus, dispatch]);
+    dispatch(getResourcesAction(token));
+  }, []);
 
   const rows = resources;
-
-  const handleProjectDelete = (event, id) => {
-    dispatch(deleteResourcesAction(token, id));
-  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -271,8 +254,6 @@ function EnhancedTable() {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const labelId = `enhanced-table-checkbox-${index}`;
-
                   return (
                     <TableRow
                       hover
@@ -285,13 +266,21 @@ function EnhancedTable() {
                       <TableCell align="left">{row.last_name}</TableCell>
                       <TableCell align="left">{row.grade}</TableCell>
                       <TableCell align="left">{row.rate}</TableCell>
+                      <TableCell align="left">{row.skill_name}</TableCell>
+                      <TableCell align="left">
+                        {row.skill_level_value}
+                      </TableCell>
                       <TableCell padding="none" align="right">
                         <Box mr={2}>
                           <IconButton
                             aria-label="delete"
-                            onClick={(event) =>
-                              handleProjectDelete(event, row.id)
-                            }
+                            onClick={() => {
+                              setResourceToArchive({
+                                data: row,
+                                type: "resource",
+                              });
+                              setDialogArchiveOpen(true);
+                            }}
                           >
                             <ArchiveIcon />
                           </IconButton>
@@ -318,6 +307,12 @@ function EnhancedTable() {
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
+      <ArchiveForm
+        token={token}
+        isOpen={dialogArchiveOpen}
+        getObject={() => resourceToArchive}
+        closeDialog={() => setDialogArchiveOpen(false)}
+      />
     </div>
   );
 }
@@ -326,7 +321,6 @@ function ResourcesList() {
   const [open, setOpen] = React.useState(false);
 
   const dispatch = useDispatch();
-  const history = useHistory();
 
   const cookies = new Cookies();
 
@@ -339,31 +333,27 @@ function ResourcesList() {
     }
   });
 
-  const id = useSelector((state) => {
-    if (state.auth.user.id !== undefined) {
-      cookies.set("id", state.auth.user.id, { path: "/" });
-      return state.auth.user.id;
-    } else {
-      return cookies.get("id");
-    }
-  });
-
-  const user = useSelector((state) => state.auth.user.id);
-
   const handleSubmit = (
     values,
     { resetForm, setErrors, setStatus, setSubmitting }
   ) => {
     try {
       setSubmitting(true);
+      console.log(values);
       dispatch(
         addResourceAction(token, {
           first_name: values.first_name,
           last_name: values.last_name,
           grade: values.grade,
           rate: values.rate,
+          skill_name: values.skill_name,
+          skill_level: values.skill_level,
         })
       );
+
+      dispatch(getSkillsLevelAction(token));
+      dispatch(getSkillsAction(token));
+
       setStatus({ sent: true });
       setSubmitting(false);
     } catch (error) {
@@ -415,6 +405,8 @@ function ResourcesList() {
                     last_name: "Test Test",
                     grade: 7,
                     rate: 2500,
+                    skill_name: "Development",
+                    skill_level: "",
                     submit: false,
                   }}
                   validationSchema={Yup.object().shape({
@@ -426,6 +418,10 @@ function ResourcesList() {
                       .required("Last name is required"),
                     grade: Yup.number().required("Grade is required"),
                     rate: Yup.number().required("Rate is required"),
+                    skill_name: Yup.string().required("Skill is required"),
+                    skill_level: Yup.string().required(
+                      "Skill level is required"
+                    ),
                   })}
                   onSubmit={handleSubmit}
                 >
@@ -455,7 +451,6 @@ function ResourcesList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
                       <TextField
                         name="last_name"
                         label="Last name"
@@ -467,7 +462,6 @@ function ResourcesList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
                       <TextField
                         name="grade"
                         label="Grade"
@@ -479,7 +473,6 @@ function ResourcesList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
                       <TextField
                         name="rate"
                         label="Rate"
@@ -491,7 +484,36 @@ function ResourcesList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
+                      <TextField
+                        name="skill_name"
+                        label="Skill"
+                        value={values.skill_name}
+                        error={Boolean(touched.skill_name && errors.skill_name)}
+                        fullWidth
+                        helperText={touched.skill_name && errors.skill_name}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        my={2}
+                      />
+                      <TextField
+                        name="skill_level"
+                        select
+                        label="Skill level"
+                        value={values.skill_level}
+                        error={Boolean(
+                          touched.skill_level && errors.skill_level
+                        )}
+                        fullWidth
+                        helperText={touched.skill_level && errors.skill_level}
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        my={2}
+                        defaultValue={"MI"}
+                      >
+                        <MenuItem value="JR">Junior</MenuItem>
+                        <MenuItem value="MI">Middle</MenuItem>
+                        <MenuItem value="SE">Senior</MenuItem>
+                      </TextField>
                       <Button
                         type="submit"
                         fullWidth
@@ -508,6 +530,16 @@ function ResourcesList() {
               </DialogContent>
             </Dialog>
           </div>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={6}>
+        <Grid item xs={12} lg={6}>
+          <ResourcesLevelChart token={token} />
+        </Grid>
+
+        <Grid item xs={12} lg={6}>
+          <SkillsChart token={token} />
         </Grid>
       </Grid>
 

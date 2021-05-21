@@ -50,7 +50,6 @@ export function postResource(token, data) {
       })
       .then((response) => {
         if (response.status === 201) {
-          console.log(response);
           resolve(response.data);
         }
         reject(response.data);
@@ -64,7 +63,7 @@ export function postResource(token, data) {
 export function deleteResource(token, id) {
   return new Promise((resolve, reject) => {
     axios
-      .delete("http://127.0.0.1:8003/api/v1/resources/" + id, {
+      .delete("http://127.0.0.1:8003/api/v1/resources/" + id + "/", {
         headers: {
           Authorization: "Bearer " + token,
         },

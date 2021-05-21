@@ -186,11 +186,22 @@ LOGGING = {
             'formatter': 'file',
             'filename': 'debug.log'
         },
+        'test_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': 'tests.log'
+        },
+
     },
     'loggers': {
         'default': {
             'level': 'DEBUG',
             'handlers': ['console', 'file']
-        }
+        },
+        'tests': {
+            'level': 'DEBUG',
+            'handlers': ['test_file']
+        },
     }
 }

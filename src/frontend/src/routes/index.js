@@ -15,7 +15,6 @@ import AuthGuard from "../components/AuthGuard";
 import SignIn from "../pages/auth/SignIn";
 import SignUp from "../pages/auth/SignUp";
 import Page404 from "../pages/auth/Page404";
-import Page500 from "../pages/auth/Page500";
 
 // Dashboards components
 const Default = async(() => import("../pages/dashboards/Default"));
@@ -97,11 +96,6 @@ const authRoutes = {
       path: "/auth/404",
       name: "404 Page",
       component: Page404,
-    },
-    {
-      path: "/auth/500",
-      name: "500 Page",
-      component: Page500,
     },
   ],
   component: null,
