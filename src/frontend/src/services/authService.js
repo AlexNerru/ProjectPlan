@@ -5,12 +5,27 @@ export function signIn(credentials) {
     axios
       .post("http://127.0.0.1:8001/token/", credentials)
       .then((response) => {
-        console.log(response);
         if (response.status === 200) {
-          console.log(response.data);
-          resolve(response.data);
+          return response.data.access;
         }
         reject(response.data);
+      })
+      .then((access) => {
+        axios
+          .get("http://127.0.0.1:8001/token/user/", {
+            headers: {
+              Authorization: "Bearer " + access, //the token is a variable which holds the token
+            },
+          })
+          .then((response) => {
+            if (response.status === 200) {
+              resolve({ access: access, data: response.data });
+            }
+            reject(response.data);
+          })
+          .catch((error) => {
+            reject(error);
+          });
       })
       .catch((error) => {
         reject(error);
@@ -23,23 +38,25 @@ export function signUp(credentials) {
     axios
       .post("http://127.0.0.1:8001/users/register/", credentials)
       .then((response) => {
-        console.log(response.data);
         if (response.status === 201) {
           resolve(response.data);
         }
         reject(response.data);
       })
       .catch((error) => {
-        console.log(error);
         reject(error);
       });
   });
 }
 
-export function resetPassword(credentials) {
+export function getUser(token) {
   return new Promise((resolve, reject) => {
     axios
-      .post("/api/auth/reset-password", credentials)
+      .get("http://127.0.0.1:8001/token/user/", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
       .then((response) => {
         if (response.status === 200) {
           resolve(response.data);

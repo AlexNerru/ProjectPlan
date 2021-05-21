@@ -3,12 +3,12 @@ from django.contrib.auth.models import User
 from rest_framework.exceptions import AuthenticationFailed
 
 from tasks.models import Profile
+from task_service.settings import TOKEN_VERIFY_URL, USER_BY_TOKEN_URL
 
 import requests
 import logging
-import os
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('default')
 
 
 class MicroservicesJWTBackend(authentication.BaseAuthentication):
@@ -19,23 +19,21 @@ class MicroservicesJWTBackend(authentication.BaseAuthentication):
     def authenticate(self, request):
         if 'Authorization' in request.headers:
             token = request.headers['Authorization'].split(' ')[1]
-            logger.debug(token)
-            token_verify_url = os.environ.get('TOKEN_VERIFY_URL', 'http://user-service:80/token/verify/')
+            logger.debug("Authorizing token {0!r}".format(token))
             response = requests.post(
-                token_verify_url,
+                TOKEN_VERIFY_URL,
                 data={'token': token},
             )
-            logger.debug(response.status_code)
+            logger.debug("Token {0!r} validation response {1!r}".format(str(token),
+                                                                        response.status_code))
             if response.status_code == 200:
-                user_by_token_url = os.environ.get('USER_BY_TOKEN_URL',
-                                                   'http://user-service:80/token/user/')
                 response = requests.get(
-                    user_by_token_url,
+                    USER_BY_TOKEN_URL,
                     headers={'Authorization': 'Bearer '+token},
                 )
-                logger.debug(response.text[1:-1])
-                user = User.objects.get(username=response.text[1:-1])
-                logger.debug("User authenticated")
+                logger.debug("Authorizing response {0!r}".format(response.json()))
+                user = User.objects.get(username=response.json()['username'])
+                logger.debug("User authenticated {0!r}".format(str(user)))
                 return (user, None)
             else:
                 raise AuthenticationFailed

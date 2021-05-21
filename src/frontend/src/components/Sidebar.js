@@ -29,6 +29,7 @@ import { green } from "@material-ui/core/colors";
 import { sidebarRoutes as routes } from "../routes/index";
 
 import { ReactComponent as Logo } from "../vendor/logo.svg";
+import { useSelector } from "react-redux";
 
 const Box = styled(MuiBox)(spacing);
 
@@ -307,6 +308,8 @@ const Sidebar = ({ classes, staticContext, location, ...rest }) => {
 
   const [openRoutes, setOpenRoutes] = useState(() => initOpenRoutes());
 
+  const username = useSelector((state) => state.auth.user.username);
+
   const toggle = (index) => {
     // Collapse all elements
     Object.keys(openRoutes).forEach(
@@ -325,6 +328,12 @@ const Sidebar = ({ classes, staticContext, location, ...rest }) => {
 
   return (
     <Drawer variant="permanent" {...rest}>
+      <Brand component={NavLink} to="/" button>
+        <BrandIcon />{" "}
+        <Box ml={1}>
+          ProjectPlan <BrandChip label="^^" />
+        </Box>
+      </Brand>
       <Scrollbar>
         <List disablePadding>
           <Items>
@@ -379,6 +388,31 @@ const Sidebar = ({ classes, staticContext, location, ...rest }) => {
           </Items>
         </List>
       </Scrollbar>
+      <SidebarFooter>
+        <Grid container spacing={2}>
+          <Grid item>
+            <SidebarFooterBadge
+              overlap="circle"
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              variant="dot"
+            >
+              <Avatar
+                alt="User Avatar"
+                src="/static/img/avatars/avatar-1.jpg"
+              />
+            </SidebarFooterBadge>
+          </Grid>
+          <Grid item>
+            <SidebarFooterText variant="body2"> {username} </SidebarFooterText>
+            <SidebarFooterSubText variant="body2">
+              Team member
+            </SidebarFooterSubText>
+          </Grid>
+        </Grid>
+      </SidebarFooter>
     </Drawer>
   );
 };

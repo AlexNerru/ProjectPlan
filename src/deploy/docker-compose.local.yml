@@ -1,0 +1,146 @@
+version: '3.3'
+
+services:
+  user-service:
+    build: ../backend/user-service
+    command: sh -c "python manage.py runserver 0.0.0.0:80"
+    container_name: user-service
+    ports:
+      - 8001:80
+    env_file:
+      - user-service/user-service.dev.env
+    depends_on:
+      - user-db
+      - redis
+      - rabbitmq
+      - elk
+
+  project-service:
+    build: ../backend/project-service
+    command: sh -c "python manage.py runserver 0.0.0.0:80"
+    container_name: project-service
+    ports:
+      - 8002:80
+    env_file:
+      - project-service/project-service.dev.env
+    depends_on:
+      - project-db
+      - redis
+      - rabbitmq
+      - elk
+
+  resource-service:
+    build: ../backend/resource-service
+    command: sh -c "python manage.py runserver 0.0.0.0:80"
+    container_name: resource-service
+    ports:
+      - 8003:80
+    env_file:
+      - resource-service/resource-service.dev.env
+    depends_on:
+      - resource-db
+      - redis
+      - rabbitmq
+      - elk
+
+  project-performance-service:
+    build: ../backend/project-performance-service
+    command: sh -c "python manage.py runserver 0.0.0.0:80"
+    container_name: project-performance-service
+    ports:
+      - 8004:80
+    env_file:
+      - project-performance-service/project-performance-service.dev.env
+    depends_on:
+      - performance-indicators-db
+      - redis
+      - rabbitmq
+      - elk
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - rabbit.dev.env
+
+  user-db:
+    image: postgres:12.0-alpine
+    volumes:
+      - user_data:/var/lib/postgresql/data/
+    env_file:
+      - user-service/user-db.dev.env
+    ports:
+      - 5432:5432
+
+  project-db:
+    image: postgres:12.0-alpine
+    volumes:
+      - project_data:/var/lib/postgresql/data/
+    env_file:
+      - project-service/project-db.dev.env
+    ports:
+      - 5433:5432
+
+  resource-db:
+    image: postgres:12.0-alpine
+    volumes:
+      - resource_data:/var/lib/postgresql/data/
+    env_file:
+      - resource-service/resource-db.dev.env
+    ports:
+      - 5434:5432
+
+  performance-indicators-db:
+    image: postgres:12.0-alpine
+    volumes:
+      - performance_data:/var/lib/postgresql/data/
+    env_file:
+      - project-performance-service/performance-indicators-db.dev.env
+    ports:
+      - 5435:5432
+
+  task-db:
+    image: postgres:12.0-alpine
+    volumes:
+      - task_data:/var/lib/postgresql/data/
+    env_file:
+      - task-service/task-db.dev.env
+    ports:
+      - 5436:5432
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    env_file:
+      - pgadmin.dev.env
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - "5050:5050"
+
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+
+  elk:
+    image: sebp/elk
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"
+    environment:
+      - ES_CONNECT_RETRY=360
+
+volumes:
+  user_data:
+  project_data:
+  performance_data:
+  resource_data:
+  task_data:
+  redis_data:
+  pgadmin:

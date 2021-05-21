@@ -1,31 +1,40 @@
-from django.http import HttpRequest
+from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status, generics
-from resources.models import *
-from resources.serializers import  ResourceSerializer
 from rest_framework.permissions import IsAuthenticated
-from resource_service.microservices_auth import MicroservicesJWTBackend
-from drf_yasg.utils import swagger_auto_schema
+from rest_framework.response import Response
+from rest_framework_guardian.filters import ObjectPermissionsFilter
 
+from django_filters.rest_framework import DjangoFilterBackend
 
-class ResourceListView(generics.ListCreateAPIView):
-    """
-    View to create or get list of projects
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
+from resource_service.permissions import DjangoObjectGetPermission
+from resource_service.viewsets import LoggingViewSet, logging_action
 
-    queryset = Resource.objects.all()
-    serializer_class = ResourceSerializer
+from resources.serializers import ResourceSerializer
+from resources.models import Resource
+from resources.filters import ResourceFilter
+from resources.graphs import resources_skills_graph, resources_skills_level_graph
 
-
-class ResourceView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    View to RUD projects
-    """
-    authentication_classes = [MicroservicesJWTBackend]
-    permission_classes = [IsAuthenticated]
+class ResourcesViewSet(LoggingViewSet):
 
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = ResourceFilter
+
+
+class SkillsLevelGraphView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @logging_action
+    def get(self, request):
+        data = resources_skills_level_graph()
+        return Response(data, status=status.HTTP_200_OK)
+
+class SkillsGraphView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @logging_action
+    def get(self, request):
+        data = resources_skills_graph()
+        return Response(data, status=status.HTTP_200_OK)

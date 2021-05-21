@@ -7,7 +7,7 @@ from projects.models import Profile
 from django.contrib.auth.management.commands.createsuperuser import get_user_model
 from django.contrib.auth.models import User
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('default')
 
 
 class Command(BaseCommand):
@@ -26,4 +26,4 @@ class Command(BaseCommand):
             profile = Profile(user=user, user_service_id=1)
             profile.save()
 
-            logger.info("Superuser created")
+            logger.info("Superuser created {0!r}".format(str(user)))

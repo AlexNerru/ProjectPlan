@@ -6,7 +6,7 @@ from kombu import Exchange, Connection
 
 from resource_service.settings import CELERY_BROKER_URL
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('default')
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'resource_service.settings')
 
@@ -41,7 +41,21 @@ class Publisher:
                                                   type='fanout',
                                                   durable=True,
                                                   channel=self.channel)
+                self.resources_exchange = Exchange(name='resources_exchange',
+                                                   type='fanout',
+                                                   durable=True,
+                                                   channel=self.channel)
                 self.users_exchange.declare()
                 logger.info("Users exchange declared")
                 self.projects_exchange.declare()
                 logger.info("Projects exchange declared")
+                self.resources_exchange.declare()
+                logger.info("Resources exchange declared")
+
+    def event_resource_registered(self, data, version):
+        message = data.copy()
+        message['version'] = version
+        self.producer.publish(message, exchange=self.resources_exchange,
+                              retry_policy=self.retry_policy)
+        logger.info("Message sent: {0!r} to exchange {0!r}".format(message,
+                                                                   self.resources_exchange))

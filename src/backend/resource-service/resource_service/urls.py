@@ -1,26 +1,22 @@
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-from resources.views import ResourceListView, ResourceView
+from rest_framework import routers
 
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Resources API",
-        default_version='v1',
-        description="API for working with resources",
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+
+from resources.views import ResourcesViewSet, SkillsGraphView, SkillsLevelGraphView
+
+router = routers.SimpleRouter()
+router.register(r'resources', ResourcesViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('resources/', ResourceListView.as_view()),
-    path('resources/<int:pk>/', ResourceView.as_view()),
+    path('api/v1/', include(router.urls)),
+    path('api/v1/dashboard/skills/', SkillsGraphView.as_view()),
+    path('api/v1/dashboard/skill_levels/', SkillsLevelGraphView.as_view()),
 
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/v1/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/v1/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]

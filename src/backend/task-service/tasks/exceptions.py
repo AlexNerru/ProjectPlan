@@ -1,0 +1,2 @@
+class projectNotForundException(Exception):
+    pass

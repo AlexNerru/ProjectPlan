@@ -1,16 +1,24 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import {
-  dashboardLayoutRoutes,
-  authLayoutRoutes,
-  presentationLayoutRoutes,
-  protectedRoutes,
-} from "./index";
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  matchPath,
+} from "react-router-dom";
+import { dashboardLayoutRoutes, authLayoutRoutes } from "./index";
 
 import DashboardLayout from "../layouts/Dashboard";
 import AuthLayout from "../layouts/Auth";
-import PresentationLayout from "../layouts/Presentation";
 import Page404 from "../pages/auth/Page404";
+
+import history from "./history";
+
+export function getParams(pathname) {
+  const matchProfile = matchPath(pathname, {
+    path: "/projects/:projectID",
+  });
+  return (matchProfile && matchProfile.params) || {};
+}
 
 const childRoutes = (Layout, routes) =>
   routes.map(({ component: Component, guard, children, path }, index) => {
@@ -53,12 +61,10 @@ const childRoutes = (Layout, routes) =>
   });
 
 const Routes = () => (
-  <Router>
+  <Router history={history}>
     <Switch>
       {childRoutes(DashboardLayout, dashboardLayoutRoutes)}
-      {childRoutes(DashboardLayout, protectedRoutes)}
       {childRoutes(AuthLayout, authLayoutRoutes)}
-      {childRoutes(PresentationLayout, presentationLayoutRoutes)}
       <Route
         render={() => (
           <AuthLayout>

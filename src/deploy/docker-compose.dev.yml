@@ -8,12 +8,11 @@ services:
     ports:
       - 8001:80
     env_file:
-      - user-service.dev.env
+      - user-service/user-service.dev.env
     depends_on:
       - user-db
       - redis
       - rabbitmq
-      - elk
 
   project-service:
     build: ../backend/project-service
@@ -22,12 +21,11 @@ services:
     ports:
       - 8002:80
     env_file:
-      - project-service.dev.env
+      - project-service/project-service.dev.env
     depends_on:
       - project-db
       - redis
       - rabbitmq
-      - elk
 
   resource-service:
     build: ../backend/resource-service
@@ -36,26 +34,12 @@ services:
     ports:
       - 8003:80
     env_file:
-      - resource-service.dev.env
+      - resource-service/resource-service.dev.env
     depends_on:
       - resource-db
       - redis
       - rabbitmq
-      - elk
-
-  task-service:
-    build: ../backend/task-service
-    command: sh -c "python manage.py runserver 0.0.0.0:80"
-    container_name: task-service
-    ports:
-      - 8005:80
-    env_file:
-      - task-service.dev.env
-    depends_on:
-      - task-db
-      - redis
-      - rabbitmq
-      - elk
+      #- elk
 
   project-performance-service:
     build: ../backend/project-performance-service
@@ -64,12 +48,26 @@ services:
     ports:
       - 8004:80
     env_file:
-      - project-performance-service.dev.env
+      - project-performance-service/project-performance-service.dev.env
     depends_on:
       - performance-indicators-db
       - redis
       - rabbitmq
-      - elk
+      #- elk
+
+  task-service:
+    build: ../backend/task-service
+    command: sh -c "python manage.py runserver 0.0.0.0:80"
+    container_name: task-service
+    ports:
+      - 8005:80
+    env_file:
+      - task-service/task-service.dev.env
+    depends_on:
+      - task-db
+      - redis
+      - rabbitmq
+      #- elk
 
   rabbitmq:
     container_name: rabbitmq
@@ -85,7 +83,7 @@ services:
     volumes:
       - user_data:/var/lib/postgresql/data/
     env_file:
-      - user-db.dev.env
+      - user-service/user-db.dev.env
     ports:
       - 5432:5432
 
@@ -94,25 +92,25 @@ services:
     volumes:
       - project_data:/var/lib/postgresql/data/
     env_file:
-      - project-db.dev.env
+      - project-service/project-db.dev.env
     ports:
       - 5433:5432
-
-  performance-indicators-db:
-    image: postgres:12.0-alpine
-    volumes:
-      - performance_data:/var/lib/postgresql/data/
-    env_file:
-      - performance-indicators-db.dev.env
-    ports:
-      - 5434:5432
 
   resource-db:
     image: postgres:12.0-alpine
     volumes:
       - resource_data:/var/lib/postgresql/data/
     env_file:
-      - resource-db.dev.env
+      - resource-service/resource-db.dev.env
+    ports:
+      - 5434:5432
+
+  performance-indicators-db:
+    image: postgres:12.0-alpine
+    volumes:
+      - performance_data:/var/lib/postgresql/data/
+    env_file:
+      - project-performance-service/performance-indicators-db.dev.env
     ports:
       - 5435:5432
 
@@ -121,7 +119,7 @@ services:
     volumes:
       - task_data:/var/lib/postgresql/data/
     env_file:
-      - task-db.dev.env
+      - task-service/task-db.dev.env
     ports:
       - 5436:5432
 
@@ -139,14 +137,14 @@ services:
     volumes:
       - redis_data:/data
 
-  elk:
-    image: sebp/elk
-    ports:
-      - "5601:5601"
-      - "9200:9200"
-      - "5044:5044"
-    environment:
-      - ES_CONNECT_RETRY=360
+  #elk:
+  #  image: sebp/elk
+  #  ports:
+  #    - "5601:5601"
+  #    - "9200:9200"
+  #    - "5044:5044"
+  #  environment:
+  #    - ES_CONNECT_RETRY=360
 
 volumes:
   user_data:

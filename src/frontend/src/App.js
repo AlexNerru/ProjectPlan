@@ -1,5 +1,5 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { HelmetProvider, Helmet } from "react-helmet-async";
 import DateFnsUtils from "@date-io/date-fns";
 
@@ -15,6 +15,8 @@ import {
 
 import createTheme from "./theme";
 import Routes from "./routes/Routes";
+import { getUserAction } from "./redux/auth/authActions";
+import Cookies from "universal-cookie";
 
 const jss = create({
   ...jssPreset(),
@@ -22,7 +24,26 @@ const jss = create({
 });
 
 function App() {
-  const theme = useSelector((state) => state.themeReducer);
+  const cookies = new Cookies();
+
+  const dispatch = useDispatch();
+
+  const theme = useSelector((state) => state.theme);
+
+  const token = useSelector((state) => {
+    if (state.auth.user.token !== undefined) {
+      cookies.set("token", state.auth.user.token, { path: "/" });
+      return state.auth.user.token;
+    } else {
+      return cookies.get("token");
+    }
+  });
+
+  useEffect(() => {
+    if (!window.location.href.includes("/auth/")) {
+      dispatch(getUserAction(token));
+    }
+  }, []);
 
   return (
     <React.Fragment>
