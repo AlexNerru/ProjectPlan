@@ -626,7 +626,7 @@ function Tasks() {
                           {resources.map((resource, index) => {
                             return (
                               <MenuItem key={resource.id} value={resource.id}>
-                                {resource.first_name + resource.last_name}
+                                {resource.first_name + " " + resource.last_name}
                               </MenuItem>
                             );
                           })}

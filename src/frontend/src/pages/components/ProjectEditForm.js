@@ -98,7 +98,6 @@ export const ProjectEditForm = (props) => {
                 onChange={handleChange}
                 my={2}
               />
-              <Divider my={6} />
               <TextField
                 name="description"
                 label="Description"

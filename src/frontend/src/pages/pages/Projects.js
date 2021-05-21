@@ -7,7 +7,7 @@ import { Helmet } from "react-helmet-async";
 import {
   Box,
   Breadcrumbs as MuiBreadcrumbs,
-  Button,
+  Button as MuiButton,
   Dialog,
   DialogContent,
   DialogContentText,
@@ -25,7 +25,7 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  TextField,
+  TextField as MuiTextField,
   Typography,
 } from "@material-ui/core";
 
@@ -50,6 +50,9 @@ import { ProjectEditForm } from "../components/ProjectEditForm";
 import { ArchiveForm } from "../components/AcrhiveForm";
 
 const Divider = styled(MuiDivider)(spacing);
+
+const TextField = styled(MuiTextField)(spacing);
+const Button = styled(MuiButton)(spacing);
 
 const Breadcrumbs = styled(MuiBreadcrumbs)(spacing);
 
@@ -401,7 +404,6 @@ function ProjectsList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
                       <TextField
                         name="description"
                         label="Description"
@@ -415,7 +417,6 @@ function ProjectsList() {
                         onChange={handleChange}
                         my={2}
                       />
-                      <Divider my={6} />
                       <Button
                         type="submit"
                         fullWidth
