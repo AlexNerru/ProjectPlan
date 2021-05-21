@@ -6,11 +6,15 @@ on:
     paths:
       - 'src/backend/user-service/**'
       - '.github/workflows/user-service-ci.yml'
+    tags:
+      - v*
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'src/backend/user-service/**'
       - '.github/workflows/user-service-ci.yml'
+    tags:
+      - v*
 
 env:
   IMAGE_NAME: projectplan_user-service

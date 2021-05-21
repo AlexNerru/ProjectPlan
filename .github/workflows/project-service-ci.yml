@@ -1,27 +1,27 @@
-name: task-service CI
+name: project-service CI
 
 on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'src/backend/task-service/**'
-      - '.github/workflows/task-service-ci.yml'
+      - 'src/backend/project-service/**'
+      - '.github/workflows/project-service-ci.yml'
     tags:
       - v*
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'src/backend/task-service/**'
-      - '.github/workflows/task-service-ci.yml'
+      - 'src/backend/project-service/**'
+      - '.github/workflows/project-service-ci.yml'
     tags:
       - v*
 
 env:
-  IMAGE_NAME: projectplan_task-service
+  IMAGE_NAME: projectplan_project-service
 
 defaults:
   run:
-    working-directory: './src/backend/task-service'
+    working-directory: './src/backend/project-service'
 
 jobs:
   build:
