@@ -2,7 +2,18 @@ import React from "react";
 
 import styled from "styled-components/macro";
 
-import { Card, CardContent, Typography } from "@material-ui/core";
+import {
+  Card,
+  CardContent,
+  Grid,
+  IconButton as MuiIconButton,
+  Typography,
+} from "@material-ui/core";
+import { Edit } from "react-feather";
+
+const IconButton = styled(MuiIconButton)`
+  padding: 0;
+`;
 
 const TaskWrapperContent = styled(CardContent)`
   position: relative;
@@ -43,7 +54,13 @@ const TaskPlannedFinishDate = styled(Typography)`
   margin-right: ${(props) => props.theme.spacing(10)}px;
 `;
 
-export function Task({ content, topTask = false }) {
+export function Task({
+  content,
+  setTaskToEdit,
+  setDialogEditOpen,
+  topTask = false,
+  isInTodo = false,
+}) {
   if (topTask) {
     return (
       <TopTaskWrapper mt={4}>
@@ -59,9 +76,22 @@ export function Task({ content, topTask = false }) {
   return (
     <TaskWrapper mt={4}>
       <TaskWrapperContent>
-        <TaskDescription variant="body1" gutterBottom>
-          Task#{content.id}
-        </TaskDescription>
+        <Grid justify="space-between" container>
+          <TaskDescription variant="body1" gutterBottom>
+            Task#{content.id}
+          </TaskDescription>
+          {isInTodo && (
+            <IconButton
+              aria-label="edit"
+              onClick={() => {
+                setTaskToEdit(content);
+                setDialogEditOpen(true);
+              }}
+            >
+              <Edit />
+            </IconButton>
+          )}
+        </Grid>
 
         <TaskTitle variant="body1" gutterBottom>
           {content.name}

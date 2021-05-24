@@ -62,6 +62,7 @@ import { getCostsAction, getWorkHoursAction } from "../../redux/charts/actions";
 
 import WorkHoursChart from "../charts/plotly/WorkHoursChart";
 import CostsChart from "../charts/plotly/CostsChart";
+import { TaskEditForm } from "../components/TaskEditForm";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -332,6 +333,9 @@ function Tasks() {
   const [open, setOpen] = React.useState(false);
   const [openFinishTask, setFinishTaskOpen] = React.useState(false);
 
+  const [dialogEditOpen, setDialogEditOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState();
+
   const onContainerReady = (container) => {
     containers.push(container);
   };
@@ -372,16 +376,11 @@ function Tasks() {
 
   useEffect(() => {
     const currentParams = getParams(window.location.href.slice(21));
-
-    if (resourceStatus === "idle") {
-      dispatch(getResourcesByProjectAction(token, currentParams["projectID"]));
-    }
+    dispatch(getResourcesByProjectAction(token, currentParams["projectID"]));
   }, []);
 
   useEffect(() => {
-    if (resourceStatus === "idle") {
-      dispatch(getResourcesAction(token));
-    }
+    dispatch(getResourcesAction(token));
   }, []);
 
   const dispatch = useDispatch();
@@ -713,6 +712,8 @@ function Tasks() {
                     name: "",
                     description: "",
                   }}
+                  setTaskToEdit={setTaskToEdit}
+                  setDialogEditOpen={setDialogEditOpen}
                   topTask={true}
                 />
               </div>
@@ -721,7 +722,15 @@ function Tasks() {
                   return task.status === 1;
                 })
                 .map((task, index) => {
-                  return <Task key={task.id} content={task} />;
+                  return (
+                    <Task
+                      key={task.id}
+                      content={task}
+                      setTaskToEdit={setTaskToEdit}
+                      setDialogEditOpen={setDialogEditOpen}
+                      isInTodo={true}
+                    />
+                  );
                 })}
             </Lane>
           </div>
@@ -740,6 +749,8 @@ function Tasks() {
                     name: "",
                     description: "",
                   }}
+                  setTaskToEdit={setTaskToEdit}
+                  setDialogEditOpen={setDialogEditOpen}
                   topTask={true}
                 />
               </div>
@@ -748,7 +759,14 @@ function Tasks() {
                   return task.status === 2;
                 })
                 .map((task, index) => {
-                  return <Task key={task.id} content={task} />;
+                  return (
+                    <Task
+                      key={task.id}
+                      content={task}
+                      setTaskToEdit={setTaskToEdit}
+                      setDialogEditOpen={setDialogEditOpen}
+                    />
+                  );
                 })}
             </Lane>
           </div>
@@ -767,6 +785,8 @@ function Tasks() {
                     name: "",
                     description: "",
                   }}
+                  setTaskToEdit={setTaskToEdit}
+                  setDialogEditOpen={setDialogEditOpen}
                   topTask={true}
                 />
               </div>
@@ -775,7 +795,14 @@ function Tasks() {
                   return task.status === 3;
                 })
                 .map((task, index) => {
-                  return <Task key={task.id} content={task} />;
+                  return (
+                    <Task
+                      key={task.id}
+                      content={task}
+                      setTaskToEdit={setTaskToEdit}
+                      setDialogEditOpen={setDialogEditOpen}
+                    />
+                  );
                 })}
             </Lane>
           </div>
@@ -889,6 +916,12 @@ function Tasks() {
           </Formik>
         </DialogContent>
       </Dialog>
+      <TaskEditForm
+        token={token}
+        isOpen={dialogEditOpen}
+        getTask={() => taskToEdit}
+        closeDialog={() => setDialogEditOpen(false)}
+      />
     </React.Fragment>
   );
 }
