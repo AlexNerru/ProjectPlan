@@ -56,6 +56,8 @@ import {
   getSkillsAction,
   getSkillsLevelAction,
 } from "../../redux/charts/actions";
+import { ResourceEditForm } from "../components/ResourceEditForm";
+import { Edit } from "react-feather";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -185,6 +187,9 @@ function EnhancedTable() {
   const [dialogArchiveOpen, setDialogArchiveOpen] = useState(false);
   const [resourceToArchive, setResourceToArchive] = useState();
 
+  const [dialogEditOpen, setDialogEditOpen] = useState(false);
+  const [resourceToEdit, setResourceToEdit] = useState();
+
   const dispatch = useDispatch();
   const resources = useSelector((state) => state.resources.resources);
 
@@ -273,6 +278,15 @@ function EnhancedTable() {
                       <TableCell padding="none" align="right">
                         <Box mr={2}>
                           <IconButton
+                            aria-label="edit"
+                            onClick={() => {
+                              setResourceToEdit(row);
+                              setDialogEditOpen(true);
+                            }}
+                          >
+                            <Edit />
+                          </IconButton>
+                          <IconButton
                             aria-label="delete"
                             onClick={() => {
                               setResourceToArchive({
@@ -307,6 +321,12 @@ function EnhancedTable() {
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
+      <ResourceEditForm
+        token={token}
+        isOpen={dialogEditOpen}
+        getResource={() => resourceToEdit}
+        closeDialog={() => setDialogEditOpen(false)}
+      />
       <ArchiveForm
         token={token}
         isOpen={dialogArchiveOpen}

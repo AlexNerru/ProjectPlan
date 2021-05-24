@@ -229,7 +229,7 @@ function ProjectsTable() {
                             <RemoveRedEyeIcon />
                           </IconButton>
                           <IconButton
-                            aria-label="details"
+                            aria-label="edit"
                             onClick={() => {
                               setProjectToEdit(row);
                               setDialogEditOpen(true);

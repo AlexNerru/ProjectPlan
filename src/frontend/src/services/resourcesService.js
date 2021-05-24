@@ -60,6 +60,26 @@ export function postResource(token, data) {
   });
 }
 
+export function patchResource(token, id, data) {
+  return new Promise((resolve, reject) => {
+    axios
+      .patch("http://127.0.0.1:8003/api/v1/resources/" + id + "/", data, {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response.data);
+        }
+        reject(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
 export function deleteResource(token, id) {
   return new Promise((resolve, reject) => {
     axios
