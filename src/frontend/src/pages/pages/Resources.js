@@ -323,7 +323,7 @@ function EnhancedTable() {
       <ResourceEditForm
         token={token}
         isOpen={dialogEditOpen}
-        getTask={() => resourceToEdit}
+        getResource={() => resourceToEdit}
         closeDialog={() => setDialogEditOpen(false)}
       />
       <ArchiveForm

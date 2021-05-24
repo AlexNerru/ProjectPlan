@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import styled from "styled-components/macro";
 
 import {
+  Box,
   Card,
   CardContent,
   Grid,
@@ -10,6 +11,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Edit } from "react-feather";
+import { Archive as ArchiveIcon } from "@material-ui/icons";
 
 const IconButton = styled(MuiIconButton)`
   padding: 0;
@@ -58,9 +60,24 @@ export function Task({
   content,
   setTaskToEdit,
   setDialogEditOpen,
+  setTaskToArchive,
+  setDialogArchiveOpen,
+  movedTarget,
   topTask = false,
   isInTodo = false,
 }) {
+  let isTarget = true;
+
+  if (movedTarget && movedTarget instanceof Function) {
+    const el = movedTarget();
+    if (el) {
+      const target_div = el.parentElement.parentElement.parentElement.id;
+      if (target_div === "progress_div") {
+        isTarget = false;
+      }
+    }
+  }
+
   if (topTask) {
     return (
       <TopTaskWrapper mt={4}>
@@ -80,16 +97,27 @@ export function Task({
           <TaskDescription variant="body1" gutterBottom>
             Task#{content.id}
           </TaskDescription>
-          {isInTodo && (
-            <IconButton
-              aria-label="edit"
-              onClick={() => {
-                setTaskToEdit(content);
-                setDialogEditOpen(true);
-              }}
-            >
-              <Edit />
-            </IconButton>
+          {isInTodo && isTarget && (
+            <Box mr={2}>
+              <IconButton
+                aria-label="edit"
+                onClick={() => {
+                  setTaskToEdit(content);
+                  setDialogEditOpen(true);
+                }}
+              >
+                <Edit />
+              </IconButton>
+              <IconButton
+                aria-label="delete"
+                onClick={() => {
+                  setTaskToArchive({ data: content, type: "task" });
+                  setDialogArchiveOpen(true);
+                }}
+              >
+                <ArchiveIcon />
+              </IconButton>
+            </Box>
           )}
         </Grid>
 
