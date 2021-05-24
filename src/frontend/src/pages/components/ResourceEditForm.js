@@ -12,7 +12,6 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { Alert } from "@material-ui/lab";
 import React from "react";
-import { patchProjectsAction } from "../../redux/projects/actions";
 import { useDispatch } from "react-redux";
 import styled from "styled-components/macro";
 import { spacing } from "@material-ui/system";
@@ -33,8 +32,6 @@ export const ResourceEditForm = (props) => {
   ) => {
     try {
       setSubmitting(true);
-
-      console.log(values);
 
       dispatch(patchResourceAction(token, resource.id, values));
 

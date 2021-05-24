@@ -1,8 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import styled from "styled-components/macro";
 
-import { Card, CardContent, Typography } from "@material-ui/core";
+import {
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  IconButton as MuiIconButton,
+  Typography,
+} from "@material-ui/core";
+import { Edit } from "react-feather";
+import { Archive as ArchiveIcon } from "@material-ui/icons";
+
+const IconButton = styled(MuiIconButton)`
+  padding: 0;
+`;
 
 const TaskWrapperContent = styled(CardContent)`
   position: relative;
@@ -43,7 +56,28 @@ const TaskPlannedFinishDate = styled(Typography)`
   margin-right: ${(props) => props.theme.spacing(10)}px;
 `;
 
-export function Task({ content, topTask = false }) {
+export function Task({
+  content,
+  setTaskToEdit,
+  setDialogEditOpen,
+  setTaskToArchive,
+  setDialogArchiveOpen,
+  movedTarget,
+  topTask = false,
+  isInTodo = false,
+}) {
+  let isTarget = true;
+
+  if (movedTarget && movedTarget instanceof Function) {
+    const el = movedTarget();
+    if (el) {
+      const target_div = el.parentElement.parentElement.parentElement.id;
+      if (target_div === "progress_div") {
+        isTarget = false;
+      }
+    }
+  }
+
   if (topTask) {
     return (
       <TopTaskWrapper mt={4}>
@@ -59,9 +93,33 @@ export function Task({ content, topTask = false }) {
   return (
     <TaskWrapper mt={4}>
       <TaskWrapperContent>
-        <TaskDescription variant="body1" gutterBottom>
-          Task#{content.id}
-        </TaskDescription>
+        <Grid justify="space-between" container>
+          <TaskDescription variant="body1" gutterBottom>
+            Task#{content.id}
+          </TaskDescription>
+          {isInTodo && isTarget && (
+            <Box mr={2}>
+              <IconButton
+                aria-label="edit"
+                onClick={() => {
+                  setTaskToEdit(content);
+                  setDialogEditOpen(true);
+                }}
+              >
+                <Edit />
+              </IconButton>
+              <IconButton
+                aria-label="delete"
+                onClick={() => {
+                  setTaskToArchive({ data: content, type: "task" });
+                  setDialogArchiveOpen(true);
+                }}
+              >
+                <ArchiveIcon />
+              </IconButton>
+            </Box>
+          )}
+        </Grid>
 
         <TaskTitle variant="body1" gutterBottom>
           {content.name}

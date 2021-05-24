@@ -16,6 +16,11 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { Alert } from "@material-ui/lab";
 import { deleteResourcesAction } from "../../redux/resources/resourcesActions";
+import {
+  deleteTasksAction,
+  getTasksByProjectAction,
+} from "../../redux/tasks/tasksActions";
+import { getParams } from "../../routes/Routes";
 
 const Paper = styled(MuiPaper)(spacing);
 
@@ -45,6 +50,14 @@ export const ArchiveForm = (props) => {
 
       if (archiveType === "resource") {
         dispatch(deleteResourcesAction(token, obj.data.id));
+      }
+
+      if (archiveType === "task") {
+        dispatch(deleteTasksAction(token, obj.data.id));
+        setTimeout(() => {
+          const currentParams = getParams(window.location.href.slice(21));
+          dispatch(getTasksByProjectAction(token, currentParams["projectID"]));
+        }, 500);
       }
 
       setStatus({ sent: true });

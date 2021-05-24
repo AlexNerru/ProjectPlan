@@ -61,7 +61,6 @@ export function postTask(token, user, project, data) {
       })
       .then((response) => {
         if (response.status === 201) {
-          console.log(response);
           resolve(response.data);
         }
         reject(response.data);

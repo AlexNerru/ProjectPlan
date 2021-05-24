@@ -62,6 +62,8 @@ import { getCostsAction, getWorkHoursAction } from "../../redux/charts/actions";
 
 import WorkHoursChart from "../charts/plotly/WorkHoursChart";
 import CostsChart from "../charts/plotly/CostsChart";
+import { TaskEditForm } from "../components/TaskEditForm";
+import { ArchiveForm } from "../components/AcrhiveForm";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -327,10 +329,17 @@ function Tasks() {
 
   const [sourceOnDrop, setSource] = React.useState();
   const [elOnDrop, setEl] = React.useState();
+  const [elTarget, setElTarget] = React.useState();
   const [projectID, setProjectID] = useState();
 
   const [open, setOpen] = React.useState(false);
   const [openFinishTask, setFinishTaskOpen] = React.useState(false);
+
+  const [dialogEditOpen, setDialogEditOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState();
+
+  const [dialogArchiveOpen, setDialogArchiveOpen] = useState(false);
+  const [taskToArchive, setTaskToArchive] = useState();
 
   const onContainerReady = (container) => {
     containers.push(container);
@@ -365,23 +374,18 @@ function Tasks() {
         setEl(el);
       }
       if (target_div === "progress_div" && source_div === "todo_div") {
-        handleSwitchToProgress(source, el);
+        handleSwitchToProgress(source, el, target);
       }
     });
   }, []);
 
   useEffect(() => {
     const currentParams = getParams(window.location.href.slice(21));
-
-    if (resourceStatus === "idle") {
-      dispatch(getResourcesByProjectAction(token, currentParams["projectID"]));
-    }
+    dispatch(getResourcesByProjectAction(token, currentParams["projectID"]));
   }, []);
 
   useEffect(() => {
-    if (resourceStatus === "idle") {
-      dispatch(getResourcesAction(token));
-    }
+    dispatch(getResourcesAction(token));
   }, []);
 
   const dispatch = useDispatch();
@@ -446,7 +450,8 @@ function Tasks() {
       setFinishTaskOpen(false);
       setSubmitting(true);
 
-      const taskId = elOnDrop.childNodes[0].childNodes[0].childNodes[1].data;
+      const taskId =
+        elOnDrop.childNodes[0].childNodes[0].childNodes[0].childNodes[1].data;
 
       dispatch(patchTasksAction(token, taskId, 3, values));
 
@@ -468,14 +473,16 @@ function Tasks() {
     }
   };
 
-  const handleSwitchToProgress = (source, el) => {
-    const taskId = el.childNodes[0].childNodes[0].childNodes[1].data;
+  const handleSwitchToProgress = (source, el, target) => {
+    const taskId =
+      el.childNodes[0].childNodes[0].childNodes[0].childNodes[1].data;
 
     dispatch(
       patchTasksAction(token, taskId, 2, {
         fact_start_date: new Date().toISOString().split("T")[0],
       })
     );
+    setElTarget(target);
   };
 
   const handleCancel = () => {
@@ -713,6 +720,8 @@ function Tasks() {
                     name: "",
                     description: "",
                   }}
+                  setTaskToEdit={setTaskToEdit}
+                  setDialogEditOpen={setDialogEditOpen}
                   topTask={true}
                 />
               </div>
@@ -721,7 +730,18 @@ function Tasks() {
                   return task.status === 1;
                 })
                 .map((task, index) => {
-                  return <Task key={task.id} content={task} />;
+                  return (
+                    <Task
+                      key={task.id}
+                      content={task}
+                      setTaskToEdit={setTaskToEdit}
+                      setDialogEditOpen={setDialogEditOpen}
+                      setTaskToArchive={setTaskToArchive}
+                      setDialogArchiveOpen={setDialogArchiveOpen}
+                      isInTodo={true}
+                      movedTarget={() => elTarget}
+                    />
+                  );
                 })}
             </Lane>
           </div>
@@ -740,6 +760,8 @@ function Tasks() {
                     name: "",
                     description: "",
                   }}
+                  setTaskToEdit={setTaskToEdit}
+                  setDialogEditOpen={setDialogEditOpen}
                   topTask={true}
                 />
               </div>
@@ -748,7 +770,14 @@ function Tasks() {
                   return task.status === 2;
                 })
                 .map((task, index) => {
-                  return <Task key={task.id} content={task} />;
+                  return (
+                    <Task
+                      key={task.id}
+                      content={task}
+                      setTaskToEdit={setTaskToEdit}
+                      setDialogEditOpen={setDialogEditOpen}
+                    />
+                  );
                 })}
             </Lane>
           </div>
@@ -767,6 +796,8 @@ function Tasks() {
                     name: "",
                     description: "",
                   }}
+                  setTaskToEdit={setTaskToEdit}
+                  setDialogEditOpen={setDialogEditOpen}
                   topTask={true}
                 />
               </div>
@@ -775,7 +806,14 @@ function Tasks() {
                   return task.status === 3;
                 })
                 .map((task, index) => {
-                  return <Task key={task.id} content={task} />;
+                  return (
+                    <Task
+                      key={task.id}
+                      content={task}
+                      setTaskToEdit={setTaskToEdit}
+                      setDialogEditOpen={setDialogEditOpen}
+                    />
+                  );
                 })}
             </Lane>
           </div>
@@ -889,6 +927,18 @@ function Tasks() {
           </Formik>
         </DialogContent>
       </Dialog>
+      <TaskEditForm
+        token={token}
+        isOpen={dialogEditOpen}
+        getTask={() => taskToEdit}
+        closeDialog={() => setDialogEditOpen(false)}
+      />
+      <ArchiveForm
+        token={token}
+        isOpen={dialogArchiveOpen}
+        getObject={() => taskToArchive}
+        closeDialog={() => setDialogArchiveOpen(false)}
+      />
     </React.Fragment>
   );
 }

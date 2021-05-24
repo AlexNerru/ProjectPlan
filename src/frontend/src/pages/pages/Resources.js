@@ -49,7 +49,6 @@ import { Formik } from "formik";
 import { Alert } from "@material-ui/lab";
 import Cookies from "universal-cookie";
 import { ArchiveForm } from "../components/AcrhiveForm";
-import WorkHoursChart from "../charts/plotly/WorkHoursChart";
 import ResourcesLevelChart from "../charts/plotly/ResourcesLevelChart";
 import SkillsChart from "../charts/plotly/SkillsChart";
 import {
