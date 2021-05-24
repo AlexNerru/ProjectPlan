@@ -26,6 +26,17 @@ export default function reducer(state = initialState, actions) {
         resources: [...state.resources, actions.resources],
       };
 
+    case types.RESOURCES_PATCH_SUCCESS:
+      return {
+        ...state,
+        resources: [
+          ...state.resources.filter(function (resource) {
+            return resource.id !== actions.resource.id;
+          }),
+          actions.resource,
+        ],
+      };
+
     case types.RESOURCES_DELETE_SUCCESS:
       return {
         ...state,

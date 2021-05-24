@@ -3,6 +3,7 @@ import {
   deleteResource,
   getResources,
   getResourcesByProject,
+  patchResource,
   postResource,
 } from "../../services/resourcesService";
 
@@ -55,6 +56,24 @@ export function addResourceAction(token, data) {
       })
       .catch((error) => {
         dispatch({ type: types.RESOURCES_ADD_FAILURE });
+        throw error;
+      });
+  };
+}
+
+export function patchResourceAction(token, id, data) {
+  return async (dispatch) => {
+    dispatch({ type: types.RESOURCES_PATCH_REQUEST });
+
+    return patchResource(token, id, data)
+      .then((response) => {
+        dispatch({
+          type: types.RESOURCES_PATCH_SUCCESS,
+          resource: response,
+        });
+      })
+      .catch((error) => {
+        dispatch({ type: types.RESOURCES_PATCH_FAILURE });
         throw error;
       });
   };
